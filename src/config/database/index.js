@@ -6,12 +6,12 @@ const { PostgresDialect } = require('@sequelize/postgres');
 
 const sequelize = new Sequelize({
     dialect: PostgresDialect,
-    database: 'tvv_store',
-    user: 'tvv_store_user',
-    password: 'lAp4dkFJwdcKakkqJYjTKo1qLtAvYtxX',
-    host: 'dpg-ct3a0odumphs73dqa3ng-a.oregon-postgres.render.com',
-    port: 5432,
-    ssl: true,
+    database: process.env.DATABASE_NAME,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    host: process.env.DATABASE_HOST,
+    port: process.env.DATABASE_PORT,
+    ssl: process.env.DATABASE_SSL === 'true',
     clientMinMessages: 'notice',
 });
 
@@ -19,6 +19,8 @@ async function connect() {
     try {
         await sequelize.authenticate();
         console.log('Connect to database successfully.');
+        await sequelize.sync({ force: true });
+        console.log('Database synchronized successfully.');
     } catch (error) {
         console.error('Connect failure!!!', error);
     }
