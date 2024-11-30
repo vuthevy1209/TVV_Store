@@ -1,5 +1,8 @@
-import { Sequelize } from '@sequelize/core';
-import { PostgresDialect } from '@sequelize/postgres';
+// import { Sequelize } from '@sequelize/core';
+// import { PostgresDialect } from '@sequelize/postgres';
+
+const { Sequelize } = require('@sequelize/core');
+const { PostgresDialect } = require('@sequelize/postgres');
 
 const sequelize = new Sequelize({
     dialect: PostgresDialect,
@@ -21,4 +24,4 @@ async function connect() {
     }
 }
 
-export { sequelize, connect };
+module.exports =  { sequelize, connect };
