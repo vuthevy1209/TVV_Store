@@ -4,8 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes');
-var usersRouter = require('./routes/users');
+
+
+
 
 
 var app = express();
@@ -21,20 +22,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// app.use(function(req, res, next) {
+//   next(createError(404));
+// });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+// app.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
 
 // passport
 const passport = require('./config/auth/passport');
@@ -70,6 +71,11 @@ const {connect} = require("./config/database");
 connect();
 
 
+// flash
+const flash = require('connect-flash');
+app.use(flash());
+
+
 // view
 const hbsHelpers = require('handlebars-helpers');
 const { engine } = require('express-handlebars');
@@ -102,13 +108,23 @@ app.engine('hbs', exphbs.engine({
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+app.use(function(req, res, next) {
+    res.locals.user = req.user || null; // Attach `req.user` to `res.locals.user`
+    next();
+});
+
 // routes
 const authRouter = require('./modules/auth/routes/auth.routes');
 app.use('/auth', authRouter);
 
+// Catch-all for 404 errors
+app.use((req, res) => {
+    res.status(404).render('404', { title: 'Page Not Found' });
+});
+
 
 // port
-const port = 3000;
+const port = 3001;
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
 });

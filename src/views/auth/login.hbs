@@ -1,0 +1,17 @@
+<form action="/auth/login" method="POST">
+    {{#if error}}
+    <div class="error-message">Invalid username or password!</div>
+    {{/if}}
+
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Login</button>
+
+    <small>Don't have an account? <a href="/auth/register">Sign up</a></small>
+</form>
+
+<link rel="stylesheet" href="/css/login.css">

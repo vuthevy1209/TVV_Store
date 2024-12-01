@@ -1,0 +1,113 @@
+.brand {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	background-color: #007bff;
+	color: #fff;
+	padding: 5px 10px;
+	font-size: 0.9rem;
+	font-weight: bold;
+	border-radius: 8px;
+	z-index: 2;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card container */
+.card {
+	width: 100%;
+	height: 280px;
+	border: 1px solid #ddd;
+	border-radius: 15px;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	background-color: #f8f9fa;
+}
+
+.card:hover {
+	transform: translateY(-10px);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover .card-title,
+.card:hover .card-price {
+	color: #007bff;
+}
+
+/* Image container with fixed height */
+.product-image {
+	width: 100%;
+	height: 150px;
+	overflow: hidden;
+	position: relative;
+}
+
+.product-image img {
+	width: 100%;
+	object-fit: cover;
+}
+
+/* Card body */
+.card .card-body {
+	padding: 20px;
+	text-align: center;
+	width: 100%;
+}
+
+.card .card-title {
+	font-size: 1.2rem;
+	font-weight: bold;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.card .card-price {
+	font-size: 1.1rem;
+	color: #333;
+}
+
+/* Hover transition */
+.card .card-title,
+.card .card-price {
+	transition: color 0.3s ease;
+}
+
+.btn-box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	margin-top: 45px;
+}
+
+.btn-box a {
+	display: inline-block;
+	padding: 10px 40px;
+	background-color: #f7444e;
+	border: 1px solid #f7444e;
+	color: #ffffff;
+	border-radius: 0;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+.btn-box a:hover {
+	background-color: transparent;
+	color: #f7444e;
+}
+
+.discount {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 1;
+}
