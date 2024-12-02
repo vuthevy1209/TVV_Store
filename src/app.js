@@ -8,15 +8,14 @@ var logger = require('morgan');
 var app = express();
 require('dotenv').config(); // load the env variables
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'hbs');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// Connect to database
+const {connect} = require("./config/database");
+connect();
 
 
 // passport
@@ -37,7 +36,8 @@ app.use(session({
     },
     // store: new SequelizeStore({
     //     db: sequelize,
-    //     tableName: 'Session',
+    //     table: Session,
+    //     // tableName: 'Session',
     //     checkExpirationInterval: parseInt(process.env.SESSION_EXPIRATION_INTERVAL, 10),
     //     expiration: parseInt(process.env.SESSION_EXPIRATION, 10)
     // }),
@@ -45,12 +45,6 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
-
-
-
-// Connect to database
-const {connect} = require("./config/database");
-connect();
 
 
 // flash
@@ -89,11 +83,6 @@ app.engine('hbs', exphbs.engine({
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-app.use(function(req, res, next) {
-    res.locals.user = req.user || null; // Attach `req.user` to `res.locals.user`
-    next();
-});
 
 // Global variables
 app.use((req, res, next) => {
