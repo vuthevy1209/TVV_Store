@@ -24,5 +24,7 @@ const Role = sequelize.define('Role', {
 
 // Define the association
 // Role.hasMany(User, { as: 'users' });
+// Role.hasMany(User, { foreignKey: 'role_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+
 
 module.exports = Role;
