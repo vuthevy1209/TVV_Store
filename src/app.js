@@ -5,10 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 
-
-
-
-
 var app = express();
 require('dotenv').config(); // load the env variables
 
@@ -21,21 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
 
-// error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
 
 // passport
 const passport = require('./config/auth/passport');
@@ -113,14 +95,40 @@ app.use(function(req, res, next) {
     next();
 });
 
+// Global variables
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
+
 // routes
 const authRouter = require('./modules/auth/routes/auth.routes');
 app.use('/auth', authRouter);
+
+// error handler
+app.use((err, req, res, next) =>  {
+    console.log(err.stack)
+    if (res.headersSent) {
+        return next(err)
+    }
+    res.status(500)
+    res.render('error', { error: err })
+});
 
 // Catch-all for 404 errors
 app.use((req, res) => {
     res.status(404).render('404', { title: 'Page Not Found' });
 });
+
+
+// catch 404 and forward to error handler
+// app.use(function(req, res, next) {
+//   next(createError(404));
+// });
+
+
 
 
 // port

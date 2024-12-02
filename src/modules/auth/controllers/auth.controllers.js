@@ -15,7 +15,7 @@ class AuthController {
     async login(req, res, next) {
         passport.authenticate('local', {
             successRedirect: '/home',
-            failureRedirect: '/login',
+            failureRedirect: '/auth/login',
             failureFlash: true // Enable flash messages for login failure
         })(req, res, next);
     }
@@ -27,13 +27,28 @@ class AuthController {
 
     // [POST] /register
     async register(req, res) {
-        try {
-            await userService.createUser(req.body);
-            res.redirect('/login');
-        } catch (error) {
-            console.log(error);
-            return res.status(500).send('An error occurred');
+        // try {
+        //     await userService.createUser(req.body);
+        //     res.redirect('/auth/login');
+        // } catch (error) {
+        //     console.log(error);
+        //     return res.status(500).send('An error occurred');
+        // }
+        const result = await userService.createUser(req.body);;
+        if(result.error) {
+            return res.status(400).render('auth/register', {
+                layout: 'auth',
+                title: 'Register',
+                fail: true,
+                message: result.error,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                username: req.body.username,
+                email: req.body.email
+            });
         }
+        res.redirect('/auth/login');
+        //return { success: true, user: result };
     }
 
     // [GET] /logout

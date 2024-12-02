@@ -17,17 +17,9 @@ const Role = sequelize.define('Role', {
     description: {
         type: DataTypes.TEXT,
     },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-    modified_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
 }, {
     tableName: 'roles',
-    timestamps: false,
+    timestamps: true,
 });
 
 // Define the association

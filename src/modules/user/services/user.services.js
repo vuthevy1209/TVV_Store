@@ -23,7 +23,20 @@ class UserServices {
     // create a new user
     async createUser(userData) {
         try {
-            const { username, password, email, first_name, last_name } = userData;
+            const { username, password, email, firstName, lastName } = userData;
+
+            // Check if username is already taken
+            const existingUserByUsername = await User.findOne({ where: { username } });
+            if (existingUserByUsername) {
+                throw new Error('Username is already taken');
+            }
+
+            // Check if email is already taken
+            const existingUserByEmail = await User.findOne({ where: { email } });
+            if (existingUserByEmail) {
+                throw new Error('Email is already taken');
+            }
+
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -31,12 +44,14 @@ class UserServices {
                 username,
                 email,
                 password: hashedPassword,
-                first_name,
-                last_name,
+                first_name: firstName,
+                last_name: lastName,
             });
-        } catch (error) {
+        }
+        catch(error) {
             return { error: error.message };
         }
+
     }
 
     // find user by id

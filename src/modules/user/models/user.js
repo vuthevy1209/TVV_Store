@@ -34,23 +34,14 @@ const User = sequelize.define('User', {
         unique: true,
         allowNull: false,
     },
-    // role_id: {
-    //     type: DataTypes.INTEGER,
-    //     allowNull: false,
-    //     defaultValue: 'user',
-    //     references: {
-    //         model: 'roles',
-    //         key: 'id',
-    //     },
-    //
-    // },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-    modified_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+    role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 2,
+        references: {
+            model: Role,
+            key: 'id',
+        },
     },
     status: {
         type: DataTypes.BOOLEAN,
@@ -64,7 +55,7 @@ const User = sequelize.define('User', {
     },
 }, {
     tableName: 'users',
-    timestamps: false,
+    timestamps: true,
 });
 
 // Define the association

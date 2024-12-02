@@ -21,8 +21,8 @@ const validateRegistration = [
             }
             return true;
         }),
-    body('first_name').notEmpty().withMessage('First name is required'),
-    body('last_name').notEmpty().withMessage('Last name is required'),
+    body('firstName').notEmpty().withMessage('First name is required'),
+    body('lastName').notEmpty().withMessage('Last name is required'),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -31,6 +31,8 @@ const validateRegistration = [
                 title: 'Register',
                 fail: true,
                 message: errors.array().map(error => error.msg).join(', '),
+                first_name: req.body.firstName,
+                last_name: req.body.lastName,
                 username: req.body.username,
                 email: req.body.email
             });
