@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@sequelize/core": "^7.0.0-alpha.43",
     "@sequelize/postgres": "^7.0.0-alpha.43",
