@@ -10,8 +10,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="image">
-                        {{#if (gt productObject.sale 0)}}
-                        <span class="discount">{{productObject.sale}}% off</span>
+                        {{#if (gt productObject.discount 0)}}
+                        <span class="discount">{{productObject.discount}}% off</span>
                         {{/if}}
                         <img src="{{productObject.image_urls.[0]}}" alt="Product Image" class="product-img">
                     </div>
