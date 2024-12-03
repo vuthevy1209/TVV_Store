@@ -1,5 +1,5 @@
 // src/modules/product/services/productService.js
-const Product = require('../models/Product');
+const Product = require('../models/product');
 const ProductCategory = require('../models/productCategory');
 const ProductBrand = require('../models/productBrand');
 const {Op} = require("sequelize");
