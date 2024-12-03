@@ -1,4 +1,4 @@
-<!-- src/views/product/Products.hbs -->
+<!-- src/views/product/products.hbs -->
 <form id="searchForm" class="" method="GET" action="/products/search">
     <div class="container mt-3 mb-3">
         <div class="row">
@@ -111,11 +111,11 @@
                     <div class="row pl-4 pr-4 mt-3">
                         {{#each productList}}
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="/products/{{this.slug}}" style="text-decoration: none;">
+                            <a href="/products/{{this.id}}" style="text-decoration: none;">
                                 <div class="card">
-                                    <div class="brand">{{this.brand}}</div>
+                                    <div class="brand">{{this.productBrand.name}}</div>
                                     <div class="product-image">
-                                        <img src="{{this.image}}" alt="Product" />
+                                        <img src="{{this.image_urls.[0]}}" alt="Product" />
                                     </div>
                                     <div class="card-body">
                                         {{#if (gt this.sale 0)}}

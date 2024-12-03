@@ -1,7 +1,6 @@
 // src/modules/product/models/productBrand.js
 const { DataTypes } = require('@sequelize/core');
 const { sequelize } = require('../../../config/database');
-const Product = require('./product');
 
 const ProductBrand = sequelize.define('ProductBrand', {
     id: {
@@ -23,7 +22,9 @@ const ProductBrand = sequelize.define('ProductBrand', {
     }
 }, {
     tableName: 'product_brands',
-    timestamps: true
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 // Define the association

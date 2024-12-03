@@ -52,7 +52,9 @@ const Product = sequelize.define('Product', {
     }
 }, {
     tableName: 'products',
-    timestamps: true
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 /// Define associations with ON DELETE and ON UPDATE cascade

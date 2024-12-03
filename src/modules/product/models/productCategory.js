@@ -1,6 +1,5 @@
 const { DataTypes } = require('@sequelize/core');
 const { sequelize } = require('../../../config/database');
-const Product = require('./product');
 
 const ProductCategory = sequelize.define('ProductCategory', {
     id: {
@@ -22,7 +21,9 @@ const ProductCategory = sequelize.define('ProductCategory', {
     }
 }, {
     tableName: 'product_categories',
-    timestamps: true
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 // Define the association

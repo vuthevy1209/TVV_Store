@@ -1,6 +1,6 @@
 <div class="heading_container heading_center mt-4">
     <h2 style="color: rgb(230, 28, 28);">
-        {{product.name}}
+        {{productObject.name}}
     </h2>
 </div>
 
@@ -10,19 +10,19 @@
             <div class="row">
                 <div class="col-12">
                     <div class="image">
-                        {{#if (gt product.sale 0)}}
-                        <span class="discount">{{product.sale}}% off</span>
+                        {{#if (gt productObject.sale 0)}}
+                        <span class="discount">{{productObject.sale}}% off</span>
                         {{/if}}
-                        <img src="{{product.image}}" alt="Product Image" class="product-img">
+                        <img src="{{productObject.image_urls.[0]}}" alt="Product Image" class="product-img">
                     </div>
                 </div>
                 <div class="col-12 mt-4">
                     <div class="row">
                         <div class="col-6">
-                            <h2 class="product-title text-center">{{product.name}}</h2>
+                            <h2 class="product-title text-center">{{productObject.name}}</h2>
                         </div>
                         <div class="col-6">
-                            <h3 class="product-price text-center">Price: ${{product.price}}</h3>
+                            <h3 class="product-price text-center">Price: ${{productObject.price}}</h3>
                         </div>
                     </div>
                 </div>
@@ -30,17 +30,17 @@
         </div>
         <div class="col-lg-6 col-md-12 mb-4">
             <div class="product-description">
-                <p><span>Description: </span>{{product.description}}</p>
+                <p><span>Description: </span>{{productObject.desc}}</p>
             </div>
 
             <div class="product-details">
                 <p><span>Brand: </span>
                     <span class="brand">
-                        {{product.brand}}
+                        {{productObject.productBrand.name}}
                     </span>
                 </p>
-                <p><span>Inventory Quantity: </span> {{product.inventory_quantity}} products</p>
-                <p><span>Category: </span>{{product.category}}</p>
+                <p><span>Inventory Quantity: </span> {{productObject.inventory_quantity}} products</p>
+                <p><span>Category: </span>{{productObject.productCategory.name}}</p>
 <!--                <p><span>Ngày thêm sản phẩm: </span> 15/10/2024</p>-->
                 <p class="rating"><span>Rating: </span> ★★★★☆ (4/5)</p>
             </div>
@@ -74,26 +74,37 @@
 <div class="container mt-4 mb-5">
     <h3>Other Images:</h3>
     <div class="row">
-        <div class="col-lg-3 col-md-6">
-            <div class="image--other">
-                <img src="{{product.image}}" alt="Product Image" class="product-img">
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="image--other">
-                <img src="{{product.image}}" alt="Product Image" class="product-img">
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="image--other">
-                <img src="{{product.image}}" alt="Product Image" class="product-img">
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="image--other">
-                <img src="{{product.image}}" alt="Product Image" class="product-img">
-            </div>
-        </div>
+        {{#each productObject.image_urls}}
+            {{#if (and (gt @index 0) (lt @index 5))}}
+                {{#if this}}
+                    <div class="col-lg-3 col-md-6">
+                        <div class="image--other">
+                            <img src="{{this}}" alt="Product Image" class="product-img">
+                        </div>
+                    </div>
+                {{/if}}
+            {{/if}}
+        {{/each}}
+<!--        <div class="col-lg-3 col-md-6">-->
+<!--            <div class="image--other">-->
+<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-lg-3 col-md-6">-->
+<!--            <div class="image--other">-->
+<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-lg-3 col-md-6">-->
+<!--            <div class="image--other">-->
+<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-lg-3 col-md-6">-->
+<!--            <div class="image--other">-->
+<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
+<!--            </div>-->
+<!--        </div>-->
 
     </div>
 </div>
@@ -104,9 +115,9 @@
     <div class="row">
         {{#each relatedProductList}}
         <div class="col-lg-3 col-md-6 mb-3">
-            <a href="/products/{{this.slug}}" style="text-decoration: none;">
+            <a href="/products/{{this.id}}" style="text-decoration: none;">
                 <div class="image--other">
-                    <img src="{{this.image}}" alt="Product Image" class="product-img">
+                    <img src="{{this.image_urls.[0]}}" alt="Product Image" class="product-img">
                 </div>
                 <div class="detail-box">
                     <h5 class="text-center" style="color: black;">

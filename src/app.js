@@ -51,34 +51,57 @@ app.use(passport.authenticate('session'));
 const flash = require('connect-flash');
 app.use(flash());
 
-
 // view
 const hbsHelpers = require('handlebars-helpers');
 const { engine } = require('express-handlebars');
-const exphbs = require('express-handlebars'); // Add this line
 
 const hbs = engine({
     extname: '.hbs',
-    helpers: hbsHelpers(),
+    helpers: {
+        ...hbsHelpers(),
+        includes: function(array, value) {
+            return array && array.includes(value);
+        }
+    },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
         allowProtoMethodsByDefault: true,
     }
 });
+
 // Template engine
 app.engine('.hbs', hbs);
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Register Handlebars as the view engine
-app.engine('hbs', exphbs.engine({
-    extname: 'hbs',
-    helpers: {
-        includes: function(array, value) {
-            return array && array.includes(value);
-        }
-    }
-}));
+
+// // view
+// const hbsHelpers = require('handlebars-helpers');
+// const { engine } = require('express-handlebars');
+// const exphbs = require('express-handlebars'); // Add this line
+//
+// const hbs = engine({
+//     extname: '.hbs',
+//     helpers: hbsHelpers(),
+//     runtimeOptions: {
+//         allowProtoPropertiesByDefault: true,
+//         allowProtoMethodsByDefault: true,
+//     }
+// });
+// // Template engine
+// app.engine('.hbs', hbs);
+// app.set('view engine', '.hbs');
+// app.set('views', path.join(__dirname, 'views'));
+//
+// // Register Handlebars as the view engine
+// app.engine('hbs', exphbs.engine({
+//     extname: 'hbs',
+//     helpers: {
+//         includes: function(array, value) {
+//             return array && array.includes(value);
+//         }
+//     }
+// }));
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -94,7 +117,11 @@ app.use((req, res, next) => {
 
 // routes
 const authRouter = require('./modules/auth/routes/auth.routes');
+const productRouter = require('./modules/product/routes/product.routes');
+const homeRouter = require('./modules/home/routes/home.routes');
 app.use('/auth', authRouter);
+app.use('/products', productRouter);
+app.use('/', homeRouter);
 
 // error handler
 app.use((err, req, res, next) =>  {
@@ -116,9 +143,6 @@ app.use((req, res) => {
 // app.use(function(req, res, next) {
 //   next(createError(404));
 // });
-
-
-
 
 // port
 const port = 3001;
