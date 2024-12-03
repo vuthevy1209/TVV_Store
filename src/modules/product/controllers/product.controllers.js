@@ -7,8 +7,12 @@ class ProductController {
             const products = await productService.getAll();
             // Convert each product to a plain object
             const productList = products.map(product => product.get({ plain: true }));
+            const brands =  await productService.getAllBrands();
+            const productBrandList = brands.map(brand => brand.get({ plain: true}));
+            const categories =  await productService.getAllCategories();
+            const productCategoryList = categories.map(category => category.get({ plain: true}));
 
-            res.render('product/products', { productList });
+            res.render('product/products', { productList, productBrandList, productCategoryList  });
         } catch (error) {
             console.error('Error getting product list:', error);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -20,11 +24,16 @@ class ProductController {
         try {
             const { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax } = req.query;
             const products = await productService.search({ nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax });
-            // Convert each product to a plain object
             const productList = products.map(product => product.get({ plain: true }));
+            const brands =  await productService.getAllBrands();
+            const productBrandList = brands.map(brand => brand.get({ plain: true}));
+            const categories =  await productService.getAllCategories();
+            const productCategoryList = categories.map(category => category.get({ plain: true}));
 
             res.render('product/products', {
                 productList,
+                productBrandList,
+                productCategoryList,
                 query: { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax }
             });
         } catch (error) {
