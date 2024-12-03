@@ -35,4 +35,4 @@ Customer.belongsTo(User, { foreignKey: 'user_id' },{onUpdate:'CASCADE', onDelete
 
 //Customer.hasOne(Cart, { foreignKey: 'customer_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 
-module.exports = Customer;
+module.exports = new Customer();

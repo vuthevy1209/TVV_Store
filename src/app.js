@@ -123,6 +123,7 @@ app.use('/auth', authRouter);
 app.use('/products', productRouter);
 app.use('/', homeRouter);
 
+
 // error handler
 app.use((err, req, res, next) =>  {
     console.log(err.stack)

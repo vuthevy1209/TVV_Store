@@ -2,7 +2,7 @@ const {DataTypes} = require('@sequelize/core');
 const {Sequelize} = require('../../../config/database');
 
 const Cart = require('./cart');
-const Product = require('../../product/models/product');
+const Product = require('../../product/models/product')
 
 const CartItem = Sequelize.define('CartItem', {
     id:{
@@ -40,4 +40,4 @@ const CartItem = Sequelize.define('CartItem', {
 CartItem.belongsTo(Cart, { foreignKey: 'cart_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 CartItem.belongsTo(Product, { foreignKey: 'product_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 
-module.exports = CartItems;
+module.exports = new CartItem();

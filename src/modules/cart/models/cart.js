@@ -32,4 +32,4 @@ Cart.belongsTo(Customer, { foreignKey: 'customer_id' },{onUpdate:'CASCADE', onDe
 
 //Cart.hasMany(CartItem, { foreignKey: 'cart_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 
-module.exports = Cart;
+module.exports = new Cart();
