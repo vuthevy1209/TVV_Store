@@ -49,7 +49,7 @@ class ProductService {
         if (nameOrDescription) {
             query[Op.or] = [
                 { name: { [Op.iLike]: `%${nameOrDescription}%` } },  // Case-insensitive search for name
-                { description: { [Op.iLike]: `%${nameOrDescription}%` } } // Case-insensitive search for description
+                { desc: { [Op.iLike]: `%${nameOrDescription}%` } } // Case-insensitive search for description
             ];
         }
         if (brand) query.brand_id = brand;
@@ -66,6 +66,16 @@ class ProductService {
                 { model: ProductBrand, attributes: ['name'] }
             ]
         });
+    }
+
+    // Get all brands
+    async getAllBrands() {
+        return await ProductBrand.findAll();
+    }
+
+    // Get all categories
+    async getAllCategories() {
+        return await ProductCategory.findAll();
     }
 }
 

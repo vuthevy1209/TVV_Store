@@ -9,62 +9,30 @@
                 <div class="filter-group">
                     <label for="category" style="font-weight: 600; color: red;">By Category</label>
 
-                    <!-- checkbox -->
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="category" value="database"
-                            id="defaultCheck1" {{#if (includes query.category 'database' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck1">
-                            Database
-                        </label>
-                    </div>
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="category" value="programming"
-                            id="defaultCheck2" {{#if (includes query.category 'programming' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck2">
-                            Programming
-                        </label>
-                    </div>
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="category" value="algorithm"
-                            id="defaultCheck3" {{#if (includes query.category 'algorithm' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck3">
-                            Algorithm
-                        </label>
-                    </div>
+                    <!-- Dynamic category checkboxes -->
+                    {{#each productCategoryList}}
+                        <div class="form-check" style="font-weight: 400;">
+                            <input class="form-check-input" type="checkbox" name="category" value="{{this.id}}" id="categoryCheck{{this.id}}" {{#if (includes ../query.category this.id)}}checked{{/if}}>
+                            <label class="form-check-label" for="categoryCheck{{this.id}}">
+                                {{this.name}}
+                            </label>
+                        </div>
+                    {{/each}}
                 </div>
                 <hr class="my-3">
-                <div class="filter-group">
-                    <label for="brand" style="font-weight: 600; color: red;">By brand</label>
 
-                    <!-- checkbox -->
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="brand" value="oracle" id="defaultCheck6"
-                            {{#if (includes query.brand 'oracle' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck6">
-                            Oracle
-                        </label>
-                    </div>
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="brand" value="jetbrains"
-                            id="defaultCheck7" {{#if (includes query.brand 'jetbrains' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck7">
-                            JetBrains
-                        </label>
-                    </div>
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="brand" value="apple" id="defaultCheck8"
-                            {{#if (includes query.brand 'apple' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck8">
-                            Apple
-                        </label>
-                    </div>
-                    <div class="form-check" style="font-weight: 400;">
-                        <input class="form-check-input" type="checkbox" name="brand" value="microsoft"
-                            id="defaultCheck9" {{#if (includes query.brand 'microsoft' )}}checked{{/if}}>
-                        <label class="form-check-label" for="defaultCheck9">
-                            Microsoft
-                        </label>
-                    </div>
+                <div class="filter-group">
+                    <label for="brand" style="font-weight: 600; color: red;">By Brand</label>
+
+                    <!-- Dynamic brand checkboxes -->
+                    {{#each productBrandList}}
+                        <div class="form-check" style="font-weight: 400;">
+                            <input class="form-check-input" type="checkbox" name="brand" value="{{this.id}}" id="brandCheck{{this.id}}" {{#if (includes ../query.brand this.id)}}checked{{/if}}>
+                            <label class="form-check-label" for="brandCheck{{this.id}}">
+                                {{this.name}}
+                            </label>
+                        </div>
+                    {{/each}}
                 </div>
                 <hr class="my-3">
 
@@ -79,6 +47,8 @@
                             min="0" value="{{query.priceMax}}">
                     </div>
                 </div>
+                <hr class="my-3">
+
 
                 <div class="filter-group">
                     <label for="price-range" style="font-weight: 600; color: red;">Inventory Quantity</label>
