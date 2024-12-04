@@ -28,7 +28,7 @@ class CartService {
             products.push({product, currPrice});
         }
 
-        return {products, total};
+        return {items:products, total};
 
     }
 
