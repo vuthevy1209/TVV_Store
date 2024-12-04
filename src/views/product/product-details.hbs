@@ -122,11 +122,16 @@
     //# sourceURL=productDetail.js
 
     document.addEventListener("DOMContentLoaded", function () {
+
+        console.log("DOM fully loaded and parsed");
+
         const decrementBtn = document.querySelector(".decrement");
         const incrementBtn = document.querySelector(".increment");
         const quantityInput = document.querySelector(".quantity-input");
         const addToCartBtn = document.querySelector(".btn-submit.add-to-cart");
         const buyNowBtn = document.querySelector(".btn-submit.buy-now");
+        const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
+        
 
         function showLoginModal() {
             $('#loginModal').modal('show');
@@ -147,27 +152,27 @@
             }
         });
 
-        addToCartBtn.addEventListener("click", (event) => {
+        addToCartBtn.addEventListener("click", async (event) => {
             event.preventDefault(); // prevent the default navigation behavior when a is clicked
             if (!isLoggedIn) {
                 showLoginModal();
             }
             else {
-                const productId = addToCartBtn.getAttribute('data-id');
+                const product_id = addToCartBtn.getAttribute('data-id');
                 const quantity = parseInt(quantityInput.value);
 
-                await addToCart(productId, quantity); // Add item to cart
+                await addToCart(product_id, quantity); // Add item to cart
             }
         });
 
         // Function to add item to cart
-        async function addToCart(productId, quantity) {
+        async function addToCart(product_id, quantity) {
             fetch('/carts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ productId, quantity })
+                body: JSON.stringify({ product_id, quantity })
             })
                 .then(response => {
                     if (!response.ok) {
@@ -179,21 +184,13 @@
                     if (data.message) {
                         alert(data.message); // Show success or failure message
                     }
-                    updateCartUI(data.cart); // Update cart UI with new data
+                    //updateCartUI(data.cart); // Update cart UI with new data
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('An error occurred while adding the product to the cart.');
                 });
         }
-
-        // Function to update cart UI
-        function updateCartUI(cart) {
-
-        }
-
-
-);
-
+    });
 
 </script>
