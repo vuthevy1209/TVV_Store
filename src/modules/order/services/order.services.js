@@ -1,6 +1,8 @@
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
 
+const CartItem = require('../../cart/models/cartItems');
+
 const Customer = require('../../customer/models/customer');
 
 class OrderService {
@@ -25,9 +27,13 @@ class OrderService {
                 // TEMPORARY: Calculate total price 
                 // CHANGE IF WE HAVE DISCOUNT, TAX, SHIPPING FEE, ETC...
                 total += item.product_price * item.quantity;
+
+                // remove product from cart
+                await CartItem.destroy({ where: { id: item.item_id } });
             }
             order.total = total;
             await order.save();
+
 
             return order;
         }

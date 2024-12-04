@@ -6,6 +6,7 @@ class CartMapper {
     async itemToProduct(item) {
         let result = {};
 
+        result.item_id = item.id;
         result.quantity = item.quantity;
         result.product_id = item.product_id;
 
