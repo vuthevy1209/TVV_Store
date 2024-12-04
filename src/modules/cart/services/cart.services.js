@@ -1,6 +1,6 @@
 const Cart = require('../models/cart');
 const CartItem = require('../models/cartItems');
-const CartMapper = require('../mapper/cartMapper');
+const CartMapper = require('../mapper/CartMapper');
 const Product = require('../../product/models/product');
 
 class CartService {
