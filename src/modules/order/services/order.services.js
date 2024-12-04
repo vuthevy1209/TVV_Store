@@ -29,7 +29,7 @@ class OrderService {
                 total += item.product_price * item.quantity;
 
                 // remove product from cart
-                await CartItem.destroy({ where: { id: item.item_id } });
+                //await CartItem.destroy({ where: { id: item.item_id } });
             }
             order.total = total;
             await order.save();
