@@ -14,7 +14,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button"
                             aria-haspopup="true" aria-expanded="true"> <span class="nav-label">Pages <span
-                                class="caret"></span></span></a>
+                                    class="caret"></span></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">About</a></li>
                             <li><a href="#">Testimonial</a></li>
@@ -161,10 +161,39 @@
 </div>
 
 
+<!-- Cart Modal -->
+<script id="shopping-cart-template" type="text/x-handlebars-template">
+  <div class="shopping-cart">
+    <div class="shopping-cart-header">
+      <i class="fa fa-shopping-cart cart-icon"></i><span class="badge">{{cart.items.length}}</span>
+      <div class="shopping-cart-total">
+        <span class="lighter-text">Total:</span>
+        <span class="main-color-text">${{cart.total}}</span>
+      </div>
+    </div> <!--end shopping-cart-header -->
+
+    <ul class="shopping-cart-items">
+      {{#each cart.items}}
+      <li class="clearfix">
+        <img src="{{this.image}}" alt="{{this.name}}" />
+        <span class="item-name">{{this.name}}</span>
+        <span class="item-price">${{this.price}}</span>
+        <span class="item-quantity">Quantity: {{this.quantity}}</span>
+      </li>
+      {{/each}}
+    </ul>
+
+    <a href="/checkout" class="button">Checkout</a>
+  </div> <!--end shopping-cart -->
+</script>
+
+<div id="shopping-cart-container"></div>
+
+
 <script>
     // add this for enable debugging for this inline script
     //# sourceURL=somename.js
-    const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
+        const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
     const cartHeader = document.getElementById('cartHeader');
     console.log(cartHeader)
 
@@ -178,4 +207,39 @@
     //         addToCart();
     //     }
     // });
+
+    document.addEventListener('DOMContentLoaded', function () {
+    function updateCart() {
+        fetch('/carts') // Adjust the URL if necessary
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const source = document.getElementById('shopping-cart-template').innerHTML;
+                const template = Handlebars.compile(source);
+                const html = template({ cart: data });
+                document.getElementById('shopping-cart-container').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error fetching cart data:', error);
+            });
+    }
+
+    // Initial cart load
+    updateCart();
+
+    // Show cart dropdown on hover
+        $('#cartHeader').hover(
+            function () {
+                $('.dropdown-menu', this).stop(true, true).fadeIn('fast');
+            },
+            function () {
+                $('.dropdown-menu', this).stop(true, true).fadeOut('fast');
+            }
+        );
+});
+
 </script>

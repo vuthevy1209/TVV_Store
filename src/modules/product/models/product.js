@@ -4,6 +4,8 @@ const { sequelize } = require('../../../config/database');
 const ProductCategory = require('./productCategory');
 const ProductBrand = require('./productBrand');
 
+//const CartItems = require('../../cart/models/cartItems');
+
 const Product = sequelize.define('Product', {
     id: {
         type: DataTypes.INTEGER,

@@ -119,8 +119,10 @@ app.use((req, res, next) => {
 const authRouter = require('./modules/auth/routes/auth.routes');
 const productRouter = require('./modules/product/routes/product.routes');
 const homeRouter = require('./modules/home/routes/home.routes');
+const cartRouter = require('./modules/cart/routes/cart.routes');
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
+app.use('/carts', cartRouter);
 app.use('/', homeRouter);
 
 

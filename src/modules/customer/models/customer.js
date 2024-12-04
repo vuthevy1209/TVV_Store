@@ -1,10 +1,10 @@
 const {DataTypes} = require("@sequelize/core");
-const {Sequelize} = require("../../../config/database");
+const {sequelize} = require("../../../config/database");
 
 const User = require("../../user/models/user");
 //const Cart = require("../../cart/models/cart");
 
-const Customer = Sequelize.define('Customer', {
+const Customer = sequelize.define('Customer', {
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true,
@@ -35,4 +35,4 @@ Customer.belongsTo(User, { foreignKey: 'user_id' },{onUpdate:'CASCADE', onDelete
 
 //Customer.hasOne(Cart, { foreignKey: 'customer_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 
-module.exports = new Customer();
+module.exports = Customer;

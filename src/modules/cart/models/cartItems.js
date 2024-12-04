@@ -1,10 +1,10 @@
 const {DataTypes} = require('@sequelize/core');
-const {Sequelize} = require('../../../config/database');
+const {sequelize} = require('../../../config/database');
 
 const Cart = require('./cart');
 const Product = require('../../product/models/product')
 
-const CartItem = Sequelize.define('CartItem', {
+const CartItem = sequelize.define('CartItem', {
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true,
@@ -14,7 +14,7 @@ const CartItem = Sequelize.define('CartItem', {
         type:DataTypes.INTEGER,
         allowNull:false,
         references: {
-            model: 'Cart',
+            model: Cart,
             key: 'id'
         }
     },
@@ -22,7 +22,7 @@ const CartItem = Sequelize.define('CartItem', {
         type:DataTypes.INTEGER,
         allowNull:false,
         references: {
-            model: 'Product',
+            model: Product,
             key: 'id'
         }
     },
@@ -40,4 +40,4 @@ const CartItem = Sequelize.define('CartItem', {
 CartItem.belongsTo(Cart, { foreignKey: 'cart_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 CartItem.belongsTo(Product, { foreignKey: 'product_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 
-module.exports = new CartItem();
+module.exports = CartItem;

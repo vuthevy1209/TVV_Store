@@ -1,10 +1,11 @@
 const {DataTypes} = require('@sequelize/core');
-const {Sequelize} = require('../../../config/database');
+const {sequelize} = require('../../../config/database');
 
+//const CartItem = require('../models/cartItems');
 const Customer = require('../../customer/models/customer');
 
 
-const Cart = Sequelize.define('Cart', {
+const Cart = sequelize.define('Cart', {
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true,
@@ -14,7 +15,7 @@ const Cart = Sequelize.define('Cart', {
         type:DataTypes.INTEGER,
         allowNull:false,
         references:{
-            model:Customer,
+            model: Customer,
             key:'id'
         }
     },
@@ -32,4 +33,4 @@ Cart.belongsTo(Customer, { foreignKey: 'customer_id' },{onUpdate:'CASCADE', onDe
 
 //Cart.hasMany(CartItem, { foreignKey: 'cart_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
 
-module.exports = new Cart();
+module.exports = Cart;

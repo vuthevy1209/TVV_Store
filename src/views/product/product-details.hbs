@@ -41,7 +41,7 @@
                 </p>
                 <p><span>Inventory Quantity: </span> {{productObject.inventory_quantity}} products</p>
                 <p><span>Category: </span>{{productObject.productCategory.name}}</p>
-<!--                <p><span>Ngày thêm sản phẩm: </span> 15/10/2024</p>-->
+                <!--                <p><span>Ngày thêm sản phẩm: </span> 15/10/2024</p>-->
                 <p class="rating"><span>Rating: </span> ★★★★☆ (4/5)</p>
             </div>
             <hr>
@@ -59,9 +59,10 @@
             </div>
         </div>
         <div class="col-6">
-            <a href="/cart" class="btn-box btn-submit add-to-cart">
+            <button type="button" data-id="{{productObject.id}}" class="btn-box btn-submit add-to-cart">
                 Add
-            </a>
+            </button>
+
             <a href="#" class="btn-box btn-submit buy-now">
                 Buy Now
             </a>
@@ -75,36 +76,16 @@
     <h3>Other Images:</h3>
     <div class="row">
         {{#each productObject.image_urls}}
-            {{#if (and (gt @index 0) (lt @index 5))}}
-                {{#if this}}
-                    <div class="col-lg-3 col-md-6">
-                        <div class="image--other">
-                            <img src="{{this}}" alt="Product Image" class="product-img">
-                        </div>
-                    </div>
-                {{/if}}
-            {{/if}}
+        {{#if (and (gt @index 0) (lt @index 5))}}
+        {{#if this}}
+        <div class="col-lg-3 col-md-6">
+            <div class="image--other">
+                <img src="{{this}}" alt="Product Image" class="product-img">
+            </div>
+        </div>
+        {{/if}}
+        {{/if}}
         {{/each}}
-<!--        <div class="col-lg-3 col-md-6">-->
-<!--            <div class="image--other">-->
-<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="col-lg-3 col-md-6">-->
-<!--            <div class="image--other">-->
-<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="col-lg-3 col-md-6">-->
-<!--            <div class="image--other">-->
-<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="col-lg-3 col-md-6">-->
-<!--            <div class="image--other">-->
-<!--                <img src="{{productObject.image}}" alt="Product Image" class="product-img">-->
-<!--            </div>-->
-<!--        </div>-->
 
     </div>
 </div>
@@ -134,36 +115,17 @@
 </div>
 
 
-
-{{!-- <!-- Login Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="loginModalLabel">Login Required</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                You need to log in to proceed this action.
-            </div>
-            <div class="modal-footer">
-                <a href="/login" class="btn btn-primary">Login</a>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div> --}}
-
 <link rel="stylesheet" href="/css/productDetails.css">
 
 <script>
-    
-    
-    {{!-- function showLoginModal() {
-        $('#loginModal').modal('show');
-    } --}}
+
+
+    {
+        {
+            !-- function showLoginModal() {
+                $('#loginModal').modal('show');
+            } --}
+    }
 
     //# sourceURL=productDetail.js
 
@@ -183,29 +145,32 @@
             // });
         }
 
-        function addToCart() {
-            fetch('/cart', {
-                method: 'GET',
-            })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        const contentType = response.headers.get('content-type');
-                        if (!contentType || !contentType.includes('application/json')) {
-                            return; // Do nothing if the content type is not JSON
-                        }
-                        return response.json();
+        {
+            {
+                !-- async function addToCart() {
+                    fetch('/cart', {
+                        method: 'GET',
                     })
-                    .then(data => {
-                        if (data) {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while adding the product to the cart.');
-                    });
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            const contentType = response.headers.get('content-type');
+                            if (!contentType || !contentType.includes('application/json')) {
+                                return; // Do nothing if the content type is not JSON
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data) {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while adding the product to the cart.');
+                        });
+                } --}
         }
 
         decrementBtn.addEventListener("click", () => {
@@ -222,15 +187,56 @@
             }
         });
 
-        addToCartBtn.addEventListener("click", (event) => {
+        addToCartBtn.addEventListener("click", async (event) => {
             event.preventDefault(); // prevent the default navigation behavior when a is clicked
             if (!isLoggedIn) {
                 showLoginModal();
             }
             else {
-                addToCart();
+                const productId = addToCartBtn.getAttribute('data-id');
+                const quantity = parseInt(quantityInput.value);
+
+                await addToCart(productId, quantity); // Add item to cart
             }
         });
 
-    });
+        // Function to add item to cart
+        async function addToCart(productId, quantity) {
+            fetch('/carts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId, quantity })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message); // Show success or failure message
+                    }
+                    updateCartUI(data.cart); // Update cart UI with new data
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding the product to the cart.');
+                });
+        }
+
+        // Function to update cart UI
+        function updateCartUI(cart) {
+            const source = document.getElementById('shopping-cart-template').innerHTML;
+            const template = Handlebars.compile(source);
+            const html = template({ cart });
+            document.getElementById('shopping-cart-container').innerHTML = html;
+        }
+
+
+);
+
+
 </script>
