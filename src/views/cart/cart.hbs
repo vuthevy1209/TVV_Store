@@ -1,0 +1,142 @@
+<div class="container" style="padding-top: 20px">
+    <div class="cart_inner">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Product</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each products}}
+                    <tr data-id="{{this.product.id}}">
+                        <td>
+                            <div class="media">
+                                <div class="d-flex">
+                                    <img src="{{this.product.image_urls.[0]}}" alt="{{this.product.name}}"
+                                         style="width: 100px; height: 100px"/>
+                                </div>
+                                <div class="media-body">
+                                    <p>{{this.product.name}}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <h5>${{this.product.price}}</h5>
+                        </td>
+                        <td>
+                            <div class="product_count">
+
+                                <div class="quantity-container d-flex justify-content-center align-items-center">
+                                    <span class="input-number-decrement decrease-quantity" data-id="{{this.product.id}}"
+                                          style="cursor: pointer; padding: 5px 10px; background-color: #007bff; color: white; border-radius: 5px; margin: 0 5px; transition: background-color 0.3s;">-</span>
+                                    <input type="text" class="quantity-input input-number"
+                                           value="{{this.product.quantity}}" min="0" max="10" readonly
+                                           style="text-align: center; width: 50px;">
+                                    <span class="input-number-increment increase-quantity" data-id="{{this.product.id}}"
+                                          style="cursor: pointer; padding: 5px 10px; background-color: #007bff; color: white; border-radius: 5px; margin: 0 5px; transition: background-color 0.3s;">+</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <h5>${{this.currPrice}}</h5>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger remove-product">Remove</button>
+                        </td>
+                    </tr>
+                {{/each}}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <h5>Subtotal</h5>
+                    </td>
+                    <td>
+                        <h5>${{total}}</h5>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.increase-quantity').forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                console.log(row);
+                const productId = row.getAttribute('data-id');
+                console.log(productId);
+
+                const quantityInput = row.querySelector('.input-number');
+                const newQuantity = parseInt(quantityInput.value) + 1;
+                quantityInput.value = newQuantity;
+
+                addToCart(productId, newQuantity);
+            });
+        });
+
+        document.querySelectorAll('.decrease-quantity').forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                console.log(row);
+
+                const productId = row.getAttribute('data-id');
+                console.log(productId);
+                const quantityInput = row.querySelector('.input-number');
+                const newQuantity = Math.max(0, parseInt(quantityInput.value) - 1);
+                quantityInput.value = newQuantity;
+
+                addToCart(productId, newQuantity);
+            });
+        });
+
+        document.querySelectorAll('.remove-product').forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const productId = row.getAttribute('data-id');
+
+                fetch(`/carts/items/${productId}`, {
+                    method: 'DELETE'
+                }).then(response => response.json())
+                        .then(data => {
+                            console.log('Product removed:', data);
+                            alert('Product removed successfully');
+                            row.remove();
+                        }).catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while removing the product.');
+                });
+            });
+        });
+
+        async function addToCart(productId, quantity) {
+            fetch('/carts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({product_id: productId, quantity})
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then(data => {
+                if (data.message) {
+                    alert(data.message);
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the product to the cart.');
+            });
+        }
+    });
+</script>

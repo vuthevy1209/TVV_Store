@@ -7,6 +7,7 @@ class CartMapper {
         let result = {};
 
         result.quantity = item.quantity;
+        result.id = item.product_id;
 
         const product = await Product.findByPk(item.product_id);
         result.name = product.name;

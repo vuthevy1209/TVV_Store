@@ -59,7 +59,7 @@
             </div>
         </div>
         <div class="col-6">
-            <button type="button" data-id="{{productObject.id}}" class="btn-box btn-submit add-to-cart">
+            <button type="button" class="btn-box btn-submit add-to-cart" data-id="{{productObject.id}}">
                 Add
             </button>
 
@@ -120,15 +120,6 @@
 <script>
 
 
-    {
-        {
-            !-- function showLoginModal() {
-                $('#loginModal').modal('show');
-            } --}
-    }
-
-    //# sourceURL=productDetail.js
-
     document.addEventListener("DOMContentLoaded", function () {
         const decrementBtn = document.querySelector(".decrement");
         const incrementBtn = document.querySelector(".increment");
@@ -138,39 +129,6 @@
 
         function showLoginModal() {
             $('#loginModal').modal('show');
-            // listen click login-btn
-            // const loginBtn = document.querySelector('.login-btn');
-            // loginBtn.addEventListener('click', () => {
-            //     addToCart();
-            // });
-        }
-
-        {
-            {
-                !-- async function addToCart() {
-                    fetch('/cart', {
-                        method: 'GET',
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            const contentType = response.headers.get('content-type');
-                            if (!contentType || !contentType.includes('application/json')) {
-                                return; // Do nothing if the content type is not JSON
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data) {
-                                alert(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred while adding the product to the cart.');
-                        });
-                } --}
         }
 
         decrementBtn.addEventListener("click", () => {
@@ -188,15 +146,14 @@
         });
 
         addToCartBtn.addEventListener("click", async (event) => {
-            event.preventDefault(); // prevent the default navigation behavior when a is clicked
+            event.preventDefault();
             if (!isLoggedIn) {
                 showLoginModal();
-            }
-            else {
+            } else {
                 const productId = addToCartBtn.getAttribute('data-id');
                 const quantity = parseInt(quantityInput.value);
 
-                await addToCart(productId, quantity); // Add item to cart
+                await addToCart(productId, quantity);
             }
         });
 
@@ -207,36 +164,24 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ productId, quantity })
+                body: JSON.stringify({ product_id: productId, quantity })
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.message) {
-                        alert(data.message); // Show success or failure message
-                    }
-                    updateCartUI(data.cart); // Update cart UI with new data
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while adding the product to the cart.');
-                });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the product to the cart.');
+            });
         }
-
-        // Function to update cart UI
-        function updateCartUI(cart) {
-            const source = document.getElementById('shopping-cart-template').innerHTML;
-            const template = Handlebars.compile(source);
-            const html = template({ cart });
-            document.getElementById('shopping-cart-container').innerHTML = html;
-        }
-
-
-);
-
+    });
 
 </script>

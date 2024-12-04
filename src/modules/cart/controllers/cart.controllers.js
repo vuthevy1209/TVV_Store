@@ -6,7 +6,7 @@ class CartController{
     //[GET] /carts
     async index(req, res){
         try{
-            
+            console.log(res.locals.user);
             // Return an empty array if no items are found
             if(!res.locals.user) return res.json([]);
             const userId = res.locals.user.id;
@@ -16,7 +16,9 @@ class CartController{
             
             const {products,total} = await cartService.findAllByCustomerId(customerId);
 
-            res.json({products,total});
+            console.log(products);
+            console.log(total);
+            res.render('cart/cart', { products, total });
         }
         catch(error){
             console.error('Error getting product list:', error);
@@ -35,7 +37,7 @@ class CartController{
             const customerId = customer.id;
             const { product_id, quantity } = req.body;
             await cartService.add(customerId, product_id, quantity);
-            res.json({ message: 'Product added to cart successfully' });
+            res.status(200).json({ message: 'Product added to cart successfully' });
         }
         catch(error){
             console.error('Error adding product to cart:', error);
@@ -55,10 +57,10 @@ class CartController{
         }
     }
 
-    // [DELETE] /carts/items/:id
+    // [DELETE] /carts/items/:productId
     async deleteProduct(req, res){
         try{
-            await cartService.deleteProducts(req.params.id);
+            await cartService.deleteProducts(req.params.productId);
             res.json({ message: 'Product deleted from cart successfully' });
         }
         catch(error){
