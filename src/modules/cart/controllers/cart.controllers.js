@@ -1,6 +1,10 @@
 const cartService = require('../services/cart.services');
 const CustomerService = require('../../customer/services/customer.services');
 
+
+
+// DEBT : WHEN ADD OR DELETE PRODUCT FROM CART, UPDATE INVENTORY QUANTITY OF PRODUCT 
+// CHECK IF PRODUCT IS AVAILABLE BEFORE ADDING TO CART (BUSINESS STATUS = TRUE), QUANTITY <= INVENTORY QUANTITY
 class CartController{
     
     //[GET] /carts
@@ -14,9 +18,9 @@ class CartController{
             if(!customer) return res.json([]);
             const customerId = customer.id;
             
-            const {products,total} = await cartService.findAllByCustomerId(customerId);
+            const {items,total} = await cartService.findAllByCustomerId(customerId);
 
-            res.json({products,total});
+            res.json({items,total});
         }
         catch(error){
             console.error('Error getting product list:', error);

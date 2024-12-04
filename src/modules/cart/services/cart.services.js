@@ -30,7 +30,7 @@ class CartService{
             products.push(product);
         }
 
-        return {products, total};
+        return {items:products, total};
 
     }
 
