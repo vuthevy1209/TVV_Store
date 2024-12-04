@@ -119,14 +119,6 @@
 
 <script>
 
-
-    {
-        {
-            !-- function showLoginModal() {
-                $('#loginModal').modal('show');
-            } --}
-    }
-
     //# sourceURL=productDetail.js
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -138,40 +130,8 @@
 
         function showLoginModal() {
             $('#loginModal').modal('show');
-            // listen click login-btn
-            // const loginBtn = document.querySelector('.login-btn');
-            // loginBtn.addEventListener('click', () => {
-            //     addToCart();
-            // });
         }
 
-        {
-            {
-                !-- async function addToCart() {
-                    fetch('/cart', {
-                        method: 'GET',
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            const contentType = response.headers.get('content-type');
-                            if (!contentType || !contentType.includes('application/json')) {
-                                return; // Do nothing if the content type is not JSON
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data) {
-                                alert(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred while adding the product to the cart.');
-                        });
-                } --}
-        }
 
         decrementBtn.addEventListener("click", () => {
             let currentValue = parseInt(quantityInput.value);
@@ -187,7 +147,7 @@
             }
         });
 
-        addToCartBtn.addEventListener("click", async (event) => {
+        addToCartBtn.addEventListener("click", (event) => {
             event.preventDefault(); // prevent the default navigation behavior when a is clicked
             if (!isLoggedIn) {
                 showLoginModal();
@@ -229,10 +189,7 @@
 
         // Function to update cart UI
         function updateCartUI(cart) {
-            const source = document.getElementById('shopping-cart-template').innerHTML;
-            const template = Handlebars.compile(source);
-            const html = template({ cart });
-            document.getElementById('shopping-cart-container').innerHTML = html;
+
         }
 
 
