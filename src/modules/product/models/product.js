@@ -4,6 +4,8 @@ const { sequelize } = require('../../../config/database');
 const ProductCategory = require('./productCategory');
 const ProductBrand = require('./productBrand');
 
+//const CartItems = require('../../cart/models/cartItems');
+
 const Product = sequelize.define('Product', {
     id: {
         type: DataTypes.INTEGER,
@@ -49,6 +51,9 @@ const Product = sequelize.define('Product', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
+    },
+    discount: {
+        type: DataTypes.DOUBLE,
     }
 }, {
     tableName: 'products',
@@ -60,4 +65,6 @@ const Product = sequelize.define('Product', {
 /// Define associations with ON DELETE and ON UPDATE cascade
 Product.belongsTo(ProductCategory, { foreignKey: { name: 'category_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' } });
 Product.belongsTo(ProductBrand, { foreignKey: { name: 'brand_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' } });
+
+//Product.hasMany(CartItems, { foreignKey: 'product_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 module.exports = Product;

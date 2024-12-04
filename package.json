@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "nodemon ./bin/www",
+    "dev": "node ./bin/www"
   },
   "engines": {
     "node": "20.x"
@@ -13,6 +14,7 @@
     "@sequelize/postgres": "^7.0.0-alpha.43",
     "@types/sequelize": "^4.28.20",
     "bcrypt": "^5.1.1",
+    "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",
     "connect-session-sequelize": "^7.1.7",
     "cookie-parser": "~1.4.4",
@@ -22,6 +24,7 @@
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.1",
     "express-validator": "^7.2.0",
+    "handlebars": "^4.7.8",
     "handlebars-helpers": "^0.10.0",
     "hbs": "~4.0.4",
     "http-errors": "~1.6.3",

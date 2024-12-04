@@ -14,7 +14,7 @@ class AuthController {
     // [POST] /login
     async login(req, res, next) {
         passport.authenticate('local', {
-            successRedirect: '/home',
+            successRedirect: req.session.returnTo || '/home',
             failureRedirect: '/auth/login',
             failureFlash: true // Enable flash messages for login failure
         })(req, res, next);
@@ -27,13 +27,6 @@ class AuthController {
 
     // [POST] /register
     async register(req, res) {
-        // try {
-        //     await userService.createUser(req.body);
-        //     res.redirect('/auth/login');
-        // } catch (error) {
-        //     console.log(error);
-        //     return res.status(500).send('An error occurred');
-        // }
         const result = await userService.createUser(req.body);;
         if(result.error) {
             return res.status(400).render('auth/register', {
@@ -48,7 +41,6 @@ class AuthController {
             });
         }
         res.redirect('/auth/login');
-        //return { success: true, user: result };
     }
 
     // [GET] /logout
@@ -67,7 +59,7 @@ class AuthController {
     async changePassword(req, res) {
         try {
             const { oldPassword, newPassword } = req.body;
-            const userId = req.user.id; // Assuming user is authenticated and user ID is available in req.user
+            const userId = req.user.id;
 
             const result = await userService.changePassword(userId, oldPassword, newPassword);
             if (result.error) {

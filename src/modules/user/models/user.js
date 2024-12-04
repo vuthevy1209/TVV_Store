@@ -62,4 +62,5 @@ const User = sequelize.define('User', {
 
 // Define the association
 User.belongsTo(Role, { foreignKey: { name: 'role_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' } });
+
 module.exports = User;
