@@ -6,9 +6,8 @@ class CartMapper {
     async itemToProduct(item) {
         let result = {};
 
-        result.item_id = item.id;
         result.quantity = item.quantity;
-        result.product_id = item.product_id;
+        result.id = item.product_id;
 
         const product = await Product.findByPk(item.product_id);
         result.name = product.name;

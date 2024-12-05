@@ -74,6 +74,12 @@ app.engine('.hbs', hbs);
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
 
+const Handlebars = require('handlebars');
+
+Handlebars.registerHelper('multiply', function (a, b) {
+    return a * b;
+});
+
 
 // // view
 // const hbsHelpers = require('handlebars-helpers');
@@ -120,14 +126,14 @@ const authRouter = require('./modules/auth/routes/auth.routes');
 const productRouter = require('./modules/product/routes/product.routes');
 const homeRouter = require('./modules/home/routes/home.routes');
 const cartRouter = require('./modules/cart/routes/cart.routes');
-const orderRouter = require('./modules/order/routes/order.routes');
+const connectEnsureLogin = require('connect-ensure-login');
+
 
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
-app.use('/carts', cartRouter);
-app.use('/orders', orderRouter);
-app.use('/', homeRouter);
 
+app.use('/carts', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), cartRouter);
+app.use('/', homeRouter);
 
 
 // error handler
@@ -151,10 +157,10 @@ app.use((req, res) => {
 //   next(createError(404));
 // });
 
-// port
-const port = 3001;
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}!`);
-});
+// // port
+// const port = 3001;
+// app.listen(port, () => {
+//     console.log(`Example app listening on port ${port}!`);
+// });
 
 module.exports = app;
