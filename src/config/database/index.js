@@ -18,11 +18,11 @@ const sequelize = new Sequelize({
 async function connect() {
     try {
         await sequelize.authenticate();
-        console.log('Connect to database successfully.');
+        console.log('Connect to posgre successfully.');
         await sequelize.sync({ force: false, alter: false});
-        console.log('Database synchronized successfully.');
+        console.log('Posgre synchronized successfully.');
     } catch (error) {
-        console.error('Connect failure!!!', error);
+        console.error('Connect to posgre failure!!!', error);
     }
 }
 
