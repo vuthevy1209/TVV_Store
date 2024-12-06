@@ -10,6 +10,7 @@ class HomeControllers {
             const productList = products.map(product => product.get({ plain: true }));
 
             res.render('home', { productList });
+
         } catch (error) {
             console.error('Error getting product list:', error);
             res.status(500).json({ error: 'Internal Server Error' });

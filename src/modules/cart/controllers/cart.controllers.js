@@ -29,7 +29,7 @@ class CartController{
     // [POST] /carts
     async add(req, res){
         try{
-            if(!res.locals.user) return res.json([]); // no user logged in
+            //if(!res.locals.user) return res.json([]); // no user logged in
 
             const customer = await CustomerService.getByUserId(res.locals.user.id);
             if(!customer) res.status(404).json({ error: 'Customer not found' });
