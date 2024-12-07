@@ -56,6 +56,10 @@ const {engine} = require('express-handlebars');
 
 const hbs = engine({
     extname: '.hbs',
+    // set these things explixity to avoid confusion
+    defaultLayout: 'main', // Use 'main.hbs' as the default layout
+    layoutsDir: path.join(__dirname, 'views/layouts'), // Layouts folder
+    partialsDir: path.join(__dirname, 'views/partials'), // Partials folder
     helpers: {
         ...hbsHelpers(),
         includes: function (array, value) {

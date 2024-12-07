@@ -30,9 +30,9 @@ const validateRegistration = [
                 layout: 'auth',
                 title: 'Register',
                 fail: true,
-                message: errors.array().map(error => error.msg).join(', '),
-                first_name: req.body.firstName,
-                last_name: req.body.lastName,
+                message: errors.array()[0].msg,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
                 username: req.body.username,
                 email: req.body.email
             });

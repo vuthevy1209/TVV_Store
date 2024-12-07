@@ -1,9 +1,11 @@
 <link rel="stylesheet" href="/css/login.css">
 
 <form action="/auth/login" method="POST">
-    {{#if error}}
-    <div class="error-message">Invalid username or password!</div>
-    {{/if}}
+<!--    {{#if error}}-->
+<!--        <h1>{{error.[0]}}</h1>-->
+<!--        console.log("Error: {{{title}}}");-->
+<!--    {{else}}-->
+<!--    {{/if}}-->
 
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required>
