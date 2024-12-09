@@ -5,7 +5,7 @@ class AuthController {
     // [GET] /login
     showLoginForm(req, res) {
         const x = 1;
-        res.render('auth/login', {
+        res.render('auth/login-register', {
             layout: 'auth',
             title: 'Login',
         });
@@ -14,49 +14,47 @@ class AuthController {
     // [POST] /login
     async login(req, res, next) {
         passport.authenticate('local', (err, user, info) => {
-            if (err) { return next(err); }
+            if (err) {
+                return next(err);
+            }
             if (!user) {
-                req.flash("error", "Invalid username or password!");
-                return res.redirect('/auth/login');
+                return res.status(400).json({message: 'Invalid username or password!'});
             }
             req.logIn(user, (err) => {
-                if (err) { return next(err); }
+                if (err) {
+                    return next(err);
+                }
                 req.flash('success', 'Login successful!');
-                return res.redirect(req.session.returnTo || '/home');
+                // we hanle the response manually on the client, so we have to send the redirect URL as json to
+                // avoid the automatic request of the client.
+                res.json({redirectUrl: req.session.returnTo || '/home'});
             });
         })(req, res, next);
     }
 
-
-    // [GET] /register
-    showRegisterForm(req, res) {
-        res.render('auth/register', { layout: 'auth', title: 'Register' });
-    }
-
     // [POST] /register
     async register(req, res) {
-        const result = await userService.createUser(req.body);;
-        if(result.error) {
-            return res.status(400).render('auth/register', {
-                layout: 'auth',
-                title: 'Register',
-                fail: true,
-                message: result.error,
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                username: req.body.username,
-                email: req.body.email
-            });
+        try {
+            const result = await userService.createUser(req.body);
+            if (result.error) {
+                return res.status(400).json({message: result.error});
+            }
+            req.flash('success', 'Register successfully, please login!');
+            res.json({redirectUrl: '/auth/login-register'});
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({message: 'An error occurred. Please try again.'});
         }
-        req.flash('success', 'Register successful, please login!');
-        res.redirect('/auth/login');
     }
 
     // [GET] /logout
     async logout(req, res, next) {
         try {
-            await req.logout(function(err) {
-                if (err) { return next(err); }
+            await req.logout(function (err) {
+                if (err) {
+                    return next(err);
+                }
+                req.flash('success', 'Logout successfully!')
                 res.redirect('/home');
             });
         } catch (error) {
@@ -67,7 +65,7 @@ class AuthController {
     // [POST] /change-password
     async changePassword(req, res) {
         try {
-            const { oldPassword, newPassword } = req.body;
+            const {oldPassword, newPassword} = req.body;
             const userId = req.user.id;
 
             const result = await userService.changePassword(userId, oldPassword, newPassword);
