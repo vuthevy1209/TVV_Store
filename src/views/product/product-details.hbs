@@ -121,11 +121,16 @@
 
 
     document.addEventListener("DOMContentLoaded", function () {
+
+        console.log("DOM fully loaded and parsed");
+
         const decrementBtn = document.querySelector(".decrement");
         const incrementBtn = document.querySelector(".increment");
         const quantityInput = document.querySelector(".quantity-input");
         const addToCartBtn = document.querySelector(".btn-submit.add-to-cart");
         const buyNowBtn = document.querySelector(".btn-submit.buy-now");
+        const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
+        
 
         function showLoginModal() {
             $('#loginModal').modal('show');
@@ -157,6 +162,23 @@
             }
         });
 
+        async function fetchCartQuantity() {
+            fetch('/carts/amount-of-items', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
+                console.log('Cart quantity:', data.amountOfItems);
+            })
+            .catch(error => {
+                console.error('Error fetching cart quantity:', error);
+            });
+        }
+
         // Function to add item to cart
         async function addToCart(productId, quantity) {
             fetch('/carts', {
@@ -180,6 +202,9 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while adding the product to the cart.');
+            })
+            .finally(() => {
+                fetchCartQuantity();
             });
         }
     });

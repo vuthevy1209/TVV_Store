@@ -43,7 +43,7 @@
                             </div>
                         </td>
                         <td>
-                            <h5>${{this.currPrice}}</h5>
+                            <h5 class="currPrice">${{this.currPrice}}</h5>
                         </td>
                         <td>
                             <button class="btn btn-danger remove-product">Remove</button>
@@ -57,11 +57,19 @@
                         <h5>Subtotal</h5>
                     </td>
                     <td>
-                        <h5>${{total}}</h5>
+                        <h5 id="cartTotalPrice">${{total}}</h5>
                     </td>
                 </tr>
                 </tbody>
             </table>
+            <div class="checkout_btn_inner float-right">
+                <a class="btn_1" href="/products" style="border: 1px solid transparent; margin-bottom: 20px;">
+                    Continue Shopping
+                </a>
+                <a class="btn_1 checkout_btn" style="border: 1px solid transparent; margin-bottom: 20px;">
+                    Proceed to checkout
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -105,15 +113,33 @@
 
                 fetch(`/carts/items/${productId}`, {
                     method: 'DELETE'
-                }).then(response => response.json())
-                        .then(data => {
-                            console.log('Product removed:', data);
-                            alert('Product removed successfully');
-                            row.remove();
-                        }).catch(error => {
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Product removed:', data);
+                    alert('Product removed successfully');
+                    row.remove();
+                })
+                .catch(error => {
                     console.error('Error:', error);
                     alert('An error occurred while removing the product.');
+                })
+                .finally(() => {
+                    fetchCartQuantity();
                 });
+            });
+        });
+
+        document.querySelector('.checkout_btn').addEventListener('click', function () {
+            fetch('/orders/checkout', {
+                method: 'POST'
+            }).then(response => response.json())
+                    .then(data => {
+                        console.log('Checkout response:', data);
+                        window.location.href = '/orders';
+                    }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while checking out.');
             });
         });
 
@@ -133,9 +159,53 @@
                 if (data.message) {
                     alert(data.message);
                 }
+                // Update the currPrice for the updated product
+                const productRow = document.querySelector(`tr[data-id="${productId}"]`);
+                if(quantity === 0){
+                    return productRow.remove();
+                }
+                if (productRow) {
+                    productRow.querySelector('.currPrice').innerText = `$${data.total}`;
+                }
             }).catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while adding the product to the cart.');
+            }).finally(() => {
+                fetchCartTotalPrice();
+                fetchCartQuantity();
+            });
+        }
+
+        async function fetchCartQuantity() {
+            fetch('/carts/amount-of-items', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
+                console.log('Cart quantity:', data.amountOfItems);
+            })
+            .catch(error => {
+                console.error('Error fetching cart quantity:', error);
+            });
+        }
+
+        async function fetchCartTotalPrice(){
+            fetch('/carts/total-price', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cartTotalPrice').innerText = `$${data.totalPrice}`;
+            })
+            .catch(error => {
+                console.error('Error fetching cart total price:', error);
             });
         }
     });
