@@ -23,14 +23,15 @@ class ProductController {
     async search(req, res) {
         try {
             const { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax } = req.query;
-            const products = await productService.search({ nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax });
-            const productList = products.map(product => product.get({ plain: true }));
-            const brands =  await productService.getAllBrands();
-            const productBrandList = brands.map(brand => brand.get({ plain: true}));
-            const categories =  await productService.getAllCategories();
-            const productCategoryList = categories.map(category => category.get({ plain: true}));
+            const { productList, productBrandList, productCategoryList } = await productService.search({
+                nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax
+            });
 
-            res.render('product/products', {
+            if (req.headers.accept.includes('application/json')) { // fetch by AJAX
+                return res.json(productList);
+            }
+
+            res.render('product/products', { // for the first time --> need to render all components
                 productList,
                 productBrandList,
                 productCategoryList,
@@ -41,6 +42,7 @@ class ProductController {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
+
 
     // [GET] /products/:id
     async show(req, res) {
