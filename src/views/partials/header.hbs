@@ -1,5 +1,3 @@
-
-
 <header class="header_section">
     <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
@@ -33,7 +31,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/carts" id="cartHeader">
-                            <i class="fa badge fa-lg" value=0>&#xf07a;</i>
+                            <i class="fa badge fa-lg" data-quantity="{{amountOfItems}}"
+                                id="cartQuantityIcon">&#xf07a;
+                            </i>
                         </a>
                     </li>
                     <form class="form-inline">
@@ -123,6 +123,23 @@
                 $('#loginModal').modal('show');
             }
         });
+
+        function fetchCartQuantity() {
+            $.ajax({
+                url: '/carts/amount-of-items',
+                method: 'GET',
+                success: function(response) {
+                    $('#cartQuantityIcon').attr('data-quantity', response.amountOfItems);
+                },
+                error: function(error) {
+                    console.error('Error fetching cart quantity:', error);
+                }
+            });
+        }
+
+        // Fetch cart quantity on page load
+        fetchCartQuantity();
+
     });
 
 </script>

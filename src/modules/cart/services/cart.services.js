@@ -20,34 +20,31 @@ class CartService {
 
         const products = [];
         let total = 0;
-        let amountOfItems = 0;
 
         for (const item of items) {
             const product = await CartMapper.itemToProduct(item);
             const currPrice = product.price * product.quantity;
             total += currPrice;
-            amountOfItems++;
             products.push({product, currPrice});
         }
 
-        return {products, total, amountOfItems};
+        return {products, total};
 
     }
 
-    async add(customerId, productId, quantity) {
+    async update(customerId, productId, quantity) {
         const cart = await Cart.findOne({where: {customer_id: customerId}});
         const item = await CartItem.findOne({where: {cart_id: cart.id, product_id: productId}});
         if (item) {
             item.quantity = quantity;
             try {
                 await item.save();
-                const res =  item.get({plain: true});
-                console.log(res.quantity);
+                
             } catch (error) {
-                console.error('Error saving item:', error);
                 throw new Error('Failed to update item quantity');
             }
         } else {
+            cart.amount_of_items += 1;
             return await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
         }
     }
@@ -61,6 +58,8 @@ class CartService {
             item.quantity -= 1;
             await item.save();
         } else {
+            const cart = await Cart.findByPk(item.cart_id);
+            cart.amount_of_items -= 1;
             await item.destroy();
         }
     }
@@ -70,7 +69,21 @@ class CartService {
         if (!item) {
             throw new Error('Item not found');
         }
+        const cart = await Cart.findByPk(item.cart_id);
+        cart.amount_of_items -= 1;
         await item.destroy();
+    }
+
+    async findAmountOfItemsByCustomerId(customerId) {
+        const cart = await Cart.findOne({
+            where: {
+                customer_id: customerId
+            }
+        });
+        if (!cart) {
+            return 0;
+        }
+        return cart.amount_of_items;
     }
 }
 
