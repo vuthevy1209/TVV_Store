@@ -10,7 +10,7 @@ require('dotenv').config(); // load the env variables
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
 // Connect to database
@@ -22,8 +22,10 @@ connect();
 const passport = require('./config/auth/passport');
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
-const { sequelize } = require('./config/database'); // Adjust the path to your Sequelize instance
-const Session = require('./modules/auth/models/session'); // Adjust the path to your Session model
+const {sequelize} = require('./config/database'); // Adjust the path to your Sequelize instance
+const MongoStore = require('connect-mongo');
+const mongoDb = require('./config/database/mongo');
+mongoDb.connect();
 
 
 app.use(session({
@@ -31,16 +33,13 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        //secure: process.env.NODE_ENV === "production",
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE, 10) // 24 hours
     },
-    // store: new SequelizeStore({
-    //     db: sequelize,
-    //     table: Session,
-    //     // tableName: 'Session',
-    //     checkExpirationInterval: parseInt(process.env.SESSION_EXPIRATION_INTERVAL, 10),
-    //     expiration: parseInt(process.env.SESSION_EXPIRATION, 10)
-    // }),
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions', // Optional, default is 'sessions'
+        ttl: parseInt(process.env.SESSION_TTL, 10)
+    }),
 }));
 
 app.use(passport.initialize());
@@ -53,13 +52,17 @@ app.use(flash());
 
 // view
 const hbsHelpers = require('handlebars-helpers');
-const { engine } = require('express-handlebars');
+const {engine} = require('express-handlebars');
 
 const hbs = engine({
     extname: '.hbs',
+    // set these things explixity to avoid confusion
+    defaultLayout: 'main', // Use 'main.hbs' as the default layout
+    layoutsDir: path.join(__dirname, 'views/layouts'), // Layouts folder
+    partialsDir: path.join(__dirname, 'views/partials'), // Partials folder
     helpers: {
         ...hbsHelpers(),
-        includes: function(array, value) {
+        includes: function (array, value) {
             return array && array.includes(value);
         }
     },
@@ -79,6 +82,7 @@ const Handlebars = require('handlebars');
 Handlebars.registerHelper('multiply', function (a, b) {
     return a * b;
 });
+
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -108,20 +112,25 @@ app.use('/carts', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirec
 app.use('/', homeRouter);
 
 
+// Catch-all for 404 errors
+app.use((req, res) => {
+    res.status(404).render('404', {title: 'Page Not Found'});
+});
+
 // error handler
-app.use((err, req, res, next) =>  {
+app.use((err, req, res, next) => {
     console.log(err.stack)
     if (res.headersSent) {
         return next(err)
     }
     res.status(500)
-    res.render('error', { error: err })
+    res.render('error', {error: err})
 });
 
-// Catch-all for 404 errors
-app.use((req, res) => {
-    res.status(404).render('404', { title: 'Page Not Found' });
+// port
+const port = 3001;
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}!`);
 });
-
 
 module.exports = app;

@@ -5,7 +5,7 @@ const { sequelize } = require('../../../config/database');
 
 const Session = sequelize.define('Session', {
     sid: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(36),
         primaryKey: true,
         allowNull: false,
     },

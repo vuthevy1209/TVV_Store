@@ -4,21 +4,29 @@ const passport = require('../../../config/auth/passport');
 class AuthController {
     // [GET] /login
     showLoginForm(req, res) {
+        const x = 1;
         res.render('auth/login', {
             layout: 'auth',
             title: 'Login',
-            error: req.flash('error')
         });
     }
 
     // [POST] /login
     async login(req, res, next) {
-        passport.authenticate('local', {
-            successRedirect: req.session.returnTo || '/home',
-            failureRedirect: '/auth/login',
-            failureFlash: true // Enable flash messages for login failure
+        passport.authenticate('local', (err, user, info) => {
+            if (err) { return next(err); }
+            if (!user) {
+                req.flash("error", "Invalid username or password!");
+                return res.redirect('/auth/login');
+            }
+            req.logIn(user, (err) => {
+                if (err) { return next(err); }
+                req.flash('success', 'Login successful!');
+                return res.redirect(req.session.returnTo || '/home');
+            });
         })(req, res, next);
     }
+
 
     // [GET] /register
     showRegisterForm(req, res) {
@@ -40,6 +48,7 @@ class AuthController {
                 email: req.body.email
             });
         }
+        req.flash('success', 'Register successful, please login!');
         res.redirect('/auth/login');
     }
 
@@ -51,7 +60,7 @@ class AuthController {
                 res.redirect('/home');
             });
         } catch (error) {
-            res.status(500).send('An error occurred');
+            res.status(500).send('An error occurred!');
         }
     }
 
@@ -66,7 +75,7 @@ class AuthController {
                 return res.status(400).send(result.error);
             }
 
-            res.send('Password changed successfully');
+            res.send('Password changed successfully!');
         } catch (error) {
             console.log(error);
             return res.status(500).send('An error occurred');
