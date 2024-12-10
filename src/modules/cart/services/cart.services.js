@@ -30,6 +30,7 @@ class CartService {
             products.push({product, currPrice});
         }
         cart.amount_of_items = amountOfItems;
+        cart.total_price = total;
         await cart.save();
 
         return {products, total};
@@ -37,37 +38,62 @@ class CartService {
     }
 
     async update(customerId, productId, quantity) {
-        const cart = await Cart.findOne({where: {customer_id: customerId}});
-        const item = await CartItem.findOne({where: {cart_id: cart.id, product_id: productId}});
-        if (item) {
-            item.quantity = quantity;
-            try {
-                await item.save();
-                
-            } catch (error) {
-                throw new Error('Failed to update item quantity');
+        try{
+            const cart = await Cart.findOne({where: {customer_id: customerId}});
+            const item = await CartItem.findOne({where: {cart_id: cart.id, product_id: productId}});
+
+            let newItemTotalPrice = 0;
+            
+            if (item) {
+                // can not use += for negative quantity because it will be converted to string
+                const productPrice = (await Product.findByPk(productId)).price;
+                newItemTotalPrice = quantity * productPrice;
+                cart.total_price -= item.quantity * productPrice;
+                cart.total_price += newItemTotalPrice;
+
+                if(quantity>0){
+                    item.quantity = quantity;
+                    await item.save();
+                }
+                else{
+                    cart.amount_of_items -= 1;
+                    await item.destroy();
+                }
+            } else {
+                await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
+
+                const productPrice = (await Product.findByPk(productId)).price;
+                newItemTotalPrice = quantity * productPrice;
+                cart.total_price += newItemTotalPrice;
+
+                cart.amount_of_items += 1;
             }
-        } else {
-            await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
-            cart.amount_of_items += 1;
             await cart.save();
+            
+            return newItemTotalPrice;
         }
+        catch(error){
+            console.error('Error updating cart:', error);
+            throw new Error('Internal Server Error');
+        }
+        
     }
 
-    async decreaseQuantity(id) {
+    async decreaseQuantity(id) { // decrease 1 unit
         const item = await CartItem.findByPk(id);
         if (!item) {
             throw new Error('Item not found');
         }
+        const cart = await Cart.findByPk(item.cart_id);
+        cart.total_price -= (await Product.findByPk(item.product_id)).price;
         if (item.quantity > 1) {
             item.quantity -= 1;
             await item.save();
         } else {
-            const cart = await Cart.findByPk(item.cart_id);
             cart.amount_of_items -= 1;
             await item.destroy();
-            await cart.save();
         }
+        await cart.save();
     }
 
     async deleteProducts(id) {
@@ -77,6 +103,7 @@ class CartService {
         }
         const cart = await Cart.findByPk(item.cart_id);
         cart.amount_of_items -= 1;
+        cart.total_price -= (await Product.findByPk(id)).price*item.quantity;
         await item.destroy();
         await cart.save();
     }
@@ -91,6 +118,18 @@ class CartService {
             return 0;
         }
         return cart.amount_of_items;
+    }
+
+    async findTotalPriceByCustomerId(customerId) {
+        const cart = await Cart.findOne({
+            where: {
+                customer_id: customerId
+            }
+        });
+        if (!cart) {
+            return 0;
+        }
+        return cart.total_price;
     }
 }
 

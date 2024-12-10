@@ -29,6 +29,11 @@ const Cart = sequelize.define('Cart', {
         allowNull:false,
         defaultValue:0
     },
+    total_price: {
+        type: DataTypes.DECIMAL,
+        allowNull: false,
+        defaultValue: 0
+    }
 },{
     tableName:'carts'
 
