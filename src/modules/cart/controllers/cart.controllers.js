@@ -6,7 +6,6 @@ class CartController{
     //[GET] /carts
     async index(req, res){
         try{
-            console.log(res.locals.user);
             // Return an empty array if no items are found
             if(!res.locals.user) return res.json([]);
             const userId = res.locals.user.id;
@@ -14,9 +13,9 @@ class CartController{
             if(!customer) return res.json([]);
             const customerId = customer.id;
             
-            const {products,total,amountOfItems} = await cartService.findAllByCustomerId(customerId);
+            const {products,total} = await cartService.findAllByCustomerId(customerId);
 
-            res.render('cart/cart', { products, total,amountOfItems });
+            res.render('cart/cart', { products, total});
         }
         catch(error){
             console.error('Error getting product list:', error);
@@ -70,11 +69,13 @@ class CartController{
     // [GET] /carts/amount-of-items
     async findAmountOfItemsInCartByCustomerId(req, res){
         try{
+            if(!res.locals.user) return res.json({ amountOfItems: 0 }); // no user logged in
             const customer = await CustomerService.getByUserId(res.locals.user.id);
             if(!customer) res.status(404).json({ error: 'Customer not found' });
 
             const customerId = customer.id;
-            const amountOfItems = await cartService.findAmountOfItemsInCartByCustomerId(customerId);
+            const amountOfItems = await cartService.findAmountOfItemsByCustomerId(customerId);
+            console.log('Amount of items:', amountOfItems);
             res.json({ amountOfItems });
         }
         catch(error){

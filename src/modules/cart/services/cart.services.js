@@ -20,13 +20,17 @@ class CartService {
 
         const products = [];
         let total = 0;
+        let amountOfItems = 0;
 
         for (const item of items) {
             const product = await CartMapper.itemToProduct(item);
             const currPrice = product.price * product.quantity;
             total += currPrice;
+            amountOfItems++;
             products.push({product, currPrice});
         }
+        cart.amount_of_items = amountOfItems;
+        await cart.save();
 
         return {products, total};
 
@@ -44,8 +48,9 @@ class CartService {
                 throw new Error('Failed to update item quantity');
             }
         } else {
+            await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
             cart.amount_of_items += 1;
-            return await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
+            await cart.save();
         }
     }
 
@@ -61,6 +66,7 @@ class CartService {
             const cart = await Cart.findByPk(item.cart_id);
             cart.amount_of_items -= 1;
             await item.destroy();
+            await cart.save();
         }
     }
 
@@ -72,6 +78,7 @@ class CartService {
         const cart = await Cart.findByPk(item.cart_id);
         cart.amount_of_items -= 1;
         await item.destroy();
+        await cart.save();
     }
 
     async findAmountOfItemsByCustomerId(customerId) {

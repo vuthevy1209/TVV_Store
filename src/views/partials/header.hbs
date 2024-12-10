@@ -31,7 +31,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/carts" id="cartHeader">
-                            <i class="fa badge fa-lg" data-quantity="{{amountOfItems}}"
+                            <i class="fa badge fa-lg" value="0"
                                 id="cartQuantityIcon">&#xf07a;
                             </i>
                         </a>
@@ -125,15 +125,19 @@
         });
 
         function fetchCartQuantity() {
-            $.ajax({
-                url: '/carts/amount-of-items',
+            fetch('/carts/amount-of-items', {
                 method: 'GET',
-                success: function(response) {
-                    $('#cartQuantityIcon').attr('data-quantity', response.amountOfItems);
-                },
-                error: function(error) {
-                    console.error('Error fetching cart quantity:', error);
+                headers: {
+                    'Content-Type': 'application/json'
                 }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
+                console.log('Cart quantity:', data.amountOfItems);
+            })
+            .catch(error => {
+                console.error('Error fetching cart quantity:', error);
             });
         }
 

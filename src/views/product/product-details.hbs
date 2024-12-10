@@ -162,16 +162,20 @@
             }
         });
 
-        function fetchCartQuantity() {
-            $.ajax({
-                url: '/carts/amount-of-items',
+        async function fetchCartQuantity() {
+            fetch('/carts/amount-of-items', {
                 method: 'GET',
-                success: function(response) {
-                    $('#cartQuantityIcon').attr('data-quantity', response.amountOfItems);
-                },
-                error: function(error) {
-                    console.error('Error fetching cart quantity:', error);
+                headers: {
+                    'Content-Type': 'application/json'
                 }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
+                console.log('Cart quantity:', data.amountOfItems);
+            })
+            .catch(error => {
+                console.error('Error fetching cart quantity:', error);
             });
         }
 

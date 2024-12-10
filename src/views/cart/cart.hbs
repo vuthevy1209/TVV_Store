@@ -113,14 +113,19 @@
 
                 fetch(`/carts/items/${productId}`, {
                     method: 'DELETE'
-                }).then(response => response.json())
-                        .then(data => {
-                            console.log('Product removed:', data);
-                            alert('Product removed successfully');
-                            row.remove();
-                        }).catch(error => {
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Product removed:', data);
+                    alert('Product removed successfully');
+                    row.remove();
+                })
+                .catch(error => {
                     console.error('Error:', error);
                     alert('An error occurred while removing the product.');
+                })
+                .finally(() => {
+                    fetchCartQuantity();
                 });
             });
         });
@@ -157,6 +162,25 @@
             }).catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while adding the product to the cart.');
+            }).finally(() => {
+                fetchCartQuantity();
+            });
+        }
+
+        async function fetchCartQuantity() {
+            fetch('/carts/amount-of-items', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
+                console.log('Cart quantity:', data.amountOfItems);
+            })
+            .catch(error => {
+                console.error('Error fetching cart quantity:', error);
             });
         }
     });
