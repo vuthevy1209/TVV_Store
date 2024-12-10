@@ -14,11 +14,9 @@ class CartController{
             if(!customer) return res.json([]);
             const customerId = customer.id;
             
-            const {products,total} = await cartService.findAllByCustomerId(customerId);
+            const {products,total,amountOfItems} = await cartService.findAllByCustomerId(customerId);
 
-            console.log(products);
-            console.log(total);
-            res.render('cart/cart', { products, total });
+            res.render('cart/cart', { products, total,amountOfItems });
         }
         catch(error){
             console.error('Error getting product list:', error);
@@ -37,7 +35,7 @@ class CartController{
             const customerId = customer.id;
             const { product_id, quantity } = req.body;
             await cartService.add(customerId, product_id, quantity);
-            res.status(200).json({ message: 'Product added to cart successfully' });
+            res.status(200).json({ message: 'Your cart has been updated' });
         }
         catch(error){
             console.error('Error adding product to cart:', error);

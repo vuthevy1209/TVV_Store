@@ -80,35 +80,6 @@ Handlebars.registerHelper('multiply', function (a, b) {
     return a * b;
 });
 
-
-// // view
-// const hbsHelpers = require('handlebars-helpers');
-// const { engine } = require('express-handlebars');
-// const exphbs = require('express-handlebars'); // Add this line
-//
-// const hbs = engine({
-//     extname: '.hbs',
-//     helpers: hbsHelpers(),
-//     runtimeOptions: {
-//         allowProtoPropertiesByDefault: true,
-//         allowProtoMethodsByDefault: true,
-//     }
-// });
-// // Template engine
-// app.engine('.hbs', hbs);
-// app.set('view engine', '.hbs');
-// app.set('views', path.join(__dirname, 'views'));
-//
-// // Register Handlebars as the view engine
-// app.engine('hbs', exphbs.engine({
-//     extname: 'hbs',
-//     helpers: {
-//         includes: function(array, value) {
-//             return array && array.includes(value);
-//         }
-//     }
-// }));
-
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -133,6 +104,7 @@ app.use('/auth', authRouter);
 app.use('/products', productRouter);
 
 app.use('/carts', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), cartRouter);
+//app.user('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), orderRouter);
 app.use('/', homeRouter);
 
 
@@ -151,16 +123,5 @@ app.use((req, res) => {
     res.status(404).render('404', { title: 'Page Not Found' });
 });
 
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
-
-// // port
-// const port = 3001;
-// app.listen(port, () => {
-//     console.log(`Example app listening on port ${port}!`);
-// });
 
 module.exports = app;

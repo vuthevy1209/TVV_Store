@@ -1,6 +1,6 @@
 const Cart = require('../models/cart');
 const CartItem = require('../models/cartItems');
-const CartMapper = require('../mapper/CartMapper');
+const CartMapper = require('../mapper/cartMapper');
 const Product = require('../../product/models/product');
 
 class CartService {
@@ -20,15 +20,17 @@ class CartService {
 
         const products = [];
         let total = 0;
+        let amountOfItems = 0;
 
         for (const item of items) {
             const product = await CartMapper.itemToProduct(item);
             const currPrice = product.price * product.quantity;
             total += currPrice;
+            amountOfItems++;
             products.push({product, currPrice});
         }
 
-        return {products, total};
+        return {products, total, amountOfItems};
 
     }
 
