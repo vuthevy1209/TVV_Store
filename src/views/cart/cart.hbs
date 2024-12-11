@@ -119,6 +119,7 @@
                     console.log('Product removed:', data);
                     alert('Product removed successfully');
                     row.remove();
+                    document.querySelector('#cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -161,17 +162,19 @@
                 }
                 // Update the currPrice for the updated product
                 const productRow = document.querySelector(`tr[data-id="${productId}"]`);
+            
+                if (productRow) {
+                    productRow.querySelector('.currPrice').innerText = `$${data.newItemTotalPrice}`;
+                }
+                document.getElementById('cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
                 if(quantity === 0){
                     return productRow.remove();
-                }
-                if (productRow) {
-                    productRow.querySelector('.currPrice').innerText = `$${data.total}`;
                 }
             }).catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while adding the product to the cart.');
             }).finally(() => {
-                fetchCartTotalPrice();
+                
                 fetchCartQuantity();
             });
         }
@@ -193,7 +196,7 @@
             });
         }
 
-        async function fetchCartTotalPrice(){
+        {{!-- async function fetchCartTotalPrice(){
             fetch('/carts/total-price', {
                 method: 'GET',
                 headers: {
@@ -207,6 +210,6 @@
             .catch(error => {
                 console.error('Error fetching cart total price:', error);
             });
-        }
+        } --}}
     });
 </script>

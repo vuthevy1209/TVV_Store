@@ -33,8 +33,8 @@ class CartController{
 
             const customerId = customer.id;
             const { product_id, quantity } = req.body;
-            const newItemTotalPrice=await cartService.update(customerId, product_id, quantity);
-            res.status(200).json({ message: 'Your cart has been updated',total: newItemTotalPrice});
+            const {newItemTotalPrice,cartTotalPrice}=await cartService.update(customerId, product_id, quantity);
+            res.status(200).json({ message: 'Your cart has been updated',newItemTotalPrice, cartTotalPrice });
         }
         catch(error){
             console.error('Error adding product to cart:', error);
@@ -57,8 +57,8 @@ class CartController{
     // [DELETE] /carts/items/:productId
     async deleteProduct(req, res){
         try{
-            await cartService.deleteProducts(req.params.productId);
-            res.json({ message: 'Product deleted from cart successfully' });
+            const {cartTotalPrice}=await cartService.deleteProducts(req.params.productId);
+            res.json({ message: 'Product deleted from cart successfully',cartTotalPrice });
         }
         catch(error){
             console.error('Error deleting product from cart:', error);
@@ -84,23 +84,23 @@ class CartController{
         }
     }
 
-    // [GET] /carts/total-price
-    async findTotalPrice(req, res){
-        try{
-            if(!res.locals.user) return res.json({ totalPrice: 0 }); // no user logged in
-            const customer = await CustomerService.getByUserId(res.locals.user.id);
-            if(!customer) res.status(404).json({ error: 'Customer not found' });
+    // // [GET] /carts/total-price
+    // async findTotalPrice(req, res){
+    //     try{
+    //         if(!res.locals.user) return res.json({ totalPrice: 0 }); // no user logged in
+    //         const customer = await CustomerService.getByUserId(res.locals.user.id);
+    //         if(!customer) res.status(404).json({ error: 'Customer not found' });
 
-            const customerId = customer.id;
-            const totalPrice = await cartService.findTotalPriceByCustomerId(customerId);
-            console.log('Total price:', totalPrice);
-            res.json({ totalPrice });
-        }
-        catch(error){
-            console.error('Error getting total price of items in cart:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
+    //         const customerId = customer.id;
+    //         const totalPrice = await cartService.findTotalPriceByCustomerId(customerId);
+    //         console.log('Total price:', totalPrice);
+    //         res.json({ totalPrice });
+    //     }
+    //     catch(error){
+    //         console.error('Error getting total price of items in cart:', error);
+    //         res.status(500).json({ error: 'Internal Server Error' });
+    //     }
+    // }
 
 }
 
