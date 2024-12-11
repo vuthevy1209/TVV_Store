@@ -59,13 +59,21 @@ class ProductService {
         if (inventoryQuantityMin) query.inventory_quantity = { [Op.gte]: inventoryQuantityMin };
         if (inventoryQuantityMax) query.inventory_quantity = { ...query.inventory_quantity, [Op.lte]: inventoryQuantityMax };
 
-        return await Product.findAll({
+        const products= await Product.findAll({
             where: query,
             include: [
                 { model: ProductCategory, attributes: ['name'] },
                 { model: ProductBrand, attributes: ['name'] }
             ]
         });
+
+        const productList = products.map(product => product.get({ plain: true }));
+        const brands = await ProductBrand.findAll();
+        const productBrandList = brands.map(brand => brand.get({ plain: true }));
+        const categories = await ProductCategory.findAll();
+        const productCategoryList = categories.map(category => category.get({ plain: true }));
+
+        return { productList, productBrandList, productCategoryList };
     }
 
     // Get all brands
