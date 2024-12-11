@@ -3,6 +3,8 @@ const CartItem = require('../models/cartItems');
 const CartMapper = require('../mapper/cartMapper');
 const Product = require('../../product/models/product');
 
+const DecimalUtils = require('../../../utils/decimal.utils');
+
 class CartService {
     async findAllByCustomerId(customerId) {
         const cart = await Cart.findOne({
@@ -46,10 +48,12 @@ class CartService {
             
             if (item) {
                 // can not use += for negative quantity because it will be converted to string
-                const productPrice = (await Product.findByPk(productId)).price;
+                const productPrice = DecimalUtils.toDecimal((await Product.findByPk(productId)).price);
+
                 newItemTotalPrice = quantity * productPrice;
-                cart.total_price -= item.quantity * productPrice;
-                cart.total_price += newItemTotalPrice;
+
+                cart.total_price = DecimalUtils.toDecimal(cart.total_price);
+                cart.total_price = cart.total_price - item.quantity * productPrice + newItemTotalPrice;
 
                 if(quantity>0){
                     item.quantity = quantity;
@@ -57,20 +61,21 @@ class CartService {
                 }
                 else{
                     cart.amount_of_items -= 1;
+
                     await item.destroy();
                 }
             } else {
                 await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
 
-                const productPrice = (await Product.findByPk(productId)).price;
+                const productPrice = DecimalUtils.toDecimal((await Product.findByPk(productId)).price);
                 newItemTotalPrice = quantity * productPrice;
-                cart.total_price += newItemTotalPrice;
+                cart.total_price = DecimalUtils.add(cart.total_price, newItemTotalPrice);
 
                 cart.amount_of_items += 1;
             }
             await cart.save();
             
-            return newItemTotalPrice;
+            return {newItemTotalPrice,cartTotalPrice:cart.total_price};
         }
         catch(error){
             console.error('Error updating cart:', error);
@@ -103,9 +108,12 @@ class CartService {
         }
         const cart = await Cart.findByPk(item.cart_id);
         cart.amount_of_items -= 1;
-        cart.total_price -= (await Product.findByPk(id)).price*item.quantity;
+        
+        cart.total_price = DecimalUtils.subtract(cart.total_price, (await Product.findByPk(id)).price)
+
         await item.destroy();
         await cart.save();
+        return {cartTotalPrice:cart.total_price};
     }
 
     async findAmountOfItemsByCustomerId(customerId) {
@@ -120,17 +128,17 @@ class CartService {
         return cart.amount_of_items;
     }
 
-    async findTotalPriceByCustomerId(customerId) {
-        const cart = await Cart.findOne({
-            where: {
-                customer_id: customerId
-            }
-        });
-        if (!cart) {
-            return 0;
-        }
-        return cart.total_price;
-    }
+    // async findTotalPriceByCustomerId(customerId) {
+    //     const cart = await Cart.findOne({
+    //         where: {
+    //             customer_id: customerId
+    //         }
+    //     });
+    //     if (!cart) {
+    //         return 0;
+    //     }
+    //     return cart.total_price;
+    // }
 }
 
 module.exports = new CartService();
