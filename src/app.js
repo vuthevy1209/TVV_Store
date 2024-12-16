@@ -108,7 +108,7 @@ const connectEnsureLogin = require('connect-ensure-login');
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
 
-app.use('/carts', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), cartRouter);
+app.use('/carts', cartRouter);
 //app.user('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), orderRouter);
 app.use('/', homeRouter);
 
