@@ -118,12 +118,12 @@
 
         const cartNumber = cartHeader.querySelector('.badge');
 
-        cartHeader.addEventListener('click', (event) => {
-            if (!isLoggedIn) {
-                event.preventDefault();
-                $('#loginModal').modal('show');
-            }
-        });
+        // cartHeader.addEventListener('click', (event) => {
+        //     if (!isLoggedIn) {
+        //         event.preventDefault();
+        //         $('#loginModal').modal('show');
+        //     }
+        // });
 
         function fetchCartQuantity() {
             fetch('/carts/amount-of-items', {

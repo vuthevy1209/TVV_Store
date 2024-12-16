@@ -4,13 +4,16 @@ const CustomerService = require('../../customer/services/customer.services');
 class CartController{
     
     //[GET] /carts
-    async index(req, res){
+    async index(req, res, next){
         try{
             // Return an empty array if no items are found
-            if(!res.locals.user) return res.json([]);
+            if(!res.locals.user) return res.render('cart/cart', { products: [], total: 0 });
             const userId = res.locals.user.id;
             const customer = await CustomerService.getByUserId(userId);
-            if(!customer) return res.json([]);
+            if(!customer) {
+                throw new Error('Customer not found');
+            }
+
             const customerId = customer.id;
             
             const {products,total} = await cartService.findAllByCustomerId(customerId);
@@ -19,7 +22,7 @@ class CartController{
         }
         catch(error){
             console.error('Error getting product list:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            next(error); // Pass the error to the error middleware
         }
     }
 
