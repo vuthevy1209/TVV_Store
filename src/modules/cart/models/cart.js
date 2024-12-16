@@ -23,6 +23,16 @@ const Cart = sequelize.define('Cart', {
         type:DataTypes.BOOLEAN,
         allowNull:false,
         defaultValue:true
+    },
+    amount_of_items:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        defaultValue:0
+    },
+    total_price: {
+        type: DataTypes.DECIMAL,
+        allowNull: false,
+        defaultValue: 0
     }
 },{
     tableName:'carts'

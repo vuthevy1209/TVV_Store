@@ -1,11 +1,24 @@
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
 
-const CartItem = require('../../cart/models/cartItems');
-
 const Customer = require('../../customer/models/customer');
 
 class OrderService {
+
+    async findAllByCustomerId(customerId) {
+        try {
+            const order = await Order.findOne({ where: { customer_id: customerId } });
+            if (!order) {
+                return [];
+            }
+            const orderItems = await OrderItem.findAll({ where: { order_id: order.id } });
+            return orderItems;
+        }
+        catch (err) {
+            throw err;
+        }
+
+    }
 
     async checkout(userId, items) {
         try {

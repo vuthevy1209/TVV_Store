@@ -78,7 +78,7 @@
                         </div>
                     </div>
 
-                    <div class="row pl-4 pr-4 mt-3">
+                    <div class="row pl-4 pr-4 mt-3" id="productList">
                         {{#each productList}}
                         <div class="col-lg-3 col-md-6 mb-4">
                             <a href="/products/{{this.id}}" style="text-decoration: none;">
@@ -105,5 +105,50 @@
         </div>
     </div>
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const queryString = new URLSearchParams(formData).toString();
+
+            window.history.pushState({}, '', `/products/search?${queryString}`);
+            fetch(`/products/search?${queryString}`, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const productList = document.getElementById('productList');
+                    productList.innerHTML = '';
+                    data.forEach(product => {
+                        const productHtml = `
+                            <div class="col-lg-3 col-md-6 mb-4">
+                                <a href="/products/${product.id}" style="text-decoration: none;">
+                                    <div class="card">
+                                        <div class="brand">${product.productBrand.name}</div>
+                                        <div class="product-image">
+                                            <img src="${product.image_urls[0]}" alt="Product" />
+                                        </div>
+                                        <div class="card-body">
+                                            ${product.discount > 0 ? `<span class="discount">${product.discount}% off</span>` : ''}
+                                            <h5 class="card-title text-center">${product.name}</h5>
+                                            <h6 class="card-price text-center">$${product.price}</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        `;
+                        productList.insertAdjacentHTML('beforeend', productHtml); 
+                    });
+                    
+                })
+                .catch(error => console.error('Error fetching products:', error));
+        });
+    });
+
+</script>
 
 <link rel="stylesheet" href="/css/products.css">

@@ -430,6 +430,8 @@ a:focus {
 .arrival_section {
 	background-color: #d4ced0;
 }
+
+
 .product_section .option_container {
 	position: absolute;
 	top: 0;
@@ -1127,3 +1129,26 @@ form input[type="submit"]:focus {
 	font-weight: 400;
 }
 
+.badge:after{
+
+	content:attr(value);
+
+	font-size:16px;
+
+	color: #fff;
+
+	background: red;
+
+	border-radius:50%;
+
+	padding: 0 5px;
+
+	position:relative;
+
+	left:-8px;
+
+	top:-10px;
+
+	opacity:0.9;
+
+}

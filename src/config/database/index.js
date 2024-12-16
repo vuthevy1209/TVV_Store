@@ -4,6 +4,7 @@
 const { Sequelize } = require('@sequelize/core');
 const { PostgresDialect } = require('@sequelize/postgres');
 
+
 const sequelize = new Sequelize({
     dialect: PostgresDialect,
     database: process.env.DATABASE_NAME,
