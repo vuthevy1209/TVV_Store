@@ -1,5 +1,6 @@
 const userService = require('../../user/services/user.services');
 const passport = require('../../../config/auth/passport');
+const customerService = require('../../customer/services/customer.services');
 
 class AuthController {
     // [GET] /login
@@ -48,6 +49,7 @@ class AuthController {
                 email: req.body.email
             });
         }
+        await customerService.createCustomerBasedOnExistingUser(result.id);
         req.flash('success', 'Register successful, please login!');
         res.redirect('/auth/login');
     }
