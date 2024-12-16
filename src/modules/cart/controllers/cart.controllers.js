@@ -71,7 +71,7 @@ class CartController{
         try{
             if(!res.locals.user) return res.json({ amountOfItems: 0 }); // no user logged in
             const customer = await CustomerService.getByUserId(res.locals.user.id);
-            if(!customer) res.status(404).json({ error: 'Customer not found' });
+            if(!customer) return res.status(404).json({ error: 'Customer not found' });
 
             const customerId = customer.id;
             const amountOfItems = await cartService.findAmountOfItemsByCustomerId(customerId);
