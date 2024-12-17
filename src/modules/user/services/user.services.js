@@ -40,13 +40,15 @@ class UserServices {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-            return await User.create({
+            const user =  await User.create({
                 username,
                 email,
                 password: hashedPassword,
                 first_name: firstName,
                 last_name: lastName,
             });
+
+            return { user };
         }
         catch(error) {
             return { error: error.message };

@@ -110,24 +110,25 @@
             button.addEventListener('click', function () {
                 const row = this.closest('tr');
                 const productId = row.getAttribute('data-id');
+                addToCart(productId, 0);
 
-                fetch(`/carts/items/${productId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Product removed:', data);
-                    alert('Product removed successfully');
-                    row.remove();
-                    document.querySelector('#cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while removing the product.');
-                })
-                .finally(() => {
-                    fetchCartQuantity();
-                });
+                // fetch(`/carts/items/${productId}`, {
+                //     method: 'DELETE'
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     console.log('Product removed:', data);
+                //     alert('Product removed successfully');
+                //     row.remove();
+                //     document.querySelector('#cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
+                // })
+                // .catch(error => {
+                //     console.error('Error:', error);
+                //     alert('An error occurred while removing the product.');
+                // })
+                // .finally(() => {
+                //     fetchCartQuantity();
+                // });
             });
         });
 

@@ -18,8 +18,8 @@ class CustomerService {
                 throw new Error('Customer already exists for this user');
             }
 
-            const newCustomer = await Customer.create({ user_id: userId });
-            return newCustomer;
+            const customer = await Customer.create({ user_id: userId });
+            return {customer};
         } catch (error) {
             console.error('Error creating customer:', error);
             throw new Error('Internal Server Error');

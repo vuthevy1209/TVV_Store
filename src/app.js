@@ -45,6 +45,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
 
+app.use('/auth/login/google' , passport.authenticate('google'));
+const FederatedCredential = require('./modules/auth/models/federatedCredential');
+const User = require('./modules/user/models/user');
+
+app.use('/oauth2/redirect/google', passport.authenticate('google', {
+    successRedirect: '/home',
+    failureRedirect: '/auth/login-register'
+}));
+
 
 // flash
 const flash = require('connect-flash');
@@ -129,7 +138,7 @@ app.use((err, req, res, next) => {
 });
 
 // port
-const port = 3001;
+const port = 3000;
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
 });

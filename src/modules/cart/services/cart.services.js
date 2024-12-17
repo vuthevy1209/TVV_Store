@@ -39,6 +39,16 @@ class CartService {
 
     }
 
+    async createCart(customerId) {
+        try {
+            const cart = await Cart.create({ customer_id: customerId });
+            return { cart };
+        } catch (error) {
+            console.error('Error creating cart:', error);
+            return { error: 'An error occurred while creating cart' };
+        }
+    }
+
     async update(customerId, productId, quantity) {
         try{
             const cart = await Cart.findOne({where: {customer_id: customerId}});

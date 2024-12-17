@@ -1,6 +1,5 @@
-const userService = require('../../user/services/user.services');
 const passport = require('../../../config/auth/passport');
-const customerService = require('../../customer/services/customer.services');
+const authService = require('../services/auth.services');
 
 class AuthController {
     // [GET] /login
@@ -35,14 +34,14 @@ class AuthController {
     // [POST] /register
     async register(req, res) {
         try {
-            const result = await userService.createUser(req.body);
+            const result = await authService.register(req.body);
             if (result.error) {
                 return res.status(400).json({message: result.error});
             }
+
             req.flash('success', 'Register successfully, please login!');
             res.json({redirectUrl: '/auth/login-register'});
         } catch (error) {
-            console.error('Error:', error);
             res.status(500).json({message: 'An error occurred. Please try again.'});
         }
     }
