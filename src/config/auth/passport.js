@@ -49,10 +49,15 @@ passport.use(
         }
     ));
 
+// Dynamically determine the base URL
+const BASE_URL = process.env.NODE_ENV === 'production'
+    ? 'https://tvv-store.vercel.app' // Production URL
+    : 'http://localhost:3000';
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/oauth2/redirect/google',
+    callbackURL: `${BASE_URL}/oauth2/redirect/google`, // Full callback URL
     scope: ['profile', 'email']
 }, async function verify(issuer, profile, cb) {
     try {
