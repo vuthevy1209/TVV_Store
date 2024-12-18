@@ -19,7 +19,6 @@ class CartService {
             }
         });
 
-
         const products = [];
         let total = 0;
         let amountOfItems = 0;
@@ -29,14 +28,13 @@ class CartService {
             const currPrice = product.price * product.quantity;
             total += currPrice;
             amountOfItems++;
-            products.push({product, currPrice});
+            products.push({ product, currPrice });
         }
         cart.amount_of_items = amountOfItems;
         cart.total_price = total;
         await cart.save();
 
-        return {products, total};
-
+        return { products, total };
     }
 
     async createCart(customerId) {
@@ -49,49 +47,59 @@ class CartService {
         }
     }
 
-    async update(customerId, productId, quantity) {
-        try{
-            const cart = await Cart.findOne({where: {customer_id: customerId}});
-            const item = await CartItem.findOne({where: {cart_id: cart.id, product_id: productId}});
+    async updateProductInventory(product,newQuantity,oldQuantity) {
+        product.inventory_quantity = product.inventory_quantity - newQuantity + oldQuantity;
+        await product.save();
+    }
 
-            let newItemTotalPrice = 0;
-            
+    async updateMultipleItems(customerId, products) {
+
+        const cart = await Cart.findOne({ where: { customer_id: customerId } });
+        let cartTotalPrice = DecimalUtils.toDecimal(cart.total_price);
+        let newItemsTotalPrice = {};
+
+        for (const productId in products) {
+            const quantity = products[productId];
+            const item = await CartItem.findOne({ where: { cart_id: cart.id, product_id: productId } });
+            const product = await Product.findByPk(productId);
+
+            if (!product) {
+                throw new Error('Product not found');
+            }
+
+            if (quantity > product.inventory_quantity) {
+                throw new Error('Quantity exceeds inventory');
+            }
+
+            const productPrice = DecimalUtils.toDecimal(product.price);
+            let newItemTotalPrice = quantity * productPrice;
+
             if (item) {
-                // can not use += for negative quantity because it will be converted to string
-                const productPrice = DecimalUtils.toDecimal((await Product.findByPk(productId)).price);
-
-                newItemTotalPrice = quantity * productPrice;
-
-                cart.total_price = DecimalUtils.toDecimal(cart.total_price);
-                cart.total_price = cart.total_price - item.quantity * productPrice + newItemTotalPrice;
-
-                if(quantity>0){
+                cartTotalPrice = DecimalUtils.subtract(cartTotalPrice, item.quantity * productPrice);
+                cartTotalPrice = DecimalUtils.add(cartTotalPrice, newItemTotalPrice);
+                if (quantity > 0) {
+                    this.updateProductInventory(product,quantity,item.quantity);
                     item.quantity = quantity;
                     await item.save();
-                }
-                else{
+                } else {
                     cart.amount_of_items -= 1;
-
+                    this.updateProductInventory(product,0,item.quantity);
                     await item.destroy();
                 }
             } else {
-                await CartItem.create({cart_id: cart.id, product_id: productId, quantity: quantity});
-
-                const productPrice = DecimalUtils.toDecimal((await Product.findByPk(productId)).price);
-                newItemTotalPrice = quantity * productPrice;
-                cart.total_price = DecimalUtils.add(cart.total_price, newItemTotalPrice);
-
+                
+                await CartItem.create({ cart_id: cart.id, product_id: productId, quantity: quantity });
+                cartTotalPrice = DecimalUtils.add(cartTotalPrice, newItemTotalPrice);
                 cart.amount_of_items += 1;
             }
-            await cart.save();
-            
-            return {newItemTotalPrice,cartTotalPrice:cart.total_price};
+            newItemsTotalPrice[productId] = newItemTotalPrice;
         }
-        catch(error){
-            console.error('Error updating cart:', error);
-            throw new Error('Internal Server Error');
-        }
-        
+
+        cart.total_price = cartTotalPrice;
+        await cart.save();
+
+        return { newItemsTotalPrice, cartTotalPrice };
+
     }
 
     async decreaseQuantity(id) { // decrease 1 unit
@@ -118,12 +126,12 @@ class CartService {
         }
         const cart = await Cart.findByPk(item.cart_id);
         cart.amount_of_items -= 1;
-        
+
         cart.total_price = DecimalUtils.subtract(cart.total_price, (await Product.findByPk(id)).price)
 
         await item.destroy();
         await cart.save();
-        return {cartTotalPrice:cart.total_price};
+        return { cartTotalPrice: cart.total_price };
     }
 
     async findAmountOfItemsByCustomerId(customerId) {

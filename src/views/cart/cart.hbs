@@ -6,14 +6,14 @@
                 <tr>
                     <th scope="col">Product</th>
                     <th scope="col">Price</th>
-                    <th scope="col">Quantity</th>
+                    <th scope="col" class="text-center">Quantity</th>
                     <th scope="col">Total</th>
                     <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 {{#each products}}
-                    <tr data-id="{{this.product.id}}">
+                    <tr data-id="{{this.product.id}}" data-max-quantity="{{this.product.inventory_quantity}}">
                         <td>
                             <div class="media">
                                 <div class="d-flex">
@@ -28,18 +28,18 @@
                         <td>
                             <h5>${{this.product.price}}</h5>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <div class="product_count">
-
                                 <div class="quantity-container d-flex justify-content-center align-items-center">
                                     <span class="input-number-decrement decrease-quantity" data-id="{{this.product.id}}"
                                           style="cursor: pointer; padding: 5px 10px; background-color: #007bff; color: white; border-radius: 5px; margin: 0 5px; transition: background-color 0.3s;">-</span>
                                     <input type="text" class="quantity-input input-number"
-                                           value="{{this.product.quantity}}" min="0" max="10" readonly
+                                           value="{{this.product.quantity}}" min="0" max="{{this.product.inventory_quantity}}" readonly
                                            style="text-align: center; width: 50px;">
                                     <span class="input-number-increment increase-quantity" data-id="{{this.product.id}}"
                                           style="cursor: pointer; padding: 5px 10px; background-color: #007bff; color: white; border-radius: 5px; margin: 0 5px; transition: background-color 0.3s;">+</span>
                                 </div>
+                                <div class="error-message" style="color: red; display: none;">Quantity exceeds inventory</div>
                             </div>
                         </td>
                         <td>
@@ -76,33 +76,48 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        let debounceTimer;
+        let accumulatedQuantities = {};
+
         document.querySelectorAll('.increase-quantity').forEach(button => {
             button.addEventListener('click', function () {
                 const row = this.closest('tr');
-                console.log(row);
                 const productId = row.getAttribute('data-id');
-                console.log(productId);
-
                 const quantityInput = row.querySelector('.input-number');
-                const newQuantity = parseInt(quantityInput.value) + 1;
-                quantityInput.value = newQuantity;
+                const maxQuantity = parseInt(quantityInput.max);
+                const errorMessage = row.querySelector('.error-message');
 
-                addToCart(productId, newQuantity);
+                let newQuantity = (accumulatedQuantities[productId] || parseInt(quantityInput.value)) + 1;
+
+                if (newQuantity > maxQuantity) {
+                    errorMessage.style.display = 'block';
+                    return;
+                } else {
+                    errorMessage.style.display = 'none';
+                }
+
+                accumulatedQuantities[productId] = newQuantity;
+                quantityInput.value = newQuantity;
+                debounceUpdateCart();
             });
         });
 
         document.querySelectorAll('.decrease-quantity').forEach(button => {
             button.addEventListener('click', function () {
                 const row = this.closest('tr');
-                console.log(row);
-
                 const productId = row.getAttribute('data-id');
-                console.log(productId);
                 const quantityInput = row.querySelector('.input-number');
-                const newQuantity = Math.max(0, parseInt(quantityInput.value) - 1);
-                quantityInput.value = newQuantity;
+                const errorMessage = row.querySelector('.error-message');
 
-                addToCart(productId, newQuantity);
+                let newQuantity = Math.max(0, (accumulatedQuantities[productId] || parseInt(quantityInput.value)) - 1);
+
+                if (newQuantity <= parseInt(quantityInput.max)) {
+                    errorMessage.style.display = 'none';
+                }
+
+                accumulatedQuantities[productId] = newQuantity;
+                quantityInput.value = newQuantity;
+                debounceUpdateCart();
             });
         });
 
@@ -110,25 +125,8 @@
             button.addEventListener('click', function () {
                 const row = this.closest('tr');
                 const productId = row.getAttribute('data-id');
-                addToCart(productId, 0);
-
-                // fetch(`/carts/items/${productId}`, {
-                //     method: 'DELETE'
-                // })
-                // .then(response => response.json())
-                // .then(data => {
-                //     console.log('Product removed:', data);
-                //     alert('Product removed successfully');
-                //     row.remove();
-                //     document.querySelector('#cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
-                // })
-                // .catch(error => {
-                //     console.error('Error:', error);
-                //     alert('An error occurred while removing the product.');
-                // })
-                // .finally(() => {
-                //     fetchCartQuantity();
-                // });
+                accumulatedQuantities[productId] = 0;
+                debounceUpdateCart();
             });
         });
 
@@ -145,13 +143,22 @@
             });
         });
 
-        async function addToCart(productId, quantity) {
+        function debounceUpdateCart() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                updateCart();
+            }, 500); // Adjust the delay as needed
+        }
+
+        async function updateCart() {
+            const currentQuantities = { ...accumulatedQuantities }; // Copy current state
+
             fetch('/carts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({product_id: productId, quantity})
+                body: JSON.stringify({products: currentQuantities})
             }).then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -161,21 +168,23 @@
                 if (data.message) {
                     alert(data.message);
                 }
-                // Update the currPrice for the updated product
-                const productRow = document.querySelector(`tr[data-id="${productId}"]`);
-            
-                if (productRow) {
-                    productRow.querySelector('.currPrice').innerText = `$${data.newItemTotalPrice}`;
+                // Update the currPrice for the updated products
+                for (const productId in currentQuantities) {
+                    const productRow = document.querySelector(`tr[data-id="${productId}"]`);
+                    if (productRow) {
+                        productRow.querySelector('.currPrice').innerText = `$${data.newItemsTotalPrice[productId]}`;
+                        if (currentQuantities[productId] === 0) {
+                            productRow.remove();
+                        }
+                    }
                 }
                 document.getElementById('cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
-                if(quantity === 0){
-                    return productRow.remove();
-                }
             }).catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while adding the product to the cart.');
+                alert(error.message);
             }).finally(() => {
-                
+                // Reset the accumulated quantities only after the API call is completed
+                accumulatedQuantities = {};
                 fetchCartQuantity();
             });
         }
@@ -196,21 +205,6 @@
                 console.error('Error fetching cart quantity:', error);
             });
         }
-
-        {{!-- async function fetchCartTotalPrice(){
-            fetch('/carts/total-price', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cartTotalPrice').innerText = `$${data.totalPrice}`;
-            })
-            .catch(error => {
-                console.error('Error fetching cart total price:', error);
-            });
-        } --}}
     });
 </script>
+
