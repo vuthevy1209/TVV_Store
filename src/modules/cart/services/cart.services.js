@@ -45,7 +45,7 @@ class CartService {
             return { cart };
         } catch (error) {
             console.error('Error creating cart:', error);
-            return { error: 'An error occurred while creating cart' };
+            throw new Error('Error creating cart');
         }
     }
 
