@@ -5,9 +5,9 @@ class UserServices {
     // find user by username
     async findByUsername(username) {
         try {
-            return await User.findOne({ where: { username } });
+            return await User.findOne({where: {username}});
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
@@ -16,23 +16,23 @@ class UserServices {
         try {
             return await bcrypt.compare(inputPassword, storedPassword);
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
     // create a new user
     async createUser(userData) {
         try {
-            const { username, password, email, firstName, lastName } = userData;
+            const {username, password, email, firstName, lastName} = userData;
 
             // Check if username is already taken
-            const existingUserByUsername = await User.findOne({ where: { username } });
+            const existingUserByUsername = await User.findOne({where: {username}});
             if (existingUserByUsername) {
                 throw new Error('Username is already taken');
             }
 
             // Check if email is already taken
-            const existingUserByEmail = await User.findOne({ where: { email } });
+            const existingUserByEmail = await User.findOne({where: {email}});
             if (existingUserByEmail) {
                 throw new Error('Email is already taken');
             }
@@ -40,7 +40,7 @@ class UserServices {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-            const user =  await User.create({
+            const user = await User.create({
                 username,
                 email,
                 password: hashedPassword,
@@ -48,10 +48,10 @@ class UserServices {
                 last_name: lastName,
             });
 
-            return { user };
-        }
-        catch(error) {
-            return { error: error.message };
+            return {user};
+        } catch (error) {
+            // return { error: error.message };
+            throw new Error(error.message);
         }
 
     }
@@ -61,7 +61,7 @@ class UserServices {
         try {
             return await User.findByPk(id);
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
@@ -74,7 +74,7 @@ class UserServices {
             }
             return await user.update(updates);
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
@@ -93,9 +93,9 @@ class UserServices {
 
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-            return await user.update({ password: hashedPassword });
+            return await user.update({password: hashedPassword});
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
@@ -104,7 +104,7 @@ class UserServices {
         try {
             return await User.findAll();
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
@@ -117,7 +117,7 @@ class UserServices {
             }
             return await user.destroy();
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
 
@@ -128,11 +128,24 @@ class UserServices {
             if (!user) {
                 throw new Error('User not found');
             }
-            return await user.update({ status: false });
+            return await user.update({status: false});
         } catch (error) {
-            return { error: error.message };
+            return {error: error.message};
         }
     }
+
+    // update user password
+    async updateUserPassword(userId, newPassword) {
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await User.update({password: hashedPassword}, {where: {id: userId}});
+        }
+        catch(error) {
+            console.log(error);
+            throw new Error('Error updating password');
+        }
+
+    };
 }
 
 module.exports = new UserServices();
