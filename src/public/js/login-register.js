@@ -75,3 +75,52 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         swal("Error", "An error occurred. Please try again.", "error");
     }
 });
+
+
+// Forgot password modal
+document.addEventListener('DOMContentLoaded', () => {
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const closeModal = document.querySelector('.modal .close');
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotPasswordModal.style.display = 'block';
+    });
+
+    closeModal.addEventListener('click', () => {
+        forgotPasswordModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === forgotPasswordModal) {
+            forgotPasswordModal.style.display = 'none';
+        }
+    });
+
+    document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgotPasswordEmail').value;
+
+        try {
+            const response = await fetch('/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email})
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                swal("Success", result.message, "success");
+                // forgotPasswordModal.style.display = 'none';
+            } else {
+                swal("Error", result.message, "error");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            swal("Error", "An error occurred. Please try again.", "error");
+        }
+    });
+});

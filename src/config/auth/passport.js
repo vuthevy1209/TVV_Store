@@ -51,8 +51,8 @@ passport.use(
 
 // Dynamically determine the base URL
 const BASE_URL = process.env.NODE_ENV === 'production'
-    ? 'https://tvv-store.vercel.app' // Production URL
-    : 'http://localhost:3000';
+    ? process.env.PROD_BASE_URL // Production URL
+    : process.env.DEV_BASE_URL;
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,

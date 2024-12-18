@@ -10,6 +10,7 @@
     "node": "20.x"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^2.2.0",
     "@sequelize/core": "^7.0.0-alpha.43",
     "@sequelize/postgres": "^7.0.0-alpha.43",
     "@types/sequelize": "^4.28.20",
@@ -38,7 +39,8 @@
     "passport-local": "^1.0.0",
     "pg": "^8.13.1",
     "pg-promise": "^11.10.2",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "sib-api-v3-sdk": "^8.5.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

@@ -22,7 +22,7 @@ class CustomerService {
             return {customer};
         } catch (error) {
             console.error('Error creating customer:', error);
-            throw new Error('Internal Server Error');
+            throw new Error('Error creating customer');
         }
     }
 }

@@ -137,10 +137,4 @@ app.use((err, req, res, next) => {
     res.render('error', { error: [err.message] })
 });
 
-// port
-const port = 3000;
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}!`);
-});
-
 module.exports = app;
