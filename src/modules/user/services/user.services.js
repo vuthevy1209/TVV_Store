@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const { sequelize } = require('../../../config/database'); // Adjust the path to your database configuration
+
 
 class UserServices {
     // find user by username
@@ -81,54 +83,21 @@ class UserServices {
     // change password
     async changePassword(id, oldPassword, newPassword) {
         try {
-            const user = await this.findById(id);
-            if (!user) {
-                throw new Error('User not found');
-            }
+            return await sequelize.transaction(async (transaction) => {
+                const user = await this.findById(id);
+                if (!user) {
+                    throw new Error('User not found');
+                }
 
-            const isMatch = await bcrypt.compare(oldPassword, user.password);
-            if (!isMatch) {
-                throw new Error('Old password is incorrect');
-            }
+                const isMatch = await bcrypt.compare(oldPassword, user.password);
+                if (!isMatch) {
+                    throw new Error('Old password is incorrect');
+                }
 
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-            return await user.update({password: hashedPassword});
-        } catch (error) {
-            return {error: error.message};
-        }
-    }
-
-    // get all users
-    async getAllUsers() {
-        try {
-            return await User.findAll();
-        } catch (error) {
-            return {error: error.message};
-        }
-    }
-
-    // delete user
-    async deleteUser(id) {
-        try {
-            const user = await this.findById(id);
-            if (!user) {
-                throw new Error('User not found');
-            }
-            return await user.destroy();
-        } catch (error) {
-            return {error: error.message};
-        }
-    }
-
-    // ban user
-    async banUser(id) {
-        try {
-            const user = await this.findById(id);
-            if (!user) {
-                throw new Error('User not found');
-            }
-            return await user.update({status: false});
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+                return await user.update({ password: hashedPassword }, { transaction });
+            });
         } catch (error) {
             return {error: error.message};
         }

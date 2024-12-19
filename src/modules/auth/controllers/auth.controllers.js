@@ -70,18 +70,18 @@ class AuthController {
     // [POST] /change-password
     async changePassword(req, res) {
         try {
-            const {oldPassword, newPassword} = req.body;
+            const {currentPassword, newPassword} = req.body;
             const userId = req.user.id;
 
-            const result = await userService.changePassword(userId, oldPassword, newPassword);
+            const result = await userService.changePassword(userId, currentPassword, newPassword);
             if (result.error) {
-                return res.status(400).send(result.error);
+                return res.status(400).json({message: result.error});
             }
 
-            res.send('Password changed successfully!');
+            res.json({message: 'Password changed successfully!'});
         } catch (error) {
             console.log(error);
-            return res.status(500).send('An error occurred');
+            return res.status(500).json({message: 'An error occurred, please try again!'});
         }
     }
 

@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/css/header.css">
 <header class="header_section">
     <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
@@ -36,7 +37,7 @@
                             </i>
                         </a>
                     </li>
-                    <form class="form-inline">
+                    <form class="form-inline" style="width: auto">
                         <a class="nav-item" href="/products" style="text-decoration: none; color:black">
                             <i class="fa fa-search" aria-hidden="true"></i>
                         </a>
@@ -167,13 +168,22 @@
                 <h3>Change Password</h3>
                 <form>
                     <label for="current-password">Current Password:</label>
-                    <input type="password" id="current-password" placeholder="Enter current password" required>
+                    <div class="password-container">
+                        <input type="password" id="current-password" placeholder="Enter current password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('current-password')"></i>
+                    </div>
 
                     <label for="new-password">New Password:</label>
-                    <input type="password" id="new-password" placeholder="Enter new password" required>
+                    <div class="password-container">
+                        <input type="password" id="new-password" placeholder="Enter new password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('new-password')"></i>
+                    </div>
 
                     <label for="confirm-password">Confirm New Password:</label>
-                    <input type="password" id="confirm-password" placeholder="Confirm new password" required>
+                    <div class="password-container">
+                        <input type="password" id="confirm-password" placeholder="Confirm new password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('confirm-password')"></i>
+                    </div>
 
                     <button type="submit" class="save-btn">Save Changes</button>
                 </form>

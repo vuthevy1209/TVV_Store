@@ -11,5 +11,6 @@ router.get('/logout', authController.logout);
 router.get('/verify', authController.verifyUser);
 router.post('/forgot-password', authController.forgotPassword);
 router.get('/confirm-reset-password', authController.confirmResetPassword);
+router.post('/change-password', validator.validatePassword,authController.changePassword);
 
 module.exports = router;

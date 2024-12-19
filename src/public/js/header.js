@@ -22,7 +22,6 @@ fetchCartQuantity();
 // Modal Elements
 const modal = document.getElementById("profile-modal");
 const openBtn = document.getElementById("open-profile-modal");
-console.log(openBtn);
 const closeBtn = document.getElementById("close-modal");
 
 // Open Modal
@@ -61,4 +60,56 @@ function openChangePasswordModal() {
 
 function closeChangePasswordModal() {
     document.getElementById('change-password-modal').style.display = 'none';
+}
+
+const changePasswordForm = document.querySelector('#change-password-modal form');
+
+changePasswordForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (newPassword !== confirmPassword) {
+        swal('Error', 'New password and confirm password do not match.', 'error');
+        return; // Add return statement to stop execution
+    }
+
+    try {
+        const response = await fetch('/auth/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            swal("Success", result.message, "success");
+        } else {
+            swal("Error", result.message, "error");
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        swal("Error", "An error occurred. Please try again.", "error");
+    }
+});
+
+function togglePasswordVisibility(id) {
+    const passwordInput = document.getElementById(id);
+    const icon = passwordInput.nextElementSibling;
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
 }
