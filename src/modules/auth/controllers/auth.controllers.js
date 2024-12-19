@@ -1,5 +1,6 @@
 const passport = require('../../../config/auth/passport');
 const authService = require('../services/auth.services');
+const cartService = require('../../cart/services/cart.services');
 const VerifyToken = require('../models/VerifyToken');
 const userService = require('../../user/services/user.services');
 
@@ -14,13 +15,21 @@ class AuthController {
 
     // [POST] /login
     async login(req, res, next) {
-        passport.authenticate('local', async (err, user, info) => {
+        // Save the cart data before logging in
+//        const cartData = req.session.cart.items || {};
+        let cartData = {};
+        if(req.session.cart){
+            cartData = req.session.cart.items;
+        }
+        
+        passport.authenticate('local',async (err, user, info) => {
             if (err) {
                 return next(err);
             }
             if (!user) {
                 return res.status(400).json({message: 'Invalid username or password!'});
             }
+            req.logIn(user, async (err) => {
 
             // Check if the user has a valid verification token
             const verifyToken = await VerifyToken.findOne({where: {user_id: user.id}});
@@ -32,6 +41,7 @@ class AuthController {
                 if (err) {
                     return next(err);
                 }
+                await cartService.mergeCarts(user.id, cartData);
                 req.flash('success', 'Login successful!');
                 // we hanle the response manually on the client, so we have to send the redirect URL as json to
                 // avoid the automatic request of the client.
@@ -44,7 +54,6 @@ class AuthController {
     async register(req, res) {
         try {
             const result = await authService.register(req.body);
-
             req.flash('success', 'Please check your inbox and log in after confirming your account.');
             res.json({redirectUrl: '/auth/login-register'});
         } catch (error) {

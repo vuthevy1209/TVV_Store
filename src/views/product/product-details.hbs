@@ -129,46 +129,71 @@
         const quantityInput = document.querySelector(".quantity-input");
         const addToCartBtn = document.querySelector(".btn-submit.add-to-cart");
         const buyNowBtn = document.querySelector(".btn-submit.buy-now");
-        const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
-        
+        {{!-- const isLoggedIn = {{ #if user }}true{{ else}}false{{/if}}; --}}
 
-        function showLoginModal() {
-            $('#loginModal').modal('show');
+
+    function showLoginModal() {
+        $('#loginModal').modal('show');
+    }
+
+    decrementBtn.addEventListener("click", () => {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > parseInt(quantityInput.min)) {
+            quantityInput.value = currentValue - 1;
         }
+    });
 
-        decrementBtn.addEventListener("click", () => {
-            let currentValue = parseInt(quantityInput.value);
-            if (currentValue > parseInt(quantityInput.min)) {
-                quantityInput.value = currentValue - 1;
-            }
-        });
+    incrementBtn.addEventListener("click", () => {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue < parseInt(quantityInput.max)) {
+            quantityInput.value = currentValue + 1;
+        }
+    });
 
-        incrementBtn.addEventListener("click", () => {
-            let currentValue = parseInt(quantityInput.value);
-            if (currentValue < parseInt(quantityInput.max)) {
-                quantityInput.value = currentValue + 1;
-            }
-        });
+    addToCartBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
 
-        addToCartBtn.addEventListener("click", async (event) => {
-            event.preventDefault();
-            if (!isLoggedIn) {
-                showLoginModal();
-            } else {
-                const productId = addToCartBtn.getAttribute('data-id');
-                const quantity = parseInt(quantityInput.value);
+        const productId = addToCartBtn.getAttribute('data-id');
+        const quantity = parseInt(quantityInput.value);
 
-                await addToCart(productId, quantity);
-            }
-        });
+        const products = {};
+        products[productId] = quantity;
 
-        async function fetchCartQuantity() {
-            fetch('/carts/amount-of-items', {
-                method: 'GET',
+        try {
+            const response = await fetch('/carts', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
-            })
+                },
+                body: JSON.stringify({ products })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            document.getElementById('cartQuantityIcon').setAttribute('value', data.result.cartAmountOfItems);
+            if (data.message) {
+                swal("Success", data.message, "success");
+            }
+        } 
+        catch (error) {
+            console.error('Error:', error);
+            swal("Error", error.message, "error");
+        }
+        finally {
+            accumulatedQuantities = {};
+        }
+    });
+
+    async function fetchCartQuantity() {
+        fetch('/carts/amount-of-items', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
@@ -177,36 +202,7 @@
             .catch(error => {
                 console.error('Error fetching cart quantity:', error);
             });
-        }
-
-        // Function to add item to cart
-        async function addToCart(productId, quantity) {
-            fetch('/carts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ product_id: productId, quantity })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while adding the product to the cart.');
-            })
-            .finally(() => {
-                fetchCartQuantity();
-            });
-        }
+    }
     });
 
 </script>

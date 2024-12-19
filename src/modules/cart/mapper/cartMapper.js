@@ -16,6 +16,7 @@ class CartMapper {
         result.image_urls = product.image_urls;
         result.bussiness_status = product.bussiness_status;
         result.discount = product.discount;
+        result.inventory_quantity = product.inventory_quantity;
 
         return result;
 

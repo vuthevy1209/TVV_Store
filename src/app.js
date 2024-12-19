@@ -42,6 +42,9 @@ app.use(session({
     }),
 }));
 
+// const cartSessionMiddleware = require('./modules/cart/middlewares/cartSession.middlewares');
+// app.use(cartSessionMiddleware);
+
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
 

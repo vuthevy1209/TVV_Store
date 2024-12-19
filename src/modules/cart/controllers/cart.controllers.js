@@ -1,110 +1,59 @@
 const cartService = require('../services/cart.services');
-const CustomerService = require('../../customer/services/customer.services');
 
-class CartController{
-    
-    //[GET] /carts
-    async index(req, res, next){
-        try{
-            // Return an empty array if no items are found
-            if(!res.locals.user) return res.render('cart/cart', { products: [], total: 0 });
-            const userId = res.locals.user.id;
-            const customer = await CustomerService.getByUserId(userId);
-            if(!customer) {
-                throw new Error('Customer not found');
+class CartController {
+    // [GET] /carts
+    async index(req, res, next) {
+        try {
+            let products, total;
+            if (res.locals.user) {
+                const userId = res.locals.user.id;
+                ({ products, total } = await cartService.findAllByCustomerId(userId));
+            } else {
+                ({ products, total } = await cartService.findAllBySession(req.session));
             }
-
-            const customerId = customer.id;
-            
-            const {products,total} = await cartService.findAllByCustomerId(customerId);
-
-            res.render('cart/cart', { products, total});
-        }
-        catch(error){
+            res.render('cart/cart', { products, total });
+        } catch (error) {
             console.error('Error getting product list:', error);
-            next(error); // Pass the error to the error middleware
+            next(error);
         }
     }
 
     // [POST] /carts
-    async update(req, res){
-        try{
-            //if(!res.locals.user) return res.json([]); // no user logged in
-
-            const customer = await CustomerService.getByUserId(res.locals.user.id);
-            if(!customer) res.status(404).json({ error: 'Customer not found' });
-
-            const customerId = customer.id;
-            const { product_id, quantity } = req.body;
-            const {newItemTotalPrice,cartTotalPrice}=await cartService.update(customerId, product_id, quantity);
-            res.status(200).json({ message: 'Your cart has been updated',newItemTotalPrice, cartTotalPrice });
-        }
-        catch(error){
-            console.error('Error adding product to cart:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }   
-    }
-
-    // [PATCH] /carts/items/decrease/:id
-    async decreaseQuantity(req, res){
-        try{
-            await cartService.decreaseQuantity(req.params.id);
-            res.json({ message: 'Product quantity decreased successfully' });
-        }
-        catch(error){
-            console.error('Error decreasing product quantity:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
-
-    // [DELETE] /carts/items/:productId
-    async deleteProduct(req, res){
-        try{
-            const {cartTotalPrice}=await cartService.deleteProducts(req.params.productId);
-            res.json({ message: 'Product deleted from cart successfully',cartTotalPrice });
-        }
-        catch(error){
-            console.error('Error deleting product from cart:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+    async update(req, res) {
+        try {
+            let result;
+            if (res.locals.user) {
+                const userId = res.locals.user.id;
+                const products = req.body.products;
+                result = await cartService.updateMultipleItems(userId, products);
+            } else {
+                const products = req.body.products;
+                result = await cartService.updateMultipleItemsInSession(req.session, products);
+            }
+            
+            res.status(200).json({ message: 'Cart updated successfully', result });
+        } catch (error) {
+            console.error('Error updating cart:', error);
+            res.status(500).send(error.message);
         }
     }
 
     // [GET] /carts/amount-of-items
-    async findAmountOfItemsInCartByCustomerId(req, res){
-        try{
-            if(!res.locals.user) return res.json({ amountOfItems: 0 }); // no user logged in
-            const customer = await CustomerService.getByUserId(res.locals.user.id);
-            if(!customer) return res.status(404).json({ error: 'Customer not found' });
-
-            const customerId = customer.id;
-            const amountOfItems = await cartService.findAmountOfItemsByCustomerId(customerId);
-            console.log('Amount of items:', amountOfItems);
+    async findAmountOfItemsInCartByCustomerId(req, res) {
+        try {
+            let amountOfItems;
+            if (res.locals.user) {
+                const userId = res.locals.user.id;
+                amountOfItems = await cartService.findAmountOfItemsByCustomerId(userId);
+            } else {
+                amountOfItems = await cartService.findAmountOfItemsBySession(req.session);
+            }
             res.json({ amountOfItems });
-        }
-        catch(error){
+        } catch (error) {
             console.error('Error getting amount of items in cart:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send('An error occurred');
         }
     }
-
-    // // [GET] /carts/total-price
-    // async findTotalPrice(req, res){
-    //     try{
-    //         if(!res.locals.user) return res.json({ totalPrice: 0 }); // no user logged in
-    //         const customer = await CustomerService.getByUserId(res.locals.user.id);
-    //         if(!customer) res.status(404).json({ error: 'Customer not found' });
-
-    //         const customerId = customer.id;
-    //         const totalPrice = await cartService.findTotalPriceByCustomerId(customerId);
-    //         console.log('Total price:', totalPrice);
-    //         res.json({ totalPrice });
-    //     }
-    //     catch(error){
-    //         console.error('Error getting total price of items in cart:', error);
-    //         res.status(500).json({ error: 'Internal Server Error' });
-    //     }
-    // }
-
 }
 
 module.exports = new CartController();
