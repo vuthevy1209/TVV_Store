@@ -151,42 +151,45 @@
         }
 
         async function updateCart() {
-            const currentQuantities = { ...accumulatedQuantities }; // Copy current state
+            const currentQuantities = { ...accumulatedQuantities };
 
-            fetch('/carts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({products: currentQuantities})
-            }).then(response => {
+            try {
+                const response = await fetch('/carts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ products: currentQuantities })
+                });
+
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
-            }).then(data => {
+
+                const data = await response.json();
+
                 if (data.message) {
-                    alert(data.message);
+                    swal("Success", data.message, "success");
                 }
-                // Update the currPrice for the updated products
+
                 for (const productId in currentQuantities) {
                     const productRow = document.querySelector(`tr[data-id="${productId}"]`);
                     if (productRow) {
-                        productRow.querySelector('.currPrice').innerText = `$${data.newItemsTotalPrice[productId]}`;
+                        productRow.querySelector('.currPrice').innerText = `$${data.result.newItemsTotalPrice[productId]}`;
                         if (currentQuantities[productId] === 0) {
                             productRow.remove();
                         }
                     }
                 }
-                document.getElementById('cartTotalPrice').innerText = `$${data.cartTotalPrice}`;
-            }).catch(error => {
+                document.getElementById('cartTotalPrice').innerText = `$${data.result.cartTotalPrice}`;
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.result.cartAmountOfItems);
+            } catch (error) {
                 console.error('Error:', error);
-                alert(error.message);
-            }).finally(() => {
-                // Reset the accumulated quantities only after the API call is completed
+                swal("Error", error.message, "error");
+            } finally {
                 accumulatedQuantities = {};
-                fetchCartQuantity();
-            });
+                
+            }
         }
 
         async function fetchCartQuantity() {
