@@ -1,6 +1,8 @@
 const passport = require('../../../config/auth/passport');
 const authService = require('../services/auth.services');
 const cartService = require('../../cart/services/cart.services');
+const VerifyToken = require('../models/VerifyToken');
+const userService = require('../../user/services/user.services');
 
 class AuthController {
     // [GET] /login
@@ -28,6 +30,14 @@ class AuthController {
                 return res.status(400).json({message: 'Invalid username or password!'});
             }
             req.logIn(user, async (err) => {
+
+            // Check if the user has a valid verification token
+            const verifyToken = await VerifyToken.findOne({where: {user_id: user.id}});
+            if (verifyToken) {
+                return res.status(400).json({message: 'Please verify your email before logging in.'});
+            }
+
+            req.logIn(user, (err) => {
                 if (err) {
                     return next(err);
                 }
@@ -44,14 +54,10 @@ class AuthController {
     async register(req, res) {
         try {
             const result = await authService.register(req.body);
-            if (result.error) {
-                return res.status(400).json({message: result.error});
-            }
-            req.flash('success', 'Register successfully, please login!');
-            
+            req.flash('success', 'Please check your inbox and log in after confirming your account.');
             res.json({redirectUrl: '/auth/login-register'});
         } catch (error) {
-            res.status(500).json({message: 'An error occurred. Please try again.'});
+            res.status(500).json({message: error.message});
         }
     }
 
@@ -87,6 +93,48 @@ class AuthController {
             return res.status(500).send('An error occurred');
         }
     }
+
+    // [GET] /verify
+    async verifyUser(req, res, next) {
+        try {
+            const {token} = req.query;
+            const result = await authService.verifyUser(token);
+
+            req.flash('success', result.message);
+            res.redirect('/auth/login-register');
+        } catch (error) {
+            console.error('Error verifying user:', error);
+            req.flash('error', error.message);
+            res.redirect('/auth/login-register');
+        }
+    }
+
+    // [POST] /forgot-password
+    async forgotPassword(req, res) {
+        try {
+            const {email} = req.body;
+            await authService.forgotPassword(email);
+            res.json({message: 'A confirmation email has been sent to your email.\nPlease confirm to proceed with resetting your password.'});
+        } catch (error) {
+            console.error('Error in forgot password:', error);
+            res.status(500).json({message: error.message + '\nPlease try again!'});
+        }
+    }
+
+    // [GET] /confirm-reset-password
+    async confirmResetPassword(req, res) {
+        try {
+            const {token} = req.query;
+            await authService.verifyResetPassword(token);
+            req.flash('success', 'A reset password email has been sent to your email. Please check your email to reset your password.');
+            res.redirect('/auth/login-register');
+        } catch (error) {
+            console.error('Error in confirm reset password:', error);
+            req.flash('error', error.message);
+            res.redirect('/auth/login-register');
+        }
+    }
+
 }
 
 module.exports = new AuthController();

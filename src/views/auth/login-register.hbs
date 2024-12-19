@@ -45,8 +45,7 @@
                 <input type="password" id="password" name="password" placeholder="Password" class="password-input" required/>
                 <i class="far fa-eye toggle-password" id="togglePassword"></i>
             </div>
-            <a href="#">Forgot your password?</a>
-
+            <a href="#" id="forgotPasswordLink">Forgot your password?</a>
             <button class="login-btn" type="submit">Sign In</button>
         </form>
     </div>
@@ -66,6 +65,18 @@
     </div>
 </div>
 
+<!-- Forgot Password Modal -->
+<div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Forgot Password</h2>
+        <form id="forgotPasswordForm">
+            <input type="email" id="forgotPasswordEmail" name="email" placeholder="Enter your email" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
 <footer>
     <p>
         We are <i class="fa fa-heart"></i>
@@ -77,16 +88,4 @@
 <script src="/js/login-register.js"></script>
 
 
-<!--<form action="/auth/login" method="POST">-->
-<!--    -->
-<!--    <label for="username">Username</label>-->
-<!--    <input type="text" id="username" name="username" required>-->
-
-<!--    <label for="password">Password</label>-->
-<!--    <input type="password" id="password" name="password" required>-->
-
-<!--    <button type="submit">Login</button>-->
-
-<!--    <small>Don't have an account? <a href="/auth/register">Sign up</a></small>-->
-<!--</form>-->
 
