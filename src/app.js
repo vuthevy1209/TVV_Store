@@ -112,10 +112,12 @@ const productRouter = require('./modules/product/routes/product.routes');
 const homeRouter = require('./modules/home/routes/home.routes');
 const cartRouter = require('./modules/cart/routes/cart.routes');
 const connectEnsureLogin = require('connect-ensure-login');
+const userRouter = require('./modules/user/routes/user.routes');
 
 
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
+app.use('/user', userRouter);
 
 app.use('/carts', cartRouter);
 //app.user('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), orderRouter);

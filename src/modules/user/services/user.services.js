@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const { sequelize } = require('../../../config/database'); // Adjust the path to your database configuration
+const cloudinary = require('../../../config/cloudinary');
 
 
 class UserServices {
@@ -63,22 +64,10 @@ class UserServices {
         try {
             return await User.findByPk(id);
         } catch (error) {
-            return {error: error.message};
+            throw new Error(error.message);
         }
     }
 
-    // update user
-    async updateUser(id, updates) {
-        try {
-            const user = await this.findById(id);
-            if (!user) {
-                throw new Error('User not found');
-            }
-            return await user.update(updates);
-        } catch (error) {
-            return {error: error.message};
-        }
-    }
 
     // change password
     async changePassword(id, oldPassword, newPassword) {
@@ -115,6 +104,49 @@ class UserServices {
         }
 
     };
+
+
+    // update user profile
+    async uploadAvatar(file) {
+        if (!file) return null;
+
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'image', folder: 'TVV_Store' }, (error, result) => {
+                if (error) {
+                    console.error('Error uploading image:', error);
+                    return reject('Failed to upload image');
+                }
+                resolve(result.secure_url);
+            });
+
+            uploadStream.end(file.buffer);
+        });
+    }
+
+    async updateUserProfileWithAvatar(userId, firstName, lastName, avatarUrl) {
+        await User.update(
+            {
+                first_name: firstName,
+                last_name: lastName,
+                avatar_url: avatarUrl,
+            },
+            {
+                where: { id: userId },
+            }
+        );
+    }
+
+    async updateUserProfile(userId, firstName, lastName) {
+        await User.update(
+            {
+                first_name: firstName,
+                last_name: lastName,
+            },
+            {
+                where: { id: userId },
+            }
+        );
+    }
 }
 
 module.exports = new UserServices();
