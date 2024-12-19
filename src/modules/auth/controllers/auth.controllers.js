@@ -36,7 +36,7 @@ class AuthController {
                 return res.status(400).json({message: 'Please verify your email before logging in.'});
             }
 
-            req.logIn(user, (err) => {
+            req.logIn(user, async (err) => {
                 if (err) {
                     return next(err);
                 }
