@@ -29,7 +29,6 @@ class AuthController {
             if (!user) {
                 return res.status(400).json({message: 'Invalid username or password!'});
             }
-            req.logIn(user, async (err) => {
 
             // Check if the user has a valid verification token
             const verifyToken = await VerifyToken.findOne({where: {user_id: user.id}});
