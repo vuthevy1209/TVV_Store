@@ -25,6 +25,8 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const formData = new FormData(this);
     const data = Object.fromEntries(formData.entries());
 
+    showLoading();
+
     try {
         const response = await fetch('/auth/register', {
             method: 'POST',
@@ -39,11 +41,12 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         if (response.ok && result.redirectUrl) {
             window.location.href = result.redirectUrl;
         } else {
-            swal('Error', result.message || 'Register failed!');
+            // swal('Error', result.message || 'Register failed!');
+            showAlert('error', 'Error', result.message || 'Register failed!');
         }
     } catch (error) {
         console.error('Error:', error);
-        swal("Error", "An error occurred. Please try again.", "error");
+        showAlert('error', 'Error', 'An error occurred. Please try again.');
     }
 });
 
@@ -52,6 +55,8 @@ document.getElementById('loginForm').addEventListener('submit', async function (
 
     const formData = new FormData(this);
     const data = Object.fromEntries(formData.entries());
+
+    showLoading();
 
     try {
         const response = await fetch('/auth/login', {
@@ -67,12 +72,12 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         if (response.ok && result.redirectUrl) {
             window.location.href = result.redirectUrl;
         } else {
-            swal("Error", result.message || 'Login failed!', "error");
+            showAlert('error', 'Error', result.message || 'Login failed!');
         }
 
     } catch (error) {
         console.error('Error:', error);
-        swal("Error", "An error occurred. Please try again.", "error");
+        showAlert('error', 'Error', 'An error occurred. Please try again.');
     }
 });
 
@@ -102,6 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const email = document.getElementById('forgotPasswordEmail').value;
 
+        showLoading();
+
         try {
             const response = await fetch('/auth/forgot-password', {
                 method: 'POST',
@@ -113,14 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.json();
             if (response.ok) {
-                swal("Success", result.message, "success");
+                showAlert('success', 'Success', result.message);
                 // forgotPasswordModal.style.display = 'none';
             } else {
-                swal("Error", result.message, "error");
+                showAlert('error', 'Error', result.message);
             }
         } catch (error) {
             console.error('Error:', error);
-            swal("Error", "An error occurred. Please try again.", "error");
+            showAlert('error', 'Error', 'An error occurred. Please try again.');
         }
     });
 });

@@ -36,7 +36,7 @@
                             </i>
                         </a>
                     </li>
-                    <form class="form-inline">
+                    <form class="form-inline" style="width: auto">
                         <a class="nav-item" href="/products" style="text-decoration: none; color:black">
                             <i class="fa fa-search" aria-hidden="true"></i>
                         </a>
@@ -107,7 +107,89 @@
     </div>
 </div>
 
+<!-- Profile Modal -->
+<div id="profile-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close-btn">&times;</span>
+        <!-- Profile Content -->
+        <div class="profile-container">
+            <!-- Avatar and User Info -->
+            <div class="profile-header">
+                <div class="avatar">
+                    <img id="avatar-img" src="https://via.placeholder.com/150" alt="User Avatar">
+                    <input type="file" id="avatar-input" accept="image/*">
+                    <label for="avatar-input" class="edit-avatar">Change Avatar</label>
+                </div>
+                <div class="user-info">
+                    <text class="username">John Doe</text>
+                    <p>Email: johndoe@example.com</p>
+                </div>
+            </div>
 
+            <!-- Edit Profile Form -->
+            <div class="update-profile">
+                <h3>Edit Profile</h3>
+                <form>
+                    <label for="first-name">First Name:</label>
+                    <input type="text" id="first-name" placeholder="Enter first name" required>
+
+                    <label for="last-name">Last Name:</label>
+                    <input type="text" id="last-name" placeholder="Enter last name" required>
+
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change password Modal -->
+<div class="modal" id="change-password-modal">
+    <div class="modal-content">
+        <!-- Profile Container -->
+        <div class="profile-container">
+            <!-- Close Button -->
+            <span class="close-btn" onclick="closeChangePasswordModal()">&times;</span>
+
+<!--            &lt;!&ndash; Profile Header &ndash;&gt;-->
+<!--            <div class="profile-header">-->
+<!--                <div class="avatar">-->
+<!--                    <img src="https://via.placeholder.com/150" alt="User Avatar">-->
+<!--                </div>-->
+<!--                <div class="user-info">-->
+<!--                    <text class="username">John Doe</text>-->
+<!--                    <p>Email: johndoe@example.com</p>-->
+<!--                </div>-->
+<!--            </div>-->
+
+            <!-- Change Password Section -->
+            <div class="change-password">
+                <h3>Change Password</h3>
+                <form>
+                    <label for="current-password">Current Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="current-password" placeholder="Enter current password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('current-password')"></i>
+                    </div>
+
+                    <label for="new-password">New Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="new-password" placeholder="Enter new password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('new-password')"></i>
+                    </div>
+
+                    <label for="confirm-password">Confirm New Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="confirm-password" placeholder="Confirm new password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('confirm-password')"></i>
+                    </div>
+
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     //# sourceURL=header.js
@@ -118,26 +200,14 @@
 
         const cartNumber = cartHeader.querySelector('.badge');
 
-        function fetchCartQuantity() {
-            fetch('/carts/amount-of-items', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
-                console.log('Cart quantity:', data.amountOfItems);
-            })
-            .catch(error => {
-                console.error('Error fetching cart quantity:', error);
-            });
-        }
-
-        // Fetch cart quantity on page load
-        fetchCartQuantity();
-
+        // cartHeader.addEventListener('click', (event) => {
+        //     if (!isLoggedIn) {
+        //         event.preventDefault();
+        //         $('#loginModal').modal('show');
+        //     }
+        // });
     });
 
 </script>
+
+<script src="/js/header.js"></script>
