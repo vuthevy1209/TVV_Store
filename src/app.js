@@ -16,7 +16,6 @@ app.use(cookieParser());
 const {connect} = require("./config/database");
 connect();
 
-
 // passport
 const passport = require('./config/auth/passport');
 const session = require('express-session');
