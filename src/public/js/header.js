@@ -1,3 +1,20 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const navItems = {
+        '/home': 'nav-home',
+        '/products': 'nav-products',
+        '/contact': 'nav-contact',
+        '/carts': 'nav-carts'
+    };
+
+    const currentPath = window.location.pathname;
+    const activeNavItem = navItems[currentPath];
+
+    if (activeNavItem) {
+        document.getElementById(activeNavItem).classList.add('active');
+    }
+});
+
+
 function fetchCartQuantity() {
     fetch('/carts/amount-of-items', {
         method: 'GET',
