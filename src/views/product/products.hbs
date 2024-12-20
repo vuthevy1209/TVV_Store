@@ -1,9 +1,28 @@
 <!-- src/views/product/products.hbs -->
+<link rel="stylesheet" href="/css/products.css">
 <form id="searchForm" class="" method="GET" action="/products/search">
     <div class="container mt-3 mb-3">
         <div class="row">
             <div class="col-2">
-                <h3>Search Filter</h3>
+                <h3>Search</h3>
+
+                <hr class="my-3">
+
+                <!--                Sort by price-->
+                <div class="filter-group">
+                    <label for="sort" style="font-weight: 600; color: red;">Sort By Price</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sort" id="sortPriceAsc" value="priceAsc"
+                               {{#if (eq query.sort "priceAsc")}}checked{{/if}}>
+                        <label class="form-check-label" for="sortPriceAsc">Low to High</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sort" id="sortPriceDesc" value="priceDesc"
+                               {{#if (eq query.sort "priceDesc")}}checked{{/if}}>
+                        <label class="form-check-label" for="sortPriceDesc">High to Low</label>
+                    </div>
+                </div>
+
                 <hr class="my-3">
 
                 <div class="filter-group">
@@ -12,7 +31,9 @@
                     <!-- Dynamic category checkboxes -->
                     {{#each productCategoryList}}
                         <div class="form-check" style="font-weight: 400;">
-                            <input class="form-check-input" type="checkbox" name="category" value="{{this.id}}" id="categoryCheck{{this.id}}" {{#if (includes ../query.category this.id)}}checked{{/if}}>
+                            <input class="form-check-input" type="checkbox" name="category" value="{{this.id}}"
+                                   id="categoryCheck{{this.id}}"
+                                   {{#if (includes ../query.category this.id)}}checked{{/if}}>
                             <label class="form-check-label" for="categoryCheck{{this.id}}">
                                 {{this.name}}
                             </label>
@@ -27,7 +48,8 @@
                     <!-- Dynamic brand checkboxes -->
                     {{#each productBrandList}}
                         <div class="form-check" style="font-weight: 400;">
-                            <input class="form-check-input" type="checkbox" name="brand" value="{{this.id}}" id="brandCheck{{this.id}}" {{#if (includes ../query.brand this.id)}}checked{{/if}}>
+                            <input class="form-check-input" type="checkbox" name="brand" value="{{this.id}}"
+                                   id="brandCheck{{this.id}}" {{#if (includes ../query.brand this.id)}}checked{{/if}}>
                             <label class="form-check-label" for="brandCheck{{this.id}}">
                                 {{this.name}}
                             </label>
@@ -40,11 +62,11 @@
                     <label for="price-range" style="font-weight: 600; color: red;">Price Range</label>
                     <div class="form-group">
                         <input type="number" class="form-control" id="price-min" name="priceMin" placeholder="From"
-                            min="0" value="{{query.priceMin}}">
+                               min="0" value="{{query.priceMin}}">
                     </div>
                     <div class="form-group">
                         <input type="number" class="form-control" id="price-max" name="priceMax" placeholder="To"
-                            min="0" value="{{query.priceMax}}">
+                               min="0" value="{{query.priceMax}}">
                     </div>
                 </div>
                 <hr class="my-3">
@@ -54,12 +76,13 @@
                     <label for="price-range" style="font-weight: 600; color: red;">Inventory Quantity</label>
                     <div class="form-group">
                         <input type="number" class="form-control" id="inventory-quantity-min"
-                            name="inventoryQuantityMin" placeholder="From" min="0" value="{{query.inventoryQuantityMin}}">
+                               name="inventoryQuantityMin" placeholder="From" min="0"
+                               value="{{query.inventoryQuantityMin}}">
                     </div>
                     <div class="form-group">
                         <input type="number" class="form-control" id="inventory-quantity-max"
-                            name="inventoryQuantityMax" placeholder="To" min="0"
-                            value="{{query.inventoryQuantityMax}}">
+                               name="inventoryQuantityMax" placeholder="To" min="0"
+                               value="{{query.inventoryQuantityMax}}">
                     </div>
                 </div>
 
@@ -69,8 +92,9 @@
                     <div class="col-12 mb-3">
                         <div class="row">
                             <div class="col-10">
-                                <input type="text" name="nameOrDescription" placeholder="Search by name or description" class="search-input"
-                                    value="{{query.nameOrDescription}}">
+                                <input type="text" name="nameOrDescription" placeholder="Search by name or description"
+                                       class="search-input"
+                                       value="{{query.nameOrDescription}}">
                             </div>
                             <div class="col-2">
                                 <button class="btn btn-primary" type="submit">Search</button>
@@ -80,75 +104,50 @@
 
                     <div class="row pl-4 pr-4 mt-3" id="productList">
                         {{#each productList}}
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="/products/{{this.id}}" style="text-decoration: none;">
-                                <div class="card">
-                                    <div class="brand">{{this.productBrand.name}}</div>
-                                    <div class="product-image">
-                                        <img src="{{this.image_urls.[0]}}" alt="Product" />
+                            <div class="col-lg-3 col-md-6 mb-4">
+                                <a href="/products/{{this.id}}" style="text-decoration: none;">
+                                    <div class="card">
+                                        <div class="brand">{{this.productBrand.name}}</div>
+                                        <div class="product-image">
+                                            <img src="{{this.image_urls.[0]}}" alt="Product"/>
+                                        </div>
+                                        <div class="card-body">
+                                            {{#if (gt this.discount 0)}}
+                                                <span class="discount">{{this.discount}}% off</span>
+                                            {{/if}}
+                                            <h5 class="card-title text-center">{{this.name}}</h5>
+                                            <h6 class="card-price text-center">${{this.price}}</h6>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        {{#if (gt this.discount 0)}}
-                                        <span class="discount">{{this.discount}}% off</span>
-                                        {{/if}}
-                                        <h5 class="card-title text-center">{{this.name}}</h5>
-                                        <h6 class="card-price text-center">${{this.price}}</h6>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+                                </a>
+                            </div>
                         {{/each}}
                     </div>
 
                 </div>
+
+                <hr class="my-3">
+
+                <!--                Pagination-->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item {{#if pagination.hasPrev}}disabled{{/if}}">
+                            <a class="page-link" href="#" data-page="{{pagination.prevPage}}">Previous</a>
+                        </li>
+                        {{#each pagination.pages}}
+                            <li class="page-item {{#if this.active}}active{{/if}}">
+                                <a class="page-link" href="#" data-page="{{this.number}}">{{this.number}}</a>
+                            </li>
+                        {{/each}}
+                        <li class="page-item {{#if pagination.hasNext}}disabled{{/if}}">
+                            <a class="page-link" href="#" data-page="{{pagination.nextPage}}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
 </form>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('searchForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const queryString = new URLSearchParams(formData).toString();
+<script src="/js/products.js"></script>
 
-            window.history.pushState({}, '', `/products/search?${queryString}`);
-            fetch(`/products/search?${queryString}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    const productList = document.getElementById('productList');
-                    productList.innerHTML = '';
-                    data.forEach(product => {
-                        const productHtml = `
-                            <div class="col-lg-3 col-md-6 mb-4">
-                                <a href="/products/${product.id}" style="text-decoration: none;">
-                                    <div class="card">
-                                        <div class="brand">${product.productBrand.name}</div>
-                                        <div class="product-image">
-                                            <img src="${product.image_urls[0]}" alt="Product" />
-                                        </div>
-                                        <div class="card-body">
-                                            ${product.discount > 0 ? `<span class="discount">${product.discount}% off</span>` : ''}
-                                            <h5 class="card-title text-center">${product.name}</h5>
-                                            <h6 class="card-price text-center">$${product.price}</h6>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        `;
-                        productList.insertAdjacentHTML('beforeend', productHtml); 
-                    });
-                    
-                })
-                .catch(error => console.error('Error fetching products:', error));
-        });
-    });
-
-</script>
-
-<link rel="stylesheet" href="/css/products.css">

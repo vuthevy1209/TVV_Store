@@ -2,44 +2,52 @@ const productService = require('../services/product.services');
 
 class ProductController {
     // [GET] /products
-    async index(req, res) {
+    async index(req, res, next) {
         try {
-            const products = await productService.getAll();
-            // Convert each product to a plain object
-            const productList = products.map(product => product.get({ plain: true }));
-            const brands =  await productService.getAllBrands();
-            const productBrandList = brands.map(brand => brand.get({ plain: true}));
-            const categories =  await productService.getAllCategories();
-            const productCategoryList = categories.map(category => category.get({ plain: true}));
-
-            res.render('product/products', { productList, productBrandList, productCategoryList  });
-        } catch (error) {
-            console.error('Error getting product list:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
-
-    // [GET] /products/search
-    async search(req, res) {
-        try {
-            const { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax } = req.query;
-            const { productList, productBrandList, productCategoryList } = await productService.search({
-                nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax
+            const {page = 1, limit = 3 } = req.query;
+            const { productList, productBrandList, productCategoryList, pagination } = await productService.search({
+               page: page, limit: limit
             });
 
             if (req.headers.accept.includes('application/json')) { // fetch by AJAX
-                return res.json(productList);
+                return res.json({ productList, pagination });
             }
 
             res.render('product/products', { // for the first time --> need to render all components
                 productList,
                 productBrandList,
                 productCategoryList,
-                query: { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax }
+                pagination
             });
         } catch (error) {
             console.error('Error searching products:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            //res.status(500).json({ error: 'Internal Server Error' });
+            next(error);
+        }
+    }
+
+    // [GET] /products/search
+    async search(req, res, next) {
+        try {
+            const { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax, page = 1, limit = 3, sort } = req.query;
+            const { productList, productBrandList, productCategoryList, pagination } = await productService.search({
+                nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax, page, limit, sort
+            });
+
+            if (req.headers.accept.includes('application/json')) { // fetch by AJAX
+                return res.json({ productList, pagination });
+            }
+
+            res.render('product/products', { // for the first time --> need to render all components
+                productList,
+                productBrandList,
+                productCategoryList,
+                pagination,
+                query: { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax, sort }
+            });
+        } catch (error) {
+            console.error('Error searching products:', error);
+            next(error);
         }
     }
 
@@ -64,22 +72,6 @@ class ProductController {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
-
-    // // [GET] /products/create
-    // create(req, res) {
-    //     res.render('product/createProduct');
-    // }
-
-    // // [POST] /products
-    // async store(req, res) {
-    //     try {
-    //         await productService.createProduct(req.body);
-    //         res.redirect(`/home`);
-    //     } catch (error) {
-    //         console.error('Error creating product:', error);
-    //         res.status(500).json({ error: 'Internal Server Error' });
-    //     }
-    // }
 }
 
 module.exports = new ProductController();

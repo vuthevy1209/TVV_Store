@@ -10,8 +10,8 @@ class ProductService {
     async getAll() {
         return await Product.findAll({
             include: [
-                { model: ProductCategory, attributes: ['name'] },
-                { model: ProductBrand, attributes: ['name'] }
+                {model: ProductCategory, attributes: ['name']},
+                {model: ProductBrand, attributes: ['name']}
             ]
         });
     }
@@ -19,10 +19,10 @@ class ProductService {
     // Find product by ID
     async findById(id) {
         return await Product.findOne({
-            where: { id },
+            where: {id},
             include: [
-                { model: ProductCategory, attributes: ['name'] },
-                { model: ProductBrand, attributes: ['name'] }
+                {model: ProductCategory, attributes: ['name']},
+                {model: ProductBrand, attributes: ['name']}
             ]
         });
     }
@@ -31,20 +31,39 @@ class ProductService {
     async getRelatedProducts(productId, brand) {
         return await Product.findAll({
             where: {
-                id: { [Op.ne]: productId },  // Exclude the current product
+                id: {[Op.ne]: productId},  // Exclude the current product
                 brand_id: brand
             },
             limit: 4,
             include: [
-                { model: ProductCategory, attributes: ['name'] },
-                { model: ProductBrand, attributes: ['name'] }
+                {model: ProductCategory, attributes: ['name']},
+                {model: ProductBrand, attributes: ['name']}
             ]
         });
     }
 
-    // Search products based on multiple criteria
-    async search({ nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax }) {
+    // Search products based on multiple criteria with pagination
+    async search({
+                     nameOrDescription,
+                     brand,
+                     category,
+                     priceMin,
+                     priceMax,
+                     inventoryQuantityMin,
+                     inventoryQuantityMax,
+                     page = 1,
+                     limit = 3,
+                     sort
+                 }) {
         const query = {};
+
+        // Convert string type of numeric fields to numeric values
+        if (priceMin) priceMin = parseFloat(priceMin);
+        if (priceMax) priceMax = parseFloat(priceMax);
+        if (inventoryQuantityMin) inventoryQuantityMin = parseInt(inventoryQuantityMin, 10);
+        if (inventoryQuantityMax) inventoryQuantityMax = parseInt(inventoryQuantityMax, 10);
+        if(page) page = parseInt(page, 10);
+        if(limit) limit = parseInt(limit, 10);
 
         if (nameOrDescription) {
             query[Op.or] = [
@@ -59,12 +78,25 @@ class ProductService {
         if (inventoryQuantityMin) query.inventory_quantity = { [Op.gte]: inventoryQuantityMin };
         if (inventoryQuantityMax) query.inventory_quantity = { ...query.inventory_quantity, [Op.lte]: inventoryQuantityMax };
 
-        const products= await Product.findAll({
+        const offset = (page - 1) * limit;
+
+        // Determine the sorting order
+        let order = [];
+        if (sort === 'priceAsc') {
+            order.push(['price', 'ASC']);
+        } else if (sort === 'priceDesc') {
+            order.push(['price', 'DESC']);
+        }
+
+        const { rows: products, count: totalProducts } = await Product.findAndCountAll({
             where: query,
             include: [
                 { model: ProductCategory, attributes: ['name'] },
                 { model: ProductBrand, attributes: ['name'] }
-            ]
+            ],
+            offset,
+            limit,
+            order
         });
 
         const productList = products.map(product => product.get({ plain: true }));
@@ -73,7 +105,22 @@ class ProductService {
         const categories = await ProductCategory.findAll();
         const productCategoryList = categories.map(category => category.get({ plain: true }));
 
-        return { productList, productBrandList, productCategoryList };
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const pagination = {
+            currentPage: page,
+            totalPages,
+            hasPrev: page > 1,
+            hasNext: page < totalPages,
+            prevPage: page - 1,
+            nextPage: page + 1,
+            pages: Array.from({ length: totalPages }, (_, i) => ({
+                number: i + 1,
+                active: i + 1 === page
+            }))
+        };
+
+        return { productList, productBrandList, productCategoryList, pagination };
     }
 
     // Get all brands
