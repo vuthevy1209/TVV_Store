@@ -1,16 +1,17 @@
 const Cart = require('../models/cart');
 const CartItem = require('../models/cartItems');
 const CartMapper = require('../mapper/cartMapper');
-const Product = require('../../product/models/product');
+const productService = require('../../product/services/product.services');
+const customerServices = require('../../customer/services/customer.services');
 
 const DecimalUtils = require('../../../utils/decimal.utils');
-const customerServices = require('../../customer/services/customer.services');
 const cartMapper = require('../mapper/cartMapper');
+const Customer = require('../../customer/models/customer');
 
 class CartService {
-    async findAllByCustomerId(userId) {
-        const customer = await this.#getCustomerByUserId(userId);
-        const cart = await this.#getCartByCustomerId(customer.id);
+    async findAllByUserId(userId) {
+        const customer = await customerServices.getByUserId(userId);
+        const cart = await this.getCartByCustomerId(customer.id);
         const items = await this.#getCartItems(cart.id);
 
         const { products, total, amountOfItems } = await this.#calculateCartDetails(items);
@@ -37,14 +38,11 @@ class CartService {
         }
     }
 
-    async updateProductInventory(product, newQuantity, oldQuantity) {
-        product.inventory_quantity += oldQuantity - newQuantity;
-        await product.save();
-    }
+
 
     async updateMultipleItems(userId, products) {
-        const customer = await this.#getCustomerByUserId(userId);
-        const cart = await this.#getCartByCustomerId(customer.id);
+        const customer = await customerServices.getByUserId(userId);
+        const cart = await this.getCartByCustomerId(customer.id);
 
         const { cartTotalPrice, cartAmountOfItems, newItemsTotalPrice } = await this.#updateCartItems(cart, products);
 
@@ -65,8 +63,8 @@ class CartService {
     }
 
     async findAmountOfItemsByCustomerId(userId) {
-        const customer = await this.#getCustomerByUserId(userId);
-        const cart = await this.#getCartByCustomerId(customer.id);
+        const customer = await customerServices.getByUserId(userId);
+        const cart = await this.getCartByCustomerId(customer.id);
         return cart?.amount_of_items || 0;
     }
 
@@ -79,19 +77,14 @@ class CartService {
         return session.cart?.amount_of_items || 0;
     }
 
-    // Private utility methods
-
-    async #getCustomerByUserId(userId) {
-        const customer = await customerServices.getByUserId(userId);
-        if (!customer) {
-            console.log('User id', userId);
-            throw new Error('Customer not found');
-        }
-        return customer;
-    }
-
-    async #getCartByCustomerId(customerId) {
-        const cart = await Cart.findOne({ where: { customer_id: customerId } });
+    async getCartByCustomerId(customerId) {
+        const cart = Cart.findOne({ 
+            where: { customer_id: customerId },
+            include:[
+                {model: Customer}
+            ]
+        });
+            
         if (!cart) throw new Error('Cart not found');
         return cart;
     }
@@ -146,9 +139,10 @@ class CartService {
         for (const productId in products) {
             const quantity = products[productId];
             const item = await CartItem.findOne({ where: { cart_id: cart.id, product_id: productId } });
-            const product = await Product.findByPk(productId);
+            const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
+
             if (quantity > product.inventory_quantity) throw new Error('Quantity exceeds inventory');
 
             const productPrice = DecimalUtils.toDecimal(product.price);
@@ -159,12 +153,10 @@ class CartService {
                 cartTotalPrice = DecimalUtils.add(cartTotalPrice, newItemTotalPrice);
 
                 if (quantity > 0) {
-                    await this.updateProductInventory(product, quantity, item.quantity);
                     item.quantity = quantity;
                     await item.save();
                 } else {
                     cartAmountOfItems--;
-                    await this.updateProductInventory(product, 0, item.quantity);
                     await item.destroy();
                 }
             } else {
@@ -186,7 +178,7 @@ class CartService {
 
         for (const productId in products) {
             const quantity = products[productId];
-            const product = await Product.findByPk(productId);
+            const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
             if (quantity > product.inventory_quantity) throw new Error('Quantity exceeds inventory');

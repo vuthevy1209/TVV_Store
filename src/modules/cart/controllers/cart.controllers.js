@@ -7,7 +7,7 @@ class CartController {
             let products, total;
             if (res.locals.user) {
                 const userId = res.locals.user.id;
-                ({ products, total } = await cartService.findAllByCustomerId(userId));
+                ({ products, total } = await cartService.findAllByUserId(userId));
             } else {
                 ({ products, total } = await cartService.findAllBySession(req.session));
             }

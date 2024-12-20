@@ -1,7 +1,7 @@
 const passport = require('../../../config/auth/passport');
 const authService = require('../services/auth.services');
 const cartService = require('../../cart/services/cart.services');
-const VerifyToken = require('../models/VerifyToken');
+const VerifyToken = require('../models/verifyToken');
 const userService = require('../../user/services/user.services');
 
 class AuthController {
@@ -124,7 +124,7 @@ class AuthController {
     async confirmResetPassword(req, res) {
         try {
             const {token} = req.query;
-            await authService.verifyResetPassword(token);
+            await authService.verifyRxesetPassword(token);
             req.flash('success', 'A reset password email has been sent to your email. Please check your email to reset your password.');
             res.redirect('/auth/login-register');
         } catch (error) {

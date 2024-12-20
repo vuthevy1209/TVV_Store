@@ -3,7 +3,12 @@ const Customer = require('../models/customer');
 
 class CustomerService {
     async getByUserId(userId) {
-        return await Customer.findOne({ where: { user_id: userId } });
+        const customer = await Customer.findOne({ where: { user_id: userId } });
+        if (!customer) {
+            console.log('User id:', userId);
+            throw new Error('Customer not found');
+        }
+        return customer;
     }
 
     async createCustomerBasedOnExistingUser(userId) {

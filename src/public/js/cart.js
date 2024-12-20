@@ -54,19 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelector('.checkout_btn').addEventListener('click', function () {
-        fetch('/orders/checkout', {
-            method: 'POST'
-        }).then(response => response.json())
-            .then(data => {
-                console.log('Checkout response:', data);
-                window.location.href = '/orders';
-            }).catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while checking out.');
-            });
-    });
-
     function debounceUpdateCart() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
@@ -132,5 +119,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Error fetching cart quantity:', error);
             });
     }
+
+    document.getElementById('checkoutBtn').addEventListener('click', async function () {
+        try {
+            fetch('/orders/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            swal("Error", error.message, "error");
+        }
+    });
 });
 

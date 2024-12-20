@@ -1,30 +1,31 @@
-const orderService = require('../services/order.services');
+const orderService = require('../services/order.services')
 
 class OrderController{
 
     //[GET] /orders
     async index(req, res){
         try{
-            const orders = await orderService.findAllByCustomerId(res.locals.user.id);
-            res.json({orders});
+            const orders = await orderService.findAllByUserId(req.user.id);
+            console.log('Orders fetched successfully');
+            console.log(orders);
+            res.render('order/checkout', {orders});
         }
         catch(err){
             console.log(err);
-            return res.status(500).json({message: 'Internal server error'});
+            return res.status(500).json({message: 'Internal server error while fetching orders'});
         }
     }
 
-    //[POST] /checkout
+    //[POST] /orders/checkout
     async checkout(req, res){
         try{
-            const items = req.body.items;
-            const order = await orderService.checkout(res.locals.user.id, items);
-            // res.json({order});
-            //res.render('order/checkout', {order});
+            await orderService.checkout(req.user.id);
+            console.log('Order created successfully');
+            res.redirect('/orders');
         }
         catch(err){
             console.log(err);
-            return res.status(500).json({message: 'Internal server error'});
+            return res.status(500).json({message: 'Internal server error while creating order'});
         }
     }
     
