@@ -1,7 +1,7 @@
 const passport = require('../../../config/auth/passport');
 const authService = require('../services/auth.services');
 const cartService = require('../../cart/services/cart.services');
-const VerifyToken = require('../models/VerifyToken');
+const VerifyToken = require('../models/verifyToken');
 const userService = require('../../user/services/user.services');
 
 class AuthController {
