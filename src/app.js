@@ -25,7 +25,6 @@ const MongoStore = require('connect-mongo');
 const mongoDb = require('./config/database/mongo');
 mongoDb.connect();
 
-
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
