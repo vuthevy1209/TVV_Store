@@ -122,7 +122,7 @@ app.use('/auth', authRouter);
 app.use('/products', productRouter);
 
 app.use('/carts', cartRouter);
-app.use('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), orderRouter);
+app.use('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), orderRouter);
 app.use('/', homeRouter);
 
 
