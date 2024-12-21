@@ -118,6 +118,8 @@ document.querySelector('.update-profile form').addEventListener('submit', async 
         const result = await response.json();
         hideLoading();
         if (response.ok) {
+            document.getElementById('firstName').textContent = formData.get('firstName'); // Update the first name
+            document.querySelector('.username').textContent = `${formData.get('firstName')} ${formData.get('lastName')}`; // Update the username
             showAlert("success", "Success", result.message);
         } else {
             showAlert("error", "Error", result.message);

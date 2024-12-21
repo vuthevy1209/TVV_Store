@@ -11,7 +11,7 @@
                 <div class="col-12">
                     <div class="image">
                         {{#if (gt productObject.discount 0)}}
-                        <span class="discount">{{productObject.discount}}% off</span>
+                            <span class="discount">{{productObject.discount}}% off</span>
                         {{/if}}
                         <img src="{{productObject.image_urls.[0]}}" alt="Product Image" class="product-img">
                     </div>
@@ -49,7 +49,6 @@
     </div>
 
 
-
     <div class="row text-center">
         <div class="col-6">
             <div class="quantity-container d-flex justify-content-center align-items-center">
@@ -72,19 +71,92 @@
     <hr class="my-4">
 </div>
 
+<!--Product Reviews-->
+<!-- src/views/product/product-reviews.hbs -->
+<link rel="stylesheet" href="/css/productReviews.css">
+<div class="container mt-4 mb-5">
+    <h3>Product Reviews</h3>
+
+    <!-- Add Review Button -->
+    <button type="button" id="addReviewBtn" class="btn btn-primary" data-toggle="modal">
+        Add Review
+    </button>
+
+    <div id="reviewList" class="row">
+        {{#each reviews}}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.user.first_name}} {{this.user.last_name}}</h5>
+                        <p class="card-text">{{this.comment}}</p>
+                        <p class="card-text"><small class="text-muted">Reviewed on {{this.created_at}}</small></p>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item {{#unless pagination.hasPrev}}disabled{{/unless}}">
+                <a class="page-link" href="#" data-page="{{pagination.prevPage}}">Previous</a>
+            </li>
+            {{#each pagination.pages}}
+                <li class="page-item {{#if this.active}}active{{/if}}">
+                    <a class="page-link" href="#" data-page="{{this.number}}">{{this.number}}</a>
+                </li>
+            {{/each}}
+            <li class="page-item {{#unless pagination.hasNext}}disabled{{/unless}}">
+                <a class="page-link" href="#" data-page="{{pagination.nextPage}}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Add Review Modal -->
+    <div class="modal" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span id="closeAddReviewModal" aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addReviewForm">
+                        <div class="form-group">
+                            <label for="reviewComment">Comment</label>
+                            <textarea class="" id="reviewComment" rows="3" required
+                                      style="text-transform: none;"></textarea>
+                        </div>
+                        <input type="hidden" id="productId" value="{{productObject.id}}">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeAddReviewModalBtn">Close</button>
+                    <button type="button" class="btn btn-primary" id="submitReview">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/productReviews.js"></script>
+
+
 <div class="container mt-4 mb-5">
     <h3>Other Images:</h3>
     <div class="row">
         {{#each productObject.image_urls}}
-        {{#if (and (gt @index 0) (lt @index 5))}}
-        {{#if this}}
-        <div class="col-lg-3 col-md-6">
-            <div class="image--other">
-                <img src="{{this}}" alt="Product Image" class="product-img">
-            </div>
-        </div>
-        {{/if}}
-        {{/if}}
+            {{#if (and (gt @index 0) (lt @index 5))}}
+                {{#if this}}
+                    <div class="col-lg-3 col-md-6">
+                        <div class="image--other">
+                            <img src="{{this}}" alt="Product Image" class="product-img">
+                        </div>
+                    </div>
+                {{/if}}
+            {{/if}}
         {{/each}}
 
     </div>
@@ -92,25 +164,25 @@
 
 <div class="container mt-4 mb-5">
     {{#if relatedProductList}}
-    <h3>Related Products: </h3>
-    <div class="row">
-        {{#each relatedProductList}}
-        <div class="col-lg-3 col-md-6 mb-3">
-            <a href="/products/{{this.id}}" style="text-decoration: none;">
-                <div class="image--other">
-                    <img src="{{this.image_urls.[0]}}" alt="Product Image" class="product-img">
+        <h3>Related Products: </h3>
+        <div class="row">
+            {{#each relatedProductList}}
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="/products/{{this.id}}" style="text-decoration: none;">
+                        <div class="image--other">
+                            <img src="{{this.image_urls.[0]}}" alt="Product Image" class="product-img">
+                        </div>
+                        <div class="detail-box">
+                            <h5 class="text-center" style="color: black;">
+                                {{this.name}}
+                            </h5>
+                        </div>
+                    </a>
                 </div>
-                <div class="detail-box">
-                    <h5 class="text-center" style="color: black;">
-                        {{this.name}}
-                    </h5>
-                </div>
-            </a>
+            {{/each}}
         </div>
-        {{/each}}
-    </div>
     {{else}}
-    <h3>Related Products: None</h3>
+        <h3>Related Products: None</h3>
     {{/if}}
 </div>
 
@@ -132,77 +204,75 @@
         {{!-- const isLoggedIn = {{ #if user }}true{{ else}}false{{/if}}; --}}
 
 
-    function showLoginModal() {
-        $('#loginModal').modal('show');
-    }
-
-    decrementBtn.addEventListener("click", () => {
-        let currentValue = parseInt(quantityInput.value);
-        if (currentValue > parseInt(quantityInput.min)) {
-            quantityInput.value = currentValue - 1;
+        function showLoginModal() {
+            $('#loginModal').modal('show');
         }
-    });
 
-    incrementBtn.addEventListener("click", () => {
-        let currentValue = parseInt(quantityInput.value);
-        if (currentValue < parseInt(quantityInput.max)) {
-            quantityInput.value = currentValue + 1;
-        }
-    });
+        decrementBtn.addEventListener("click", () => {
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue > parseInt(quantityInput.min)) {
+                quantityInput.value = currentValue - 1;
+            }
+        });
 
-    addToCartBtn.addEventListener("click", async (event) => {
-        event.preventDefault();
+        incrementBtn.addEventListener("click", () => {
+            let currentValue = parseInt(quantityInput.value);
+            if (currentValue < parseInt(quantityInput.max)) {
+                quantityInput.value = currentValue + 1;
+            }
+        });
 
-        const productId = addToCartBtn.getAttribute('data-id');
-        const quantity = parseInt(quantityInput.value);
+        addToCartBtn.addEventListener("click", async (event) => {
+            event.preventDefault();
 
-        const products = {};
-        products[productId] = quantity;
+            const productId = addToCartBtn.getAttribute('data-id');
+            const quantity = parseInt(quantityInput.value);
 
-        try {
-            const response = await fetch('/carts', {
-                method: 'POST',
+            const products = {};
+            products[productId] = quantity;
+
+            try {
+                const response = await fetch('/carts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({products})
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                document.getElementById('cartQuantityIcon').setAttribute('value', data.result.cartAmountOfItems);
+                if (data.message) {
+                    swal("Success", data.message, "success");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                swal("Error", error.message, "error");
+            } finally {
+                accumulatedQuantities = {};
+            }
+        });
+
+        async function fetchCartQuantity() {
+            fetch('/carts/amount-of-items', {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ products })
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const data = await response.json();
-            document.getElementById('cartQuantityIcon').setAttribute('value', data.result.cartAmountOfItems);
-            if (data.message) {
-                swal("Success", data.message, "success");
-            }
-        } 
-        catch (error) {
-            console.error('Error:', error);
-            swal("Error", error.message, "error");
-        }
-        finally {
-            accumulatedQuantities = {};
-        }
-    });
-
-    async function fetchCartQuantity() {
-        fetch('/carts/amount-of-items', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
-                console.log('Cart quantity:', data.amountOfItems);
+                }
             })
-            .catch(error => {
-                console.error('Error fetching cart quantity:', error);
-            });
-    }
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
+                        console.log('Cart quantity:', data.amountOfItems);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching cart quantity:', error);
+                    });
+        }
     });
 
 </script>
