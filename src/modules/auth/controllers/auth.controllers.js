@@ -7,6 +7,10 @@ const userService = require('../../user/services/user.services');
 class AuthController {
     // [GET] /login
     showLoginForm(req, res) {
+        const returnTo = req.query.returnTo;
+        if (returnTo) {
+            req.session.returnTo = returnTo;
+        }
         res.render('auth/login-register', {
             layout: 'auth',
             title: 'Login',
@@ -16,13 +20,13 @@ class AuthController {
     // [POST] /login
     async login(req, res, next) {
         // Save the cart data before logging in
-//        const cartData = req.session.cart.items || {};
         let cartData = {};
-        if(req.session.cart){
+        if (req.session.cart) {
             cartData = req.session.cart.items;
         }
-        
-        passport.authenticate('local',async (err, user, info) => {
+        const returnTo = req.session.returnTo || '/home';
+
+        passport.authenticate('local', {keepSessionInfo: true}, async (err, user, info) => {
             if (err) {
                 return next(err);
             }
@@ -36,18 +40,70 @@ class AuthController {
                 return res.status(400).json({message: 'Please verify your email before logging in.'});
             }
 
+
             req.logIn(user, async (err) => {
                 if (err) {
                     return next(err);
                 }
-                await cartService.mergeCarts(user.id, cartData);
+
+                try {
+                    // Merge carts after successful login
+                    await cartService.mergeCarts(user.id, cartData);
+                } catch (mergeErr) {
+                    console.error('Error merging carts:', mergeErr);
+                    req.flash('error', 'Could not merge cart data.');
+                }
+
+
                 req.flash('success', 'Login successful!');
-                // we hanle the response manually on the client, so we have to send the redirect URL as json to
+                // we handle the response manually on the client, so we have to send the redirect URL as json to
                 // avoid the automatic request of the client.
-                res.json({redirectUrl: req.session.returnTo || '/home'});
+                res.json({redirectUrl: returnTo || '/home'});
             });
         })(req, res, next);
     }
+
+    async googleCallback(req, res, next) {
+        // Save the cart data before logging in
+        let cartData = {};
+        if (req.session.cart) {
+            cartData = req.session.cart.items;
+        }
+        const returnTo = req.session.returnTo || '/home';
+
+        passport.authenticate('google', { keepSessionInfo: true }, async (err, user, info) => {
+            if (err) {
+                return next(err); // Handle any errors during authentication
+            }
+            if (!user) {
+                // Handle case where user is not authenticated
+                req.flash('error', 'Authentication failed!');
+                return res.redirect('/auth/login-register');
+            }
+
+            req.logIn(user, async (err) => {
+                if (err) {
+                    return next(err); // Handle login errors
+                }
+
+                try {
+                    // Merge carts after successful login
+                    await cartService.mergeCarts(user.id, cartData);
+                } catch (mergeErr) {
+                    console.error('Error merging carts:', mergeErr);
+                    req.flash('error', 'Could not merge cart data.');
+                }
+
+                // Redirect to the returnTo URL or default to /home
+                req.session.returnTo = null; // Clear returnTo after redirecting
+                req.flash('success', 'Login successful!');
+                res.redirect(returnTo);
+            });
+        })(req, res, next);
+    }
+
+
+
 
     // [POST] /register
     async register(req, res) {
@@ -67,7 +123,7 @@ class AuthController {
                 if (err) {
                     return next(err);
                 }
-                req.flash('success', 'Logout successfully!')
+                req.flash('success', 'Logout successfully!');
                 res.redirect('/home');
             });
         } catch (error) {
@@ -133,7 +189,6 @@ class AuthController {
             res.redirect('/auth/login-register');
         }
     }
-
 }
 
 module.exports = new AuthController();

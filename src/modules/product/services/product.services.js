@@ -3,6 +3,7 @@ const ProductCategory = require('../models/productCategory');
 const ProductBrand = require('../models/productBrand');
 const Product = require('../models/product');
 const {Op} = require("sequelize");
+const productReviewService = require('./productReview.services');
 
 class ProductService {
 
@@ -62,21 +63,24 @@ class ProductService {
         if (priceMax) priceMax = parseFloat(priceMax);
         if (inventoryQuantityMin) inventoryQuantityMin = parseInt(inventoryQuantityMin, 10);
         if (inventoryQuantityMax) inventoryQuantityMax = parseInt(inventoryQuantityMax, 10);
-        if(page) page = parseInt(page, 10);
-        if(limit) limit = parseInt(limit, 10);
+        if (page) page = parseInt(page, 10);
+        if (limit) limit = parseInt(limit, 10);
 
         if (nameOrDescription) {
             query[Op.or] = [
-                { name: { [Op.iLike]: `%${nameOrDescription}%` } },  // Case-insensitive search for name
-                { desc: { [Op.iLike]: `%${nameOrDescription}%` } } // Case-insensitive search for description
+                {name: {[Op.iLike]: `%${nameOrDescription}%`}},  // Case-insensitive search for name
+                {desc: {[Op.iLike]: `%${nameOrDescription}%`}} // Case-insensitive search for description
             ];
         }
         if (brand) query.brand_id = brand;
         if (category) query.category_id = category;
-        if (priceMin) query.price = { [Op.gte]: priceMin };
-        if (priceMax) query.price = { ...query.price, [Op.lte]: priceMax };
-        if (inventoryQuantityMin) query.inventory_quantity = { [Op.gte]: inventoryQuantityMin };
-        if (inventoryQuantityMax) query.inventory_quantity = { ...query.inventory_quantity, [Op.lte]: inventoryQuantityMax };
+        if (priceMin) query.price = {[Op.gte]: priceMin};
+        if (priceMax) query.price = {...query.price, [Op.lte]: priceMax};
+        if (inventoryQuantityMin) query.inventory_quantity = {[Op.gte]: inventoryQuantityMin};
+        if (inventoryQuantityMax) query.inventory_quantity = {
+            ...query.inventory_quantity,
+            [Op.lte]: inventoryQuantityMax
+        };
 
         const offset = (page - 1) * limit;
 
@@ -88,22 +92,22 @@ class ProductService {
             order.push(['price', 'DESC']);
         }
 
-        const { rows: products, count: totalProducts } = await Product.findAndCountAll({
+        const {rows: products, count: totalProducts} = await Product.findAndCountAll({
             where: query,
             include: [
-                { model: ProductCategory, attributes: ['name'] },
-                { model: ProductBrand, attributes: ['name'] }
+                {model: ProductCategory, attributes: ['name']},
+                {model: ProductBrand, attributes: ['name']}
             ],
             offset,
             limit,
             order
         });
 
-        const productList = products.map(product => product.get({ plain: true }));
+        const productList = products.map(product => product.get({plain: true}));
         const brands = await ProductBrand.findAll();
-        const productBrandList = brands.map(brand => brand.get({ plain: true }));
+        const productBrandList = brands.map(brand => brand.get({plain: true}));
         const categories = await ProductCategory.findAll();
-        const productCategoryList = categories.map(category => category.get({ plain: true }));
+        const productCategoryList = categories.map(category => category.get({plain: true}));
 
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -114,13 +118,31 @@ class ProductService {
             hasNext: page < totalPages,
             prevPage: page - 1,
             nextPage: page + 1,
-            pages: Array.from({ length: totalPages }, (_, i) => ({
+            pages: Array.from({length: totalPages}, (_, i) => ({
                 number: i + 1,
                 active: i + 1 === page
             }))
         };
 
-        return { productList, productBrandList, productCategoryList, pagination };
+        return {productList, productBrandList, productCategoryList, pagination};
+    }
+
+    async getProductDetails(productId, page = 1, limit = 5) {
+        try {
+            const product = await this.findById(productId);
+            if (!product) {
+                throw new Error('Product not found');
+            }
+            const productRelated = await this.getRelatedProducts(product.id, product.brand_id);
+            const relatedProductList = productRelated.map(product => product.get({plain: true}));
+            const productObject = product.get({plain: true});
+            const {reviews, pagination} = await productReviewService.getProductReviews(productId, parseInt(page), parseInt(limit));
+
+            return {productObject, relatedProductList, reviews, pagination};
+        } catch (error) {
+            console.error('Error getting product details:', error);
+            throw new Error(error.message)
+        }
     }
 
     // Get all brands

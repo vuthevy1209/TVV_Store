@@ -1,4 +1,5 @@
 const productService = require('../services/product.services');
+const ProductReviewService = require("../services/productReview.services");
 
 class ProductController {
     // [GET] /products
@@ -53,23 +54,24 @@ class ProductController {
 
 
     // [GET] /products/:id
-    async show(req, res) {
+    async getProductDetails(req, res, next) {
         try {
-            const product = await productService.findById(req.params.id);
-            if (!product) {
-                return res.status(404).json({ error: 'Product not found' });
+            const { id } = req.params;
+            const { page = 1, limit = 5 } = req.query;
+            const result = await productService.getProductDetails(id, parseInt(page), parseInt(limit));
+            const productObject = result.productObject;
+            const relatedProductList = result.relatedProductList;
+            const reviews = await result.reviews;
+            const pagination = result.pagination;
+
+            if (req.headers.accept.includes('application/json')) { // fetch by AJAX
+                return res.status(200).json({reviews, pagination});
             }
-            const productRelated = await productService.getRelatedProducts(product.id, product.brand_id);
-            // Convert related products to plain objects
-            const relatedProductList = productRelated.map(product => product.get({ plain: true }));
 
-            // Convert the main product to a plain object
-            const productObject = product.get({ plain: true });
-
-            res.render('product/product-details', { productObject, relatedProductList });
+            res.render('product/product-details', {  productObject, relatedProductList, reviews, pagination });
         } catch (error) {
             console.error('Error finding product:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            next(error);
         }
     }
 }

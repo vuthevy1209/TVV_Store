@@ -22,6 +22,8 @@ passport.deserializeUser(function(user, cb) { // retrieve user from session
     });
 });
 
+
+
 passport.use(
     new LocalStrategy(
         {
@@ -53,6 +55,14 @@ passport.use(
 const BASE_URL = process.env.NODE_ENV === 'production'
     ? process.env.PROD_BASE_URL // Production URL
     : process.env.DEV_BASE_URL;
+
+
+const clientID = process.env.GOOGLE_CLIENT_ID;
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+if (!clientID || !clientSecret) {
+    throw new Error('Google client ID and secret must be provided');
+}
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
