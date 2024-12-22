@@ -71,4 +71,18 @@ document.addEventListener('DOMContentLoaded', function() {
             zipcode: document.getElementById('zipcode').value
         };
     }
+
+    function updateShippingFee() {
+        const provinceSelect = document.getElementById('province');
+        const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+        const shippingFee = selectedOption.getAttribute('data-fee');
+        
+        document.getElementById('shippingFee').innerText = `$${shippingFee}`;
+        document.getElementById('shippingFeeValue').value = shippingFee;
+        document.getElementById('shippingFeeSummary').innerText = `$${shippingFee}`;
+        
+        const orderTotal = parseFloat('{{order.total_price}}');
+        const totalPrice = orderTotal + parseFloat(shippingFee);
+        document.getElementById('totalPrice').innerText = `$${totalPrice.toFixed(2)}`;
+    }
 });

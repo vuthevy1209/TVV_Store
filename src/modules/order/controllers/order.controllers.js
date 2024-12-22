@@ -1,5 +1,6 @@
 const orderService = require('../services/order.services');
 const paymentService = require('../../payment/services/payment.services');
+const shippingService = require('../../shipping/services/shipping.services');
 
 class OrderController {
 
@@ -36,8 +37,9 @@ class OrderController {
             const order = await orderService.fetchOrderById(hashOrderId);
             order.hashOrderId = hashOrderId;
             const paymentTypes = await paymentService.findAllTypes();
+            const shippingFees = await shippingService.getAllShippingFess();
             console.log('Order fetched successfully');
-            res.render('order/checkout', { order, paymentTypes });
+            res.render('order/checkout', { order, paymentTypes, shippingFees });
         } catch (err) {
             console.log(err);
             return res.status(500).json({ message: `Error fetching order: ${err.message}` });

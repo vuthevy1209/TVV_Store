@@ -38,9 +38,9 @@ const ShippingDetails = sequelize.define('ShippingDetails', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    zipcode:{
-        type: DataTypes.STRING,
-        allowNull: true
+    shipping_fee:{
+        type: DataTypes.DECIMAL,
+        allowNull: false
     },
     is_deleted:{
         type: DataTypes.BOOLEAN,
