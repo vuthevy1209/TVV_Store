@@ -8,54 +8,69 @@
     <link rel="shortcut icon" href="/img/favicon.png" type="">
     <title>Software Store</title>
 
-    <!-- bootstrap core css -->
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
-    <!-- font awesome style -->
-    <link href="/css/font-awesome.min.css" rel="stylesheet" />
-    <!-- Custom styles for this template -->
-    <link href="/css/style.css" rel="stylesheet" />
-    <!-- responsive style -->
-    <link href="/css/responsive.css" rel="stylesheet" />
 
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css"/>
+    <!-- font awesome style -->
+    <link href="/css/font-awesome.min.css" rel="stylesheet"/>
+    <!-- Custom styles for this template -->
+    <link href="/css/style.css" rel="stylesheet"/>
+    <!-- responsive style -->
+    <link href="/css/responsive.css" rel="stylesheet"/>
 
 </head>
 
 <body>
 
-
-    {{> header}}
-
-    {{{body}}}
-
-
-    {{> footer}}
-
-
-    <!-- jQery -->
-    <script src="/js/jquery-3.4.1.min.js"></script>
-    <!-- popper js -->
-    <script src="/js/popper.min.js"></script>
-    <!-- bootstrap js -->
-    <script src="/js/bootstrap.js"></script>
-    <!-- custom js -->
-    <script src="/js/custom.js"></script>
-
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<div id="loading">
+    <div class="lds-ring" >
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
 
 
-    {{#if error}}
-        <script>
-            //# sourceURL=auth.js
-            swal("Error", "{{{error.[0]}}}", "error");
-        </script>
-    {{/if}}
 
-    {{#if success}}
-        <script>
-            //# sourceURL=auth.js
-            swal("Success", "{{{success.[0]}}}", "success");
-        </script>
-    {{/if}}
+{{> header}}
+
+{{{body}}}
+
+
+{{> footer}}
+
+
+<!-- jQery -->
+<script src="/js/jquery-3.4.1.min.js"></script>
+<!-- popper js -->
+<script src="/js/popper.min.js"></script>
+<!-- bootstrap js -->
+<script src="/js/bootstrap.js"></script>
+<!-- custom js -->
+<script src="/js/custom.js"></script>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script>
+    const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
+</script>
+
+{{#if error}}
+    <script>
+        //# sourceURL=auth.js
+        swal("Error", "{{{error.[0]}}}", "error");
+    </script>
+{{/if}}
+
+{{#if success}}
+    <script>
+        //# sourceURL=auth.js
+        swal("Success", "{{{success.[0]}}}", "success");
+    </script>
+{{/if}}
 
 </body>
 

@@ -8,9 +8,20 @@
 </head>
 
 <body>
+
+    <div id="loading">
+        <div class="lds-ring" >
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
     {{{body}}}
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="/js/main.js"></script>
 
     {{#if error}}
         <script>

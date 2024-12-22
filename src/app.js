@@ -1,12 +1,14 @@
+// place it add the top to ensure that all env is loaded before any code that needs .env executed
+require('dotenv').config(); // load the env variables
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const AuthController = require('./modules/auth/controllers/auth.controllers');
 
 var app = express();
-require('dotenv').config(); // load the env variables
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -17,7 +19,6 @@ app.use(cookieParser());
 const {connect} = require("./config/database");
 connect();
 
-
 // passport
 const passport = require('./config/auth/passport');
 const session = require('express-session');
@@ -26,7 +27,6 @@ const {sequelize} = require('./config/database'); // Adjust the path to your Seq
 const MongoStore = require('connect-mongo');
 const mongoDb = require('./config/database/mongo');
 mongoDb.connect();
-
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -46,16 +46,14 @@ app.use(session({
 // app.use(cartSessionMiddleware);
 
 app.use(passport.initialize());
-app.use(passport.authenticate('session'));
+// app.use(passport.authenticate('session'));
+app.use(passport.session());
 
-app.use('/auth/login/google' , passport.authenticate('google'));
 const FederatedCredential = require('./modules/auth/models/federatedCredential');
 const User = require('./modules/user/models/user');
 
-app.use('/oauth2/redirect/google', passport.authenticate('google', {
-    successRedirect: '/home',
-    failureRedirect: '/auth/login-register'
-}));
+
+
 
 
 // flash
@@ -106,6 +104,7 @@ app.use((req, res, next) => {
     res.locals.user = req.user || null;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
+
     next();
 });
 
@@ -116,10 +115,22 @@ const homeRouter = require('./modules/home/routes/home.routes');
 const cartRouter = require('./modules/cart/routes/cart.routes');
 const orderRouter = require('./modules/order/routes/order.routes');
 const connectEnsureLogin = require('connect-ensure-login');
+const userRouter = require('./modules/user/routes/user.routes');
+
+app.use('/auth/login/google' , passport.authenticate('google'));
+app.use('/oauth2/redirect/google', AuthController.googleCallback);
+
+// app.use('/oauth2/redirect/google', passport.authenticate('google', {
+//     successRedirect: '/home',
+//     failureRedirect: '/auth/login-register',
+//     keepSessionInfo: true
+//
+// }));
 
 
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
+app.use('/user', userRouter);
 
 app.use('/carts', cartRouter);
 app.use('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), orderRouter);

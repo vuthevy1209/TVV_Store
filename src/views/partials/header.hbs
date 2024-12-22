@@ -1,83 +1,84 @@
+<link rel="stylesheet" href="/css/header.css">
 <header class="header_section">
     <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-            <a class="navbar-brand" href="/home"><img width="250" src="/img/logo.png" alt="#" /></a>
+            <a class="navbar-brand" href="/home"><img width="250" src="/img/logo.png" alt="#"/></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class=""> </span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
-                    <li class="nav-item active">
+                    <li class="nav-item" id="nav-home">
                         <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" id="nav-pages">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button"
-                            aria-haspopup="true" aria-expanded="true"> <span class="nav-label">Pages <span
-                                    class="caret"></span></span></a>
+                           aria-haspopup="true" aria-expanded="true"> <span class="nav-label">Pages <span
+                                class="caret"></span></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">About</a></li>
                             <li><a href="#">Testimonial</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav-products">
                         <a class="nav-link" href="/products">Products</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav-blog">
                         <a class="nav-link" href="#">Blog</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav-contact">
                         <a class="nav-link" href="/contact">Contact</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav-carts">
                         <a class="nav-link" href="/carts" id="cartHeader">
                             <i class="fa badge fa-lg" value=""
                                 id="cartQuantityIcon">&#xf07a;
                             </i>
                         </a>
                     </li>
-                    <form class="form-inline">
+                    <form class="form-inline" style="width: auto">
                         <a class="nav-item" href="/products" style="text-decoration: none; color:black">
                             <i class="fa fa-search" aria-hidden="true"></i>
                         </a>
                     </form>
                     {{#if user}}
-                    <li class="nav-item dropdown no-arrow">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-black-900 medium">{{user.firstName}}</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor"
-                                class="bi bi-person-circle" viewBox="0 0 16 16"
-                                style="margin-top: -5px; margin-right:5px">
-                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                                <path fill-rule="evenodd"
-                                    d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-                            </svg>
-                        </a>
-                        <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#">
-                                Profile
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span id="firstName" class="mr-2 d-none d-lg-inline text-black-900 medium">{{user.firstName}}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor"
+                                     class="bi bi-person-circle" viewBox="0 0 16 16"
+                                     style="margin-top: -5px; margin-right:5px">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                                    <path fill-rule="evenodd"
+                                          d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                                </svg>
                             </a>
-                            <a class="dropdown-item" href="#">
-                                Settings
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                Activity Log
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/auth/logout">
-                                Logout
-                            </a>
-                        </div>
-                    </li>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a id="open-profile-modal" class="dropdown-item" href="#">
+                                    Profile
+                                </a>
+                                <a class="dropdown-item" onclick="openChangePasswordModal()" href="#">
+                                    Change password
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    Activity Log
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/auth/logout">
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
                     {{else}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/login-register">
-                            <i class="fa fa-sign-in" aria-hidden="true"></i> Login
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login-register">
+                                <i class="fa fa-sign-in" aria-hidden="true"></i> Login
+                            </a>
+                        </li>
                     {{/if}}
                 </ul>
             </div>
@@ -87,7 +88,7 @@
 
 <!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
-    aria-hidden="true">
+     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -100,44 +101,112 @@
                 You need to log in to proceed this action.
             </div>
             <div class="modal-footer">
-                <a href="/auth/login-register" type="button" class="btn btn-primary login-btn">Login</a>
+                <a href="/auth/login-register" type="button" id="directToLoginBtn" class="btn btn-primary login-btn">Login</a>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Profile Modal -->
+<div id="profile-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close-btn">&times;</span>
+        <!-- Profile Content -->
+        <div class="profile-container">
+            <!-- Avatar and User Info -->
+            <div class="profile-header">
+                <div class="avatar">
+                    <img id="avatar-img" src="https://via.placeholder.com/150" alt="User Avatar">
+                    <input type="file" id="avatar-input" accept="image/*">
+                    <label for="avatar-input" class="edit-avatar">Change Avatar</label>
+                </div>
+                <div class="user-info">
+                    <text class="username">John Doe</text>
+                    <p>Email: johndoe@example.com</p>
+                </div>
+            </div>
 
+            <!-- Edit Profile Form -->
+            <div class="update-profile">
+                <h3>Edit Profile</h3>
+                <form>
+                    <label for="first-name">First Name:</label>
+                    <input type="text" id="first-name" placeholder="Enter first name" required>
+
+                    <label for="last-name">Last Name:</label>
+                    <input type="text" id="last-name" placeholder="Enter last name" required>
+
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change password Modal -->
+<div class="modal" id="change-password-modal">
+    <div class="modal-content">
+        <!-- Profile Container -->
+        <div class="profile-container">
+            <!-- Close Button -->
+            <span class="close-btn" onclick="closeChangePasswordModal()">&times;</span>
+
+            <!--            &lt;!&ndash; Profile Header &ndash;&gt;-->
+            <!--            <div class="profile-header">-->
+            <!--                <div class="avatar">-->
+            <!--                    <img src="https://via.placeholder.com/150" alt="User Avatar">-->
+            <!--                </div>-->
+            <!--                <div class="user-info">-->
+            <!--                    <text class="username">John Doe</text>-->
+            <!--                    <p>Email: johndoe@example.com</p>-->
+            <!--                </div>-->
+            <!--            </div>-->
+
+            <!-- Change Password Section -->
+            <div class="change-password">
+                <h3>Change Password</h3>
+                <form>
+                    <label for="current-password">Current Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="current-password" placeholder="Enter current password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('current-password')"></i>
+                    </div>
+
+                    <label for="new-password">New Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="new-password" placeholder="Enter new password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('new-password')"></i>
+                    </div>
+
+                    <label for="confirm-password">Confirm New Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="confirm-password" placeholder="Confirm new password" required>
+                        <i class="fa fa-eye toggle-password" onclick="togglePasswordVisibility('confirm-password')"></i>
+                    </div>
+
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     //# sourceURL=header.js
-
     document.addEventListener('DOMContentLoaded', function () {
-        const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
+        //const isLoggedIn = {{#if user}}true{{else}}false{{/if}};
         const cartHeader = document.getElementById('cartHeader');
 
         const cartNumber = cartHeader.querySelector('.badge');
 
-        function fetchCartQuantity() {
-            fetch('/carts/amount-of-items', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cartQuantityIcon').setAttribute('value', data.amountOfItems);
-                console.log('Cart quantity:', data.amountOfItems);
-            })
-            .catch(error => {
-                console.error('Error fetching cart quantity:', error);
-            });
-        }
-
-        // Fetch cart quantity on page load
-        fetchCartQuantity();
-
+        // cartHeader.addEventListener('click', (event) => {
+        //     if (!isLoggedIn) {
+        //         event.preventDefault();
+        //         $('#loginModal').modal('show');
+        //     }
+        // });
     });
-
 </script>
+
+<script src="/js/header.js"></script>
