@@ -4,9 +4,7 @@ const {sequelize} = require('../../../config/database');
 const Order = require('../../order/models/order');
 const PaymentType = require('./paymentType');
 
-const PaymentDetail = sequelize.define('PaymentDetail', {
-
-
+const PaymentDetails = sequelize.define('PaymentDetails', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -22,7 +20,13 @@ const PaymentDetail = sequelize.define('PaymentDetail', {
     },
     amount: { // the real amount paid by the customer
         type: DataTypes.DECIMAL,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
+    },
+    status:{
+        type: DataTypes.ENUM('pending', 'paid', 'failed'),
+        allowNull: false,
+        defaultValue: 'pending'
     },
     payment_type_id: {
         type: DataTypes.INTEGER,
@@ -45,7 +49,7 @@ const PaymentDetail = sequelize.define('PaymentDetail', {
     
 });
 
-PaymentDetail.belongsTo(Order, {foreignKey: 'order_id'}, {onDelete: 'CASCADE', onUpdate: 'CASCADE'});
-PaymentDetail.belongsTo(PaymentType, {foreignKey: 'payment_type_id'}, {onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+PaymentDetails.belongsTo(Order, {foreignKey: 'order_id'}, {onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+PaymentDetails.belongsTo(PaymentType, {foreignKey: 'payment_type_id'}, {onDelete: 'CASCADE', onUpdate: 'CASCADE'});
 
-module.exports = PaymentDetail;
+module.exports = PaymentDetails;

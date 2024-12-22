@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('checkoutBtn').addEventListener('click', async function () {
         try {
-            const response = await fetch('/orders/checkout', {
+            const response = await fetch('/orders/checkout/initiate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -1,5 +1,7 @@
 const { body, validationResult } = require('express-validator');
 
+const PaymentTypeEnums = require('../modules/payment/enums/payment.enums');
+
 const validateRegistration = [
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Invalid email').notEmpty().withMessage('Email is required'),
@@ -25,8 +27,8 @@ const validateRegistration = [
     body('lastName').notEmpty().withMessage('Last name is required'),
     (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()) {
-            return res.status(400).json({message: errors.array()[0].msg});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
         }
 
 
@@ -48,6 +50,33 @@ const validateRegistration = [
     }
 ];
 
+const validateShipmentAndCardDetails = [
+    body('shippingDetails.fullname').notEmpty().withMessage('Full name is required'),
+    body('shippingDetails.phone')
+        .notEmpty().withMessage('Phone number is required')
+        .isMobilePhone('any', { strictMode: true }).withMessage('Invalid phone number'),
+    body('shippingDetails.address').notEmpty().withMessage('Address is required'),
+    body('shippingDetails.district').notEmpty().withMessage('District is required'),
+    body('shippingDetails.province').notEmpty().withMessage('Province is required'),
+    body('paymentType').notEmpty().withMessage('Payment type is required'),
+    (req, res, next) => {
+        if (req.body.paymentType === PaymentTypeEnums.VNPAY) {
+            body('cardDetails.card_number')
+                .notEmpty().withMessage('Card number is required')
+                .isCreditCard().withMessage('Invalid card number')(req, res, next);
+            body('cardDetails.card_holder_name').notEmpty().withMessage('Card holder name is required')(req, res, next);
+            body('cardDetails.card_expiry_month').notEmpty().withMessage('Expiry month is required')(req, res, next);
+            body('cardDetails.card_expiry_year').notEmpty().withMessage('Expiry year is required')(req, res, next);
+            body('cardDetails.card_cvv').notEmpty().withMessage('CVV is required')(req, res, next);
+        }
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
+        }
+        next();
+    }
+];
+
 module.exports = {
-    validateRegistration
+    validateRegistration, validateShipmentAndCardDetails
 };

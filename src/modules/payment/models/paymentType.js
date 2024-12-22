@@ -28,3 +28,9 @@ const PaymentType = sequelize.define('payment_types',{
 );
 
 module.exports = PaymentType;
+
+// // Seed data for PaymentType
+// (async () => {
+//     await PaymentType.findOrCreate({where: {name: 'nvpay'}, defaults: {desc: 'Payment through NVPay'}})
+//     await PaymentType.findOrCreate({where: {name: 'cash'}, defaults: {desc: 'Cash payment'}})
+// })();

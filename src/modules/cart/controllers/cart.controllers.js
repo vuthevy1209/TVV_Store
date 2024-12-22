@@ -34,7 +34,7 @@ class CartController {
             res.status(200).json({ message: 'Cart updated successfully', result });
         } catch (error) {
             console.error('Error updating cart:', error);
-            res.status(500).send(error.message);
+            res.status(500).json({message: `Error updating cart: ${error.message}`});
         }
     }
 
@@ -51,7 +51,7 @@ class CartController {
             res.json({ amountOfItems });
         } catch (error) {
             console.error('Error getting amount of items in cart:', error);
-            res.status(500).send('An error occurred');
+            res.status(500).json({message: `Error getting amount of items in cart: ${error.message}`});
         }
     }
 }

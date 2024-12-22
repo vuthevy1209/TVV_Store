@@ -12,126 +12,148 @@
 
 <section class="checkout_area section_padding">
     <div class="container">
-            <div class="row">
-                <div class="col-lg-7">
-                    <div class="container_payment">
-                        <form action="">
-                            <div class="row">
-                                <div class="col">
-                                    <h3 class="title">Billing Address</h3>
-                                    <div class="inputBox">
-                                        <span>Fullname :</span>
-                                        <input type="text" placeholder="john deo">
-                                    </div>
-                                    <div class="inputBox">
-                                        <span>Email :</span>
-                                        <input type="email" placeholder="example@example.com">
-                                    </div>
-                                    <div class="inputBox">
-                                        <span>Address :</span>
-                                        <input type="text" placeholder="room - street - locality">
-                                    </div>
-                                    <div class="inputBox">
-                                        <span>City :</span>
-                                        <input type="text" placeholder="mumbai">
-                                    </div>
-
-                                    <div class="flex">
-                                        <div class="inputBox">
-                                            <span>State :</span>
-                                            <input type="text" placeholder="india">
-                                        </div>
-                                        <div class="inputBox">
-                                            <span>Zipcode :</span>
-                                            <input type="text" placeholder="123 456">
-                                        </div>
-                                    </div>
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="container_payment">
+                    <form action="">
+                        <input type="hidden" id="orderId" value="{{order.hashOrderId}}">
+                        <div class="row">
+                            <div class="col">
+                                <h3 class="title">Billing Address</h3>
+                                <div class="inputBox">
+                                    <span>Fullname :</span>
+                                    <input type="text" id="fullname" placeholder="John Deo" required>
                                 </div>
-                                <div class="col">
-                                    <h3 class="title">payment</h3>
-                                    <div class="inputBox">
-                                        <span>Cards accepted :</span>
-                                        <img src="/img/card_img.png" alt="">
-                                    </div>
-                                    <div class="inputBox">
-                                        <span>Name on card :</span>
-                                        <input type="text" placeholder="mr. john deo">
-                                    </div>
-                                    <div class="inputBox">
-                                        <span>Credit card number :</span>
-                                        <input type="number" placeholder="1111-2222-3333-4444">
-                                    </div>
-                                    <div class="inputBox">
-                                        <span>Exp month :</span>
-                                        <input type="text" placeholder="january">
-                                    </div>
+                                <div class="inputBox">
+                                    <span>Phone no :</span>
+                                    <input type="number" id="phone" placeholder="123 456 7890" required>
+                                </div>
+                                <div class="inputBox">
+                                    <span>Address :</span>
+                                    <input type="text" id="address" placeholder="House no - street name -Ward/Commune" required>
+                                </div>
+                                <div class="inputBox">
+                                    <span>District :</span>
+                                    <input type="text" id="district" placeholder="District name" required>
+                                </div>
 
-                                    <div class="flex">
-                                        <div class="inputBox">
-                                            <span>Exp year :</span>
-                                            <input type="number" placeholder="2022">
-                                        </div>
-                                        <div class="inputBox">
-                                            <span>CVV :</span>
-                                            <input type="text" placeholder="1234">
-                                        </div>
+                                <div class="flex">
+                                    <div class="inputBox">
+                                        <span>Province/City</span>
+                                        <input type="text" id="province" placeholder="Binh Dinh" required>
+                                    </div>
+                                    <div class="inputBox">
+                                        <span>Zipcode :</span>
+                                        <input type="text" id="zipcode" placeholder="123 456">
                                     </div>
                                 </div>
                             </div>
+                            <div class="col">
+                                <h3 class="title">payment</h3>
+                                <div class="inputBox">
+                                    <span>Cards accepted :</span>
+                                    <img src="/img/card_img.png" alt="">
+                                </div>
+                                <div class="inputBox">
+                                    <span>Payment type: </span>
+                                    <select name="paymentType" id="paymentType" class="form-control" required>
+                                        {{#each paymentTypes}}
+                                        <option value="{{this.id}}">{{this.name}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
 
-                            <input type="submit" value="proceed to checkout" class="submit-btn">
-
-                        </form>
-
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                    {{#if order}}
-                    <div class="order_box">
-                        <h2 >Your order</h2>
-                        <ul class="list">
-                            <li>
-                                <a href="#">Product
-                                    <span>Total</span>
-                                </a>
-                            </li>
-                            {{#each order.orderItems}}
-                            <li>
-                                <a href="#">{{this.product.name}}
-                                    <span class="middle">x {{this.quantity}}</span>
-                                    <span class="last">${{this.product_price}}</span>
-                                </a>
-                            </li>
-                            {{/each}}
-                        </ul>
-                        <ul class="list list_2">
-                            <li>
-                                <a href="#">Subtotal
-                                    <span>${{order.total_price}}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">Shipping
-                                    <span>Flat rate: $50.00</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">Total
-                                    <span>${{order.total_price}}</span>
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="creat_account">
-                            <input type="checkbox" id="f-option4" name="selector" />
-                            <label for="f-option4">I’ve read and accept the </label>
-                            <a href="#">terms & conditions*</a>
+                            </div>
                         </div>
-                    </div>
-                    {{/if}}
+
+                        <input type="submit" value="Confirm purchase" class="submit-btn" id="confirmPurchaseBtn">
+
+                    </form>
+
                 </div>
             </div>
+            <div class="col-lg-5">
+                {{#if order}}
+                <div class="order_box">
+                    <h2>Your order</h2>
+                    <ul class="list">
+                        <li>
+                            <a href="#">Product
+                                <span>Total</span>
+                            </a>
+                        </li>
+                        {{#each order.orderItems}}
+                        <li>
+                            <a href="#">{{this.product.name}}
+                                <span class="middle">x {{this.quantity}}</span>
+                                <span class="last">${{this.product_price}}</span>
+                            </a>
+                        </li>
+                        {{/each}}
+                    </ul>
+                    <ul class="list list_2">
+                        <li>
+                            <a href="#">Subtotal
+                                <span>${{order.total_price}}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">Shipping
+                                <span>Flat rate: $50.00</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">Total
+                                <span>${{order.total_price}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="creat_account">
+                        <input type="checkbox" id="f-option4" name="selector" />
+                        <label for="f-option4">I’ve read and accept the </label>
+                        <a href="#">terms & conditions*</a>
+                    </div>
+                </div>
+                {{/if}}
+            </div>
         </div>
+    </div>
 </section>
+
+<!-- Modal for VNPay confirmation -->
+<div class="modal" id="exampleModal" style="position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; display: none;">
+    <div class="modal-content" style="background-color: #fefefe; padding: 20px; border: 1px solid #888; width: 100%; max-width: 550px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative;">
+        <!-- Close Button -->
+        <button class="close" style="position: absolute; top: 10px; right: 15px; font-size: 24px; font-weight: bold; color: #333; background: none; border: none; cursor: pointer;" aria-label="Close" onclick="closeChangePasswordModal()">
+            &times;
+        </button>
+        <h3 class="title">VNPay</h3>
+        <div class="inputBox">
+            <span>Name on card:</span>
+            <input type="text" id="cardName" placeholder="mr. john deo" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+        </div>
+        <div class="inputBox">
+            <span>Credit card number:</span>
+            <input type="number" id="cardNumber" placeholder="1111-2222-3333-4444" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+        </div>
+        <div class="inputBox">
+            <span>Exp month:</span>
+            <input type="text" id="expMonth" placeholder="january" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+        </div>
+        <div class="flex" style="display: flex; justify-content: space-between;">
+            <div class="inputBox" style="flex: 1; margin-right: 10px;">
+                <span>Exp year:</span>
+                <input type="number" id="expYear" placeholder="2022" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+            </div>
+            <div class="inputBox" style="flex: 1;">
+                <span>CVV:</span>
+                <input type="text" id="cvv" placeholder="1234" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+            </div>
+        </div>
+        <button id="vnpayConfirmBtn" style="background-color: #4CAF50; color: white; padding: 15px 20px; margin: 10px 0; border: none; cursor: pointer; width: 100%; border-radius: 5px;">Confirm</button>
+    </div>
+</div>
+
 
 <link rel="stylesheet" href="/css/checkout.css">
 <script src="/js/checkout.js"></script>

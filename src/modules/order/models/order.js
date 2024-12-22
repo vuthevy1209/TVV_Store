@@ -19,12 +19,21 @@ const Order = sequelize.define('Order', {
             key: 'id'
         }
     },
+    amount_of_items: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    subtotal:{
+        type: DataTypes.DECIMAL,
+        allowNull: false
+    },
     total_price: {
         type: DataTypes.DECIMAL,
         allowNull: false
     },
     status: {
-        type: DataTypes.TINYINT, // 0: pending, 1: processing, 2: completed
+        type: DataTypes.TINYINT, // 0: pending, 1: confirmed, 2: paid, 3: completed
         allowNull: false,
         defaultValue: 0 
     },
