@@ -225,6 +225,7 @@
         addToCartBtn.addEventListener("click", async (event) => {
             event.preventDefault();
 
+            showLoading();
             const productId = addToCartBtn.getAttribute('data-id');
             const quantity = parseInt(quantityInput.value);
 
@@ -247,11 +248,13 @@
                 const data = await response.json();
                 document.getElementById('cartQuantityIcon').setAttribute('value', data.result.cartAmountOfItems);
                 if (data.message) {
-                    swal("Success", data.message, "success");
+                    hideLoading();
+                    showAlert('success','Success', data.message);
                 }
+                hideLoading
             } catch (error) {
                 console.error('Error:', error);
-                swal("Error", error.message, "error");
+                showAleart('error','Error', 'An error occurred. Please try again later.');
             } finally {
                 accumulatedQuantities = {};
             }

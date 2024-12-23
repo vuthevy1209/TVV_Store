@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function updateCart() {
+        showLoading();
         const currentQuantities = { ...accumulatedQuantities };
 
         try {
@@ -73,14 +74,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ products: currentQuantities })
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
             const data = await response.json();
 
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to update cart');
+            }
+
             if (data.message) {
-                swal("Success", data.message, "success");
+                hideLoading();
+                showAlert('success', 'Success', data.message);
             }
 
             for (const productId in currentQuantities) {
@@ -209,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 `;
             }
+            hideLoading();
         } catch (error) {
             console.error('Error:', error);
             swal("Error", error.message, "error");
@@ -237,6 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('checkoutBtn').addEventListener('click', async function () {
         try {
+            showLoading();
             const response = await fetch('/orders/checkout/initiate', {
                 method: 'POST',
                 headers: {
@@ -245,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (response.redirected) {
-                // If the response is a redirect, follow the redirect
+                hideLoading();
                 window.location.href = response.url;
                 return;
             }
@@ -255,15 +259,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (response.ok && result.redirectUrl) {
                 fetchCartQuantity();
+                hideLoading();
                 window.location.href = result.redirectUrl;
                 
             } else {
-                swal("Error", result.message || 'Failed to create order', "error");
+                hideLoading();
+                showAlert('error', 'Error', result.message);
             }
-
+            hideLoading();
         } catch (error) {
             console.error('Error:', error);
-            swal("Error", error.message, "error");
+            showAlert('error', 'Error', error.message);
             
         }
     });

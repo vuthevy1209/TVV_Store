@@ -3,7 +3,6 @@ const {sequelize} = require('../../../config/database');
 
 const Order = require('../../order/models/order');
 
-
 const ShippingDetails = sequelize.define('ShippingDetails', {
     id:{
         type: DataTypes.INTEGER,

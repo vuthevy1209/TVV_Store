@@ -3,12 +3,33 @@ const shippingFees = require('../models/shippingFee');
 
 class ShippingService{
     async createShipment(orderId,shipDetails){
-        shippingDetails.order_id = orderId; 
+        shipDetails.order_id = orderId; 
         await shippingDetails.create(shipDetails);
     }
 
     async getAllShippingFess(){
-        return await shippingFees.findAll();
+        return await shippingFees.findAll({
+            where: {
+                is_deleted: false
+            },
+            order: [['id', 'ASC']]            
+        });
+    }
+
+    async getShippingDetailsByOrderId(orderId){
+        return await shippingDetails.findOne({
+            where: {
+                order_id: orderId
+            }
+        });
+    }
+
+    async deleteShippingDetails(orderId){
+        await shippingDetails.destroy({
+            where: {
+                order_id: orderId
+            }
+        });
     }
 }
 

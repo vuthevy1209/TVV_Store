@@ -50,25 +50,16 @@ const validateRegistration = [
     }
 ];
 
-const validateShipmentAndCardDetails = [
+const validateShipment = [
     body('shippingDetails.fullname').notEmpty().withMessage('Full name is required'),
     body('shippingDetails.phone')
         .notEmpty().withMessage('Phone number is required')
-        .isMobilePhone('any', { strictMode: true }).withMessage('Invalid phone number'),
+        .isMobilePhone('any').withMessage('Invalid phone number'),
     body('shippingDetails.address').notEmpty().withMessage('Address is required'),
     body('shippingDetails.district').notEmpty().withMessage('District is required'),
     body('shippingDetails.province').notEmpty().withMessage('Province is required'),
     body('paymentType').notEmpty().withMessage('Payment type is required'),
     (req, res, next) => {
-        if (req.body.paymentType === PaymentTypeEnums.VNPAY) {
-            body('cardDetails.card_number')
-                .notEmpty().withMessage('Card number is required')
-                .isCreditCard().withMessage('Invalid card number')(req, res, next);
-            body('cardDetails.card_holder_name').notEmpty().withMessage('Card holder name is required')(req, res, next);
-            body('cardDetails.card_expiry_month').notEmpty().withMessage('Expiry month is required')(req, res, next);
-            body('cardDetails.card_expiry_year').notEmpty().withMessage('Expiry year is required')(req, res, next);
-            body('cardDetails.card_cvv').notEmpty().withMessage('CVV is required')(req, res, next);
-        }
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ message: errors.array()[0].msg });
@@ -98,5 +89,5 @@ const validatePassword = [
 ];
 
 module.exports = {
-    validatePassword, validateRegistration, validateShipmentAndCardDetails
+    validatePassword, validateRegistration, validateShipment
 };

@@ -3,37 +3,22 @@ const {sequelize} = require('../../../config/database');
 
 const PaymentDetails = require('./paymentDetails');
 
+/**
+ * 
+ * {"vnp_Amount":"5005000","vnp_BankCode":"NCB","vnp_BankTranNo":"VNP14765030","vnp_CardType":"ATM","vnp_OrderInfo":"Pay+for+order+3a0387f4929423561a56580713e9aa5b%3Adac3b18648ba41670a5c2e7306e997af","vnp_PayDate":"20241223151744","vnp_ResponseCode":"00","vnp_TmnCode":"YNA5OJA0","vnp_TransactionNo":"14765030","vnp_TransactionStatus":"00","vnp_TxnRef":"3a0387f4929423561a56580713e9aa5b%3Adac3b18648ba41670a5c2e7306e997af"}
+ */
+
 const VNPayDetails = sequelize.define('vnpay-details', {
     id: {
         type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
+        primaryKey: true
     },
     payment_detail_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: PaymentDetails,
-            key: 'id'
-        }
-    },
-    card_number: {
-        type: DataTypes.STRING,
         allowNull: false
     },
-    card_holder_name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    card_expiry_month: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    card_expiry_year: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    card_cvv: {
+    vnp_TransactionNo: {
         type: DataTypes.STRING,
         allowNull: false
     },

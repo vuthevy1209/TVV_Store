@@ -2,4 +2,6 @@
 
 // const paymentController = require('../controllers/payment.controllers');
 
-// router.post('/checkout', paymentController.checkout);
+// router.post('/create_payment_url', paymentController.createPaymentUrl);
+
+// module.exports = router;
