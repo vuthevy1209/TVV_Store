@@ -45,10 +45,11 @@ const OrderItem = sequelize.define('OrderItem', {
     tableName: 'order_items',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: 'modified_at'
+    modifiedAt: 'modified_at'
 });
 
 OrderItem.belongsTo(Order, {foreignKey:{name: 'order_id', onUpdate: 'CASCADE', onDelete: 'CASCADE'}});
+OrderItem.belongsTo(Product, {foreignKey:{name: 'product_id', onUpdate: 'CASCADE', onDelete: 'CASCADE'}});
 
 
 module.exports = OrderItem;

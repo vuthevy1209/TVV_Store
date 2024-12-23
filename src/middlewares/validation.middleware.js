@@ -1,5 +1,7 @@
 const { body, validationResult } = require('express-validator');
 
+const PaymentTypeEnums = require('../modules/payment/enums/payment.enums');
+
 const validateRegistration = [
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Invalid email').notEmpty().withMessage('Email is required'),
@@ -25,8 +27,8 @@ const validateRegistration = [
     body('lastName').notEmpty().withMessage('Last name is required'),
     (req, res, next) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()) {
-            return res.status(400).json({message: errors.array()[0].msg});
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
         }
 
 
@@ -44,6 +46,24 @@ const validateRegistration = [
         //         confirmPassword: req.body.confirmPassword
         //     });
         // }
+        next();
+    }
+];
+
+const validateShipment = [
+    body('shippingDetails.fullname').notEmpty().withMessage('Full name is required'),
+    body('shippingDetails.phone')
+        .notEmpty().withMessage('Phone number is required')
+        .isMobilePhone('any').withMessage('Invalid phone number'),
+    body('shippingDetails.address').notEmpty().withMessage('Address is required'),
+    body('shippingDetails.district').notEmpty().withMessage('District is required'),
+    body('shippingDetails.province').notEmpty().withMessage('Province is required'),
+    body('paymentType').notEmpty().withMessage('Payment type is required'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
+        }
         next();
     }
 ];
@@ -69,5 +89,5 @@ const validatePassword = [
 ];
 
 module.exports = {
-    validatePassword, validateRegistration
+    validatePassword, validateRegistration, validateShipment
 };

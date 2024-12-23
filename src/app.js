@@ -122,8 +122,10 @@ const authRouter = require('./modules/auth/routes/auth.routes');
 const productRouter = require('./modules/product/routes/product.routes');
 const homeRouter = require('./modules/home/routes/home.routes');
 const cartRouter = require('./modules/cart/routes/cart.routes');
+const orderRouter = require('./modules/order/routes/order.routes');
 const connectEnsureLogin = require('connect-ensure-login');
 const userRouter = require('./modules/user/routes/user.routes');
+const paymentRouter = require('./modules/payment/routes/payment.routes');
 
 app.use('/auth/login/google' , passport.authenticate('google'));
 app.use('/oauth2/redirect/google', AuthController.googleCallback);
@@ -141,7 +143,8 @@ app.use('/products', productRouter);
 app.use('/user', userRouter);
 
 app.use('/carts', cartRouter);
-//app.user('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login' }), orderRouter);
+app.use('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), orderRouter);
+//app.use('/payments', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), paymentRouter);
 app.use('/', homeRouter);
 
 

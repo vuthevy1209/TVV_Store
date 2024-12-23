@@ -1,0 +1,40 @@
+<div class="modal" id="exampleModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"
+            style="background-color: #fefefe; padding: 20px; border: 1px solid #888; width: 100%; max-width: 500px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;"
+                data-dismiss="modal" onclick="closeChangePasswordModal()">&times;</span>
+            <h3 class="title">VNPay</h3>
+            <div class="inputBox">
+                <span>Name on card :</span>
+                <input type="text" id="cardName" placeholder="mr. john deo"
+                    style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+            </div>
+            <div class="inputBox">
+                <span>Credit card number :</span>
+                <input type="number" id="cardNumber" placeholder="1111-2222-3333-4444"
+                    style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+            </div>
+            <div class="inputBox">
+                <span>Exp month :</span>
+                <input type="text" id="expMonth" placeholder="january"
+                    style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+            </div>
+
+            <div class="flex" style="display: flex; justify-content: space-between;">
+                <div class="inputBox" style="flex: 1; margin-right: 10px;">
+                    <span>Exp year :</span>
+                    <input type="number" id="expYear" placeholder="2022"
+                        style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+                </div>
+                <div class="inputBox" style="flex: 1;">
+                    <span>CVV :</span>
+                    <input type="text" id="cvv" placeholder="1234"
+                        style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+                </div>
+            </div>
+            <button id="vnpayConfirmBtn"
+                style="background-color: #4CAF50; color: white; padding: 15px 20px; margin: 10px 0; border: none; cursor: pointer; width: 100%; border-radius: 5px;">Confirm</button>
+        </div>
+    </div>
+</div>

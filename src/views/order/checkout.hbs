@@ -1,0 +1,195 @@
+<section class="breadcrumb_part">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb_iner">
+                    <h2>checkout</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="checkout_area section_padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="container_payment">
+                    <form action="">
+                        <input type="hidden" id="orderId" value="{{order.hashOrderId}}">
+                        <div class="row">
+                            <div class="col">
+                                <h3 class="title">Billing Address</h3>
+                                <div class="inputBox">
+                                    <span>Fullname :</span>
+                                    <input type="text" id="fullname" placeholder="John Deo" required>
+                                </div>
+                                <div class="inputBox">
+                                    <span>Phone no :</span>
+                                    <input type="number" id="phone" placeholder="123 456 7890" required>
+                                </div>
+                                <div class="inputBox">
+                                    <span>Address :</span>
+                                    <input type="text" id="address" placeholder="House no - street name -Ward/Commune" required>
+                                </div>
+                                <div class="inputBox">
+                                    <span>District :</span>
+                                    <input type="text" id="district" placeholder="District name" required>
+                                </div>
+
+                                <div class="flex">
+                                    <div class="inputBox">
+                                        <span>Province/City</span>
+                                        <select name="province" id="province" class="form-control" required onchange="updateShippingFee()">
+                                            {{#each shippingFees}}
+                                            <option value="{{this.id}}" data-fee="{{this.cost}}">{{this.province}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                    <div class="inputBox">
+                                        <span>Shipping Fee :</span>
+                                        <span id="shippingFee">${{shippingFees.[0].cost}}</span>
+                                        <input type="hidden" id="shippingFeeValue" name="shippingFeeValue" value="{{shippingFees.[0].cost}}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h3 class="title">payment</h3>
+                                <div class="inputBox">
+                                    <span>Cards accepted :</span>
+                                    <img src="/img/card_img.png" alt="">
+                                </div>
+                                <div class="inputBox">
+                                    <span>Payment type: </span>
+                                    <select name="paymentType" id="paymentType" class="form-control" required>
+                                        {{#each paymentTypes}}
+                                        <option value="{{this.id}}">{{this.name}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="submit" value="Confirm purchase" class="submit-btn" id="confirmPurchaseBtn">
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                {{#if order}}
+                <div class="order_box">
+                    <h2>Your order</h2>
+                    <ul class="list">
+                        <li>
+                            <a href="#">Product
+                                <span>Total</span>
+                            </a>
+                        </li>
+                        {{#each order.orderItems}}
+                        <li>
+                            <a href="#">{{this.product.name}}
+                                <span class="middle">x {{this.quantity}}</span>
+                                <span class="last">${{this.product_price}}</span>
+                            </a>
+                        </li>
+                        {{/each}}
+                    </ul>
+                    <ul class="list list_2">
+                        <li>
+                            <a href="#">Subtotal
+                                <span>${{order.subtotal}}</span>
+                                <input type="hidden" id="subtotal" value="{{order.subtotal}}">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">Shipping
+                                <span id="shippingFeeSummary">${{shippingFees.[0].cost}}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">Total
+                                <span id="totalPrice">${{order.total_price}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="creat_account">
+                        <input type="checkbox" id="f-option4" name="selector" required />
+                        <label for="f-option4">I’ve read and accept the </label>
+                        <a href="#">terms & conditions*</a>
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for VNPay confirmation -->
+<div class="modal" id="vnpayModal">
+    
+        <div class="modal-content" style="background-color: #fefefe; padding: 20px; border: 1px solid #888; width: 100%; max-width: 600px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 20px; top: 10px;" onclick="closePaymentModal()">&times;</span>
+            <h3 class="title">VNPay Payment</h3>
+            <form id="vnpayForm">
+                <input type="hidden" name="orderId" value="{{order.hashOrderId}}">
+                <div class="inputBox">
+                    <span>Amount (VND):</span>
+                    <input type="number" id="amountTotalVNPayModal" name="amount" value="{{order.total_price}}" readonly>
+                </div>
+                <div class="inputBox">
+                    <span>Payment Method:</span>
+                    <select name="bankCode" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+                        <option value="" selected>VNPAYQR (default)</option>
+                        <option value="VNPAYQR">VNPAYQR App</option>
+                        <option value="VNBANK">ATM - Domestic Bank</option>
+                        <option value="INTCARD">International Card</option>
+                    </select>
+                </div>
+                <div class="inputBox">
+                    <span>Language:</span>
+                    <select name="language" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
+                        <option value="vn" selected>Tiếng Việt</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <button type="submit" id="vnpayRedirectBtn" style="background-color: #4CAF50; color: white; padding: 15px 20px; margin: 10px 0; border: none; cursor: pointer; width: 100%; border-radius: 5px;">Confirm Payment</button>
+            </form>
+        </div>
+    
+</div>
+
+<link rel="stylesheet" href="/css/checkout.css">
+<script src="/js/checkout.js"></script>
+
+<script>
+    const subtotal = document.getElementById('subtotal').value;
+    function initTotalPrice() {
+        // Calculate total price
+        const shippingFee = document.getElementById('shippingFeeValue').value;
+        const totalPrice = parseFloat(subtotal) + parseFloat(shippingFee);
+
+        // Display total price in the span
+        document.getElementById('totalPrice').textContent = `$${totalPrice}`;
+        document.getElementById('amountTotalVNPayModal').value = totalPrice;
+    }
+    initTotalPrice();
+    function updateShippingFee() {
+        const provinceSelect = document.getElementById('province');
+        const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+        const shippingFee = selectedOption.getAttribute('data-fee');
+
+        document.getElementById('shippingFee').innerText = `$${shippingFee}`;
+        document.getElementById('shippingFeeValue').value = shippingFee;
+        document.getElementById('shippingFeeSummary').innerText = `$${shippingFee}`;
+
+        const totalPrice = parseFloat(subtotal) + parseFloat(shippingFee);
+        document.getElementById('totalPrice').innerText = `$${totalPrice.toFixed(2)}`;
+        document.getElementById('amountTotalVNPayModal').value = totalPrice;
+    }
+
+    const vnpayModal = document.getElementById('vnpayModal');
+
+    // Close VNPay Modal
+    function closePaymentModal() {
+        vnpayModal.style.display = 'none';
+    }
+</script>

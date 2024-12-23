@@ -245,6 +245,21 @@ class ProductService {
         return await ProductCategory.findAll();
     }
 
+
+    async updateProductInventory(id, quantity) {
+        const product = await Product.findByPk(id);
+        if (quantity < 0) {
+            throw new Error('Invalid quantity');
+        }
+        if (product.inventory_quantity < quantity) {
+            throw new Error('Product' + product.name + ' is out of stock' + ' (available: ' + product.inventory_quantity + ')');
+        }
+        product.inventory_quantity -= quantity;
+
+        await product.save();
+    }
+    
+
     async indexProducts() {
         try {
             const products = await Product.findAll();
@@ -272,6 +287,7 @@ class ProductService {
             throw new Error(error.message);
         }
     }
+
 }
 
 module.exports = new ProductService();

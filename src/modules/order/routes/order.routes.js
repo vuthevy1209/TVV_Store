@@ -1,13 +1,22 @@
 const router = require('express').Router();
 const orderController = require('../controllers/order.controllers');
+const validator = require('../../../middlewares/validation.middleware');
 
-router.post('/checkout', orderController.checkout);
+const {checkOwnership} = require('../../../middlewares/authorization.middleware');
+const {confirmed} = require('../../../middlewares/confirm.middleware');
+
+
+router.get('/', orderController.index);
+
+
+router.post('/checkout/initiate', orderController.initiateOrder);
+router.get('/checkout',confirmed, orderController.checkout);
+
+router.post('/checkout/cash/:orderId',confirmed, validator.validateShipment, orderController.checkoutCash);
+
+router.post('/checkout/vnpay',confirmed,validator.validateShipment, orderController.checkoutVnpay);
+router.get('/vnpay_return', orderController.verifyVnpayReturnUrl);
+
+router.get('/confirmation', orderController.orderConfirmation);
 
 module.exports = router;
-
-
-
-// CART PAGE
-// - KHI NHẤN CHECKOUT TRÊN CART PAGE, SẼ GỌI  order/checkout ĐỂ TẠO ORDER MỚI 
-//     --> lấy items từ cart --> cho qua order items  --> STATUS CỦA ORDER SẼ LÀ UNCOMPLETD
-//     --> REMOVE  ITEMS KHỎI CART 

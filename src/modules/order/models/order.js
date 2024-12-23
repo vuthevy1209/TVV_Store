@@ -19,21 +19,23 @@ const Order = sequelize.define('Order', {
             key: 'id'
         }
     },
-    total: {
+    amount_of_items: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    subtotal:{
         type: DataTypes.DECIMAL,
         allowNull: false
     },
-    // payment_id: {
-    //     type: DataTypes.INTEGER,
-    //     allowNull: false,
-    //     references: {
-    //      model: PaymentDetail,
-    //       key: 'id'
-    // },
+    total_price: {
+        type: DataTypes.DECIMAL,
+        allowNull: false
+    },
     status: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.TINYINT, // 0: pending, 1: confirmed, 2: paid, 3: completed
         allowNull: false,
-        defaultValue: false
+        defaultValue: 0 
     },
     is_deleted: {
         type: DataTypes.BOOLEAN,
@@ -45,10 +47,9 @@ const Order = sequelize.define('Order', {
     tableName: 'orders',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    modifiedAt: 'modified_at',
 });
 
 Order.belongsTo(Customer, {foreignKey:{name: 'customer_id', onUpdate: 'CASCADE', onDelete: 'CASCADE'}});
-//Order.belongsTo(Payment, {foreignKey: 'payment_id'});
 
 module.exports = Order;
