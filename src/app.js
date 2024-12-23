@@ -108,6 +108,15 @@ app.use((req, res, next) => {
     next();
 });
 
+// Index products when the application starts
+const productService = require('./modules/product/services/product.services');
+productService.indexProducts().then(() => {
+    console.log('Products indexed successfully');
+}).catch(err => {
+    console.error('Error indexing products:', err);
+});
+
+
 // routes
 const authRouter = require('./modules/auth/routes/auth.routes');
 const productRouter = require('./modules/product/routes/product.routes');
