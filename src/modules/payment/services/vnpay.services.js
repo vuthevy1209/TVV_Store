@@ -26,7 +26,10 @@ class VNPayService {
 
         // Sort the parameters alphabetically by their names
         vnp_Params = sortObject(vnp_Params);
-        let vnpUrl = vnp_Url;
+        const BASE_URL = process.env.NODE_ENV === 'production'
+                    ? process.env.PROD_BASE_URL // Production URL
+                    : process.env.DEV_BASE_URL;
+        let vnpUrl = `${BASE_URL}${vnp_Url}`;
         let secretKey = vnp_HashSecret;
 
         let signData = querystring.stringify(vnp_Params, { encode: false });
