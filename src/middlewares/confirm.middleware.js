@@ -19,7 +19,7 @@ async function confirmed(req, res, next) {
             return res.redirect('/404');
         }
 
-        if (order.status !== OrderStatusEnum.PENDING) { // maybe change this view to another view (confirm already error view)
+        if (order.status !== OrderStatusEnum.PENDING.value) { // maybe change this view to another view (confirm already error view)
             return res.redirect('/404');
         }
 
