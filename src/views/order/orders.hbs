@@ -1,0 +1,122 @@
+<link rel="stylesheet" href="/css/orders.css">
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-12 my-lg-0 my-1">
+            <div id="main-content" class="bg-white border">
+                <div class="d-flex flex-column">
+                    <div class="h5">Hello {{user.firstName}},</div>
+                    <div>Logged in as: {{user.username}}</div>
+                </div>
+                <div class="d-flex my-4 flex-wrap">
+                    <div class="box me-4 my-1 bg-light">
+                        <img src="https://www.freepnglogos.com/uploads/box-png/cardboard-box-brown-vector-graphic-pixabay-2.png"
+                            alt="">
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="tag">Orders placed</div>
+
+                        </div>
+                    </div>
+                    <div class="box me-4 my-1 bg-light ml-4">
+                        <img src="https://www.freepnglogos.com/uploads/love-png/love-png-heart-symbol-wikipedia-11.png"
+                            alt="">
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="tag">Wishlist</div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="text-uppercase">My recent orders</div>
+                <div id="ordersContainer">
+                    {{#each orders}}
+                    <div class="order my-3 bg-light">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="d-flex flex-column justify-content-between order-summary">
+                                    <div class="d-flex align-items-center">
+                                        <div class="text-uppercase flex-grow-1 text-nowrap">Order #{{this.hashOrderId}}
+                                        </div>
+
+                                    </div>
+                                    <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                        <div class="status">Order Status : {{this.statusName}}</div>
+
+                                    </div>
+                                    {{#if this.paymentDetails}}
+                                    <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                        <div class="status">Payment Status : {{this.paymentDetails.status}}
+                                    </div>
+                                    {{else}}
+                                    <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                        <div class="status">Payment Status : Haven't created payment yet
+                                    </div>
+                                    {{/if}}
+                                </div>
+
+                                <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                    <div class="status">Total: {{this.total_price}}</div>
+                                </div>
+                                <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                    <div class="status">Amount of items: {{this.amount_of_items}}</div>
+                                </div>
+                                <div class="fs-8">{{this.created_at}}</div>
+                                <div class="rating d-flex align-items-center pt-1">
+                                    <img src="https://www.freepnglogos.com/uploads/like-png/like-png-hand-thumb-sign-vector-graphic-pixabay-39.png"
+                                        alt="">
+                                    <span class="px-2">Rating:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="d-sm-flex align-items-sm-start justify-content-end">
+
+                                {{#if this.paymentDetails}}
+                                <a href="/orders/confirmation?orderId={{this.hashOrderId}}" class="ms-auto">
+                                    <div class="btn btn-primary text-uppercase">order info</div>
+                                </a>
+                                {{else}}
+                                <a href="/orders/checkout?orderId={{this.hashOrderId}}" class="ms-auto">
+                                    <div class="btn btn-primary text-uppercase">order info</div>
+                                </a>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {{#if pagination.hasPrev}}
+                    <li class="page-item">
+                        <a class="page-link" href="#" data-page="{{pagination.prevPage}}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+                    {{/if}}
+                    {{#each pagination.pages}}
+                    <li class="page-item {{#if this.active}}active{{/if}}">
+                        <a class="page-link" href="#" data-page="{{this.number}}">{{this.number}}</a>
+                    </li>
+                    {{/each}}
+                    {{#if pagination.hasNext}}
+                    <li class="page-item">
+                        <a class="page-link" href="#" data-page="{{pagination.nextPage}}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+                    {{/if}}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="/js/orders.js"></script>

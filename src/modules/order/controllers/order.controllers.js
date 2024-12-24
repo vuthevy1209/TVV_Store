@@ -10,10 +10,33 @@ class OrderController {
     //[GET] /orders
     async index(req, res) {
         try {
-            const orders = await orderService.findAllByUserId(req.user.id);
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 3;
+            const { orders, totalPages, currentPage } = await orderService.findAllByUserId(req.user.id, page, limit);
             console.log('Orders fetched successfully');
-            //res.render('order/checkout', {orders}); HAVEN'T CREATED THIS VIEW YET
-            return res.status(200).json(orders);
+
+            // Check if the request is an AJAX request (JSON response)
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.json({ orders, totalPages, currentPage });
+            }
+
+            // Render the Handlebars template for SSR
+            return res.render('order/orders', { 
+                orders, 
+                pagination: {
+                    currentPage,
+                    totalPages,
+                    hasPrev: currentPage > 1,
+                    hasNext: currentPage < totalPages,
+                    prevPage: currentPage - 1,
+                    nextPage: currentPage + 1,
+                    pages: Array.from({ length: totalPages }, (_, i) => ({
+                        number: i + 1,
+                        active: i + 1 === currentPage
+                    }))
+                }
+            });
+
         } catch (err) {
             console.log(err);
             return res.status(500).json({ message: 'Internal server error while fetching orders' });
@@ -83,15 +106,18 @@ class OrderController {
     async verifyVnpayReturnUrl(req, res) {
         try {
             const vnp_Params = req.query;
-            const order = await orderService.fetchOrderByHashId(vnp_Params.vnp_TxnRef);
             const verifiedParams = await paymentService.verifyReturnUrl(vnp_Params);
             console.log('VNPay return URL verified successfully');
+            let hashOrderId = verifiedParams.vnp_TxnRef;
             if (verifiedParams.vnp_ResponseCode === '00') {
-                const orderId = orderService.confirmVnPaySuccess(verifiedParams);
-                return res.redirect(`/orders/confirmation?orderId=${order.hashOrderId}`);
+                return res.redirect(`/orders/confirmation?orderId=${hashOrderId}`);
             }
+            else{
+                hashOrderId = await orderService.vnpayFailed(verifiedParams.vnp_TxnRef);
+            }
+            console.log('Payment failed');
             req.flash('error', 'Payment failed');
-            return res.redirect(`/orders/checkout?orderId=${order.hashOrderId}`);
+            return res.redirect(`/orders/checkout?orderId=${hashOrderId}`);
         } catch (err) {
             console.log(err);
             return res.status(500).json({ message: `Error verifying VNPay return URL: ${err.message}` });

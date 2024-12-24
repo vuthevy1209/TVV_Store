@@ -74,7 +74,10 @@ const hbs = engine({
         ...hbsHelpers(),
         includes: function (array, value) {
             return array && array.includes(value);
-        }
+        },
+        eq: function (a, b) {
+            return a === b;
+        },
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,

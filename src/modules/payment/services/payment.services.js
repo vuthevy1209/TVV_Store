@@ -20,9 +20,8 @@ class PaymentService {
     }
 
     async createVNPayUrl(hashOrderId,formDataJson){
-        const amount1 = formDataJson.amount;
-        const amount2 = formDataJson['amount'];
-        return vnpayServices.createPaymentUrl(hashOrderId,formDataJson.amount,formDataJson.bankCode);
+        
+        return await vnpayServices.createPaymentUrl(hashOrderId,formDataJson.amount,formDataJson.bankCode);
     }
 
     async findAllTypes() {
@@ -45,6 +44,25 @@ class PaymentService {
             vnp_TransactionNo: vnp_Params.vnp_TransactionNo
         });
     }
+
+    async getPaymentDetailsByOrderId(orderId) {
+        return PaymentDetails.findOne({
+            where: {
+                order_id: orderId
+            }
+        });
+    }    
+
+    async deletePaymentDetailsByOrderId(orderId) {
+        
+        return PaymentDetails.destroy({
+            where: {
+                order_id: orderId
+            }
+        });
+    }
+
+    
 
 }
 

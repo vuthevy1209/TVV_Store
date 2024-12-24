@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const formData = new FormData(form);
                 const formDataJson = Object.fromEntries(formData.entries());
 
+
                 payWithVnpay(orderId, shippingDetails, paymentType, formDataJson);
             };
         } else if (paymentType === '2') { // Cash selected

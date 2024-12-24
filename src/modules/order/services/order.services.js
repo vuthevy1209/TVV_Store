@@ -11,6 +11,8 @@ const shippingService = require('../../shipping/services/shipping.services');
 const paymentService = require('../../payment/services/payment.services');
 const Product = require('../../product/models/product');
 const Cart = require('../../cart/models/cart');
+const moment = require('moment');
+const OrderItems = require('../models/orderItem');
 
 
 const { default: Decimal } = require('decimal.js');
@@ -21,14 +23,42 @@ const { OrderStatusEnum } = require('../enums/order.enums');
 
 class OrderService {
 
-    async findAllByUserId(userId) {
+    async findAllByUserId(userId, page = 1, limit = 1) {
         const customer = await Customer.findOne({ where: { user_id: userId } });
         if (!customer) {
             throw new Error('Customer not found');
         }
-        const orders = await this.fetchOrdersByCustomerId(customer.id);
-        // return plain object
-        return orders.map(order => order.get({ plain: true }));
+        const offset = (page - 1) * limit;
+        const { rows: orders, count } = await Order.findAndCountAll({
+            where: { customer_id: customer.id },
+            limit,
+            offset,
+            order: [['created_at', 'DESC']]
+        });
+        await Promise.all(orders.map(async (order) => {
+            order.dataValues.orderItems = await OrderItem.findAll({
+                where: { order_id: order.id },
+                include: [
+                    {
+                        model: Product,
+                        as: 'product'
+                    }
+                ]
+            });
+            const paymentDetails = await paymentService.getPaymentDetailsByOrderId(order.id);
+            order.dataValues.paymentDetails = paymentDetails ? paymentDetails.get({ plain: true }) : null;
+        }));
+        return {
+            orders: orders.map(order => function() {
+                const plainOrder = order.get({ plain: true });
+                plainOrder.hashOrderId = encrypt(order.id.toString());
+                plainOrder.statusName = OrderStatusEnum.properties[order.status].name;
+                plainOrder.created_at = moment(order.created_at).format('MMMM Do YYYY, h:mm:ss a');
+                return plainOrder;
+            }()),
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
     }
 
     async checkout(userId) {
@@ -112,6 +142,9 @@ class OrderService {
 
         // Convert order items to plain objects
         completeOrder.dataValues.orderItems = orderItems.map(item => item.get({ plain: true }));
+        const paymentDetails = await paymentService.getPaymentDetailsByOrderId(orderId);
+        completeOrder.dataValues.paymentDetails = paymentDetails ? paymentDetails.get({ plain: true }) : null;
+
         return completeOrder.get({ plain: true });
     }
 
@@ -159,16 +192,16 @@ class OrderService {
         if (!order) {
             throw new Error('Order not found');
         }
-        if (order.status !== OrderStatusEnum.PENDING) {
+        if (order.status !== OrderStatusEnum.PENDING.value) {
             throw new Error('Order has already been confirmed');
         }
 
         try {
             return await sequelize.transaction(async (transaction) => {
                 await shippingService.createShipment(orderId, shippingDetails, { transaction });
-                order.total_price = Decimal.add(order.total_price, shippingDetails.shipping_fee);
+                order.total_price = Decimal.add(order.subtotal, shippingDetails.shipping_fee);
                 await paymentService.createPayment(order, paymentType, { transaction });
-                await order.update({ status: OrderStatusEnum.CONFIRMED, total_price: order.total_price }, { transaction });
+                await order.update({ status: OrderStatusEnum.CONFIRMED.value, total_price: order.total_price }, { transaction });
 
             });
         }
@@ -186,14 +219,14 @@ class OrderService {
                 if (!order) {
                     throw new Error('Order not found');
                 }
-                if (order.status !== OrderStatusEnum.PENDING) {
+                if (order.status !== OrderStatusEnum.PENDING.value) {
                     console.log('Order status: ', order.status);
                     throw new Error('Order has already been confirmed');
                 }
                 await shippingService.createShipment(orderId, shippingDetails, { transaction });
-                order.total_price = Decimal.add(order.total_price, shippingDetails.shipping_fee);
+                order.total_price = Decimal.add(order.subtotal, shippingDetails.shipping_fee);
                 await order.update({ total_price: order.total_price }, { transaction });
-                const paymentUrl = await paymentService.createVNPayUrl(hashOrderId, formDataJson, { transaction });
+                const paymentUrl = await paymentService.createVNPayUrl(hashOrderId, formDataJson,{ transaction });
                 return paymentUrl;
             });
         }
@@ -212,17 +245,45 @@ class OrderService {
                 if (!order) {
                     throw new Error('Order not found');
                 }
-                if (order.status !== OrderStatusEnum.PENDING) {
+                if (order.status !== OrderStatusEnum.PENDING.value) {
                     throw new Error('Order has already been confirmed');
                 }
                 await paymentService.createVNPayDetails(orderId, verifiedParams, { transaction });
-                await order.update({ status: OrderStatusEnum.PAID }, { transaction });
+                await order.update({ status: OrderStatusEnum.PAID.value }, { transaction });
                 return orderId;
             });
         }
         catch (err) {
             console.log(err);
             throw new Error(`Error confirming VNPay success: ${err.message}`);
+        }
+    }
+
+    async vnpayFailed(hashOrderId) {
+        try {
+            return await sequelize.transaction(async (transaction) => {
+                const orderId = parseInt(decrypt(hashOrderId));
+                if(isNaN(orderId)){
+                    throw new Error('Invalid order ID');
+                }
+                const order = await Order.findByPk(orderId);
+                const paymentDetails = await paymentService.getPaymentDetailsByOrderId(orderId);
+                const newOrder = await Order.create({
+                    customer_id: order.customer_id,
+                    total_price: order.total_price,
+                    subtotal: order.subtotal,
+                    amount_of_items: order.amount_of_items
+                }, { transaction });
+                await OrderItems.update({ order_id: newOrder.id }, { where: { order_id: orderId }, transaction });
+                await shippingService.deleteShippingDetails(orderId, { transaction });
+                await order.destroy({ transaction });
+                console.log('VNPay failed payment handled successfully');
+                return encrypt(newOrder.id.toString());
+            });
+        }
+        catch (err) {
+            console.log(err);
+            throw new Error(`Error handling VNPay failed payment: ${err.message}`);
         }
     }
 
