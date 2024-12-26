@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/success.css">
+<link rel="stylesheet" href="/css/confirmation.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 
@@ -20,11 +20,16 @@
               </div>
             </div>
 
-            <ul id="progressbar-2" class="d-flex justify-content-between mx-0 mt-0 mb-5 px-0 pt-0 pb-2">
+            <ul id="progressbar-2" class="d-flex justify-content-between mx-0 mt-0 mb-5 px-0 pt-0 pb-2 ">
               <li class="step0 active text-center" id="step1"></li>
               <li class="step0 active text-center" id="step2"></li>
+              {{#if (eq order.status 3)}}
+              <li class="step0 active text-center complete" id="step3"></li>
+              <li class="step0 active text-center" id="step2"></li>
+              {{else}}
               <li class="step0 active text-center" id="step3"></li>
               <li class="step0 text-muted text-end" id="step4"></li>
+              {{/if}}
             </ul>
 
             <div class="d-flex justify-content-between">
