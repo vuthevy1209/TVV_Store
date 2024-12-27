@@ -60,10 +60,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return `
             <div class="order my-3 bg-light">
                 <div class="row">
-                    <div class="col-lg-8">
+                    <div class="col-lg-6">
                         <div class="d-flex flex-column justify-content-between order-summary">
                             <div class="d-flex align-items-center">
-                                <div class="text-uppercase flex-grow-1 text-nowrap">Order #${order.hashOrderId}</div>
+                                <div class="text-uppercase flex-grow-1 text-nowrap">Order #${order.id}</div>
                             </div>
                             <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
                                 <div class="status">Order Status : ${order.statusName}</div>
