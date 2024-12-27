@@ -238,40 +238,42 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    document.getElementById('checkoutBtn').addEventListener('click', async function () {
-        try {
-            showLoading();
-            const response = await fetch('/orders/checkout/initiate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    // document.getElementById('checkoutBtn').addEventListener('click', async function () {
+    //     try {
+    //         showLoading();
+    //         const response = await fetch('/orders/checkout/initiate', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
 
-            if (response.redirected) {
-                hideLoading();
-                window.location.href = response.url;
-                return;
-            }
+    //         if (response.redirected) {
+    //             hideLoading();
+    //             window.location.href = response.url;
+    //             return;
+    //         }
     
 
-            const result = await response.json();
+    //         const result = await response.json();
 
-            if (response.ok && result.redirectUrl) {
-                fetchCartQuantity();
-                hideLoading();
-                window.location.href = result.redirectUrl;
+    //         if (response.ok && result.redirectUrl) {
+    //             fetchCartQuantity();
+    //             hideLoading();
+    //             window.location.href = result.redirectUrl;
                 
-            } else {
-                hideLoading();
-                showAlert('error', 'Error', result.message);
-            }
-            hideLoading();
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('error', 'Error', error.message);
+    //         } else {
+    //             hideLoading();
+    //             showAlert('error', 'Error', result.message);
+    //         }
+    //         hideLoading();
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //         showAlert('error', 'Error', error.message);
             
-        }
-    });
+    //     }
+    // });
+
+
 });
 

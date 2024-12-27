@@ -9,10 +9,10 @@ const {confirmed} = require('../../../middlewares/confirm.middleware');
 router.get('/', orderController.index);
 
 
-router.post('/checkout/initiate', orderController.initiateOrder);
-router.get('/checkout',confirmed, orderController.checkout);
+//router.post('/checkout/initiate', orderController.initiateOrder);
+router.get('/checkout',orderController.checkout);
 
-router.post('/checkout/cash/:orderId',confirmed, validator.validateShipment, orderController.checkoutCash);
+router.post('/checkout/cash',validator.validateShipment, orderController.checkoutCash);
 
 router.post('/checkout/vnpay',confirmed,validator.validateShipment, orderController.checkoutVnpay);
 router.get('/vnpay_return', orderController.verifyVnpayReturnUrl);

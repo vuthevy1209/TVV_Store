@@ -16,7 +16,7 @@
             <div class="col-lg-7">
                 <div class="container_payment">
                     <form action="">
-                        <input type="hidden" id="orderId" value="{{order.hashOrderId}}">
+                        {{!-- <input type="hidden" id="orderId" value="{{order.hashOrderId}}"> --}}
                         <div class="row">
                             <div class="col">
                                 <h3 class="title">Billing Address</h3>
@@ -192,4 +192,8 @@
     function closePaymentModal() {
         vnpayModal.style.display = 'none';
     }
+</script>
+
+<script type="application/json" id="order-data">
+    <%= JSON.stringify(order) %>
 </script>

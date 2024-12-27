@@ -71,38 +71,42 @@ class OrderService {
                 }
                 const cartItems = await cartService.getCartItemsByCartId(cart.id);
 
-                const order = await Order.create({
-                    customer_id: customer.id,
-                    total_price: cart.total_price,
-                    subtotal: cart.total_price,
-                    amount_of_items: 0,
-                }, { transaction });
+                const orderItems = [];
 
                 let subtotal = 0; // double check in case the price is updated at the time of checkout
                 let amountOfItemsInOrder = 0;
 
                 const handleItems = cartItems.map(async (cartItem) => {
-                    await productService.updateProductInventory(cartItem.product_id, cartItem.quantity, { transaction });
-                    await OrderItem.create({
-                        order_id: order.id,
+                    // await productService.updateProductInventory(cartItem.product_id, cartItem.quantity, { transaction });
+                    orderItems.push({
                         product_id: cartItem.product_id,
                         quantity: cartItem.quantity,
-                        product_price: cartItem.product.price
-                    }, { transaction });
+                        product_price: cartItem.product.price,
+                        cart_item_id: cartItem.id
+                    });
                     subtotal += Decimal.mul(cartItem.product.price, cartItem.quantity);
-                    cartItem.destroy({ transaction });
-                    cart.amount_of_items--;
+                    //cartItem.destroy({ transaction });
+                    //cart.amount_of_items--;
                     amountOfItemsInOrder += cartItem.quantity;
-                    cart.total_price = Decimal.sub(cart.total_price, Decimal.mul(cartItem.product.price, cartItem.quantity));
+                    //cart.total_price = Decimal.sub(cart.total_price, Decimal.mul(cartItem.product.price, cartItem.quantity));
                 });
 
                 await Promise.all(handleItems);
 
-                await order.update({ amount_of_items: amountOfItemsInOrder, subtotal: subtotal, total_price: subtotal }, { transaction });
+                //await order.update({ amount_of_items: amountOfItemsInOrder, subtotal: subtotal, total_price: subtotal }, { transaction });
+                const order ={
+                    customer_id: customer.id,
+                    amount_of_items: amountOfItemsInOrder,
+                    subtotal: subtotal,
+                    total_price: subtotal
+                }
 
-                await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
+                //await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
 
-                return encrypt(order.id.toString());
+                //return encrypt(order.id.toString());
+
+                order.orderItems = orderItems;
+                return order;
 
             });
         }
@@ -183,25 +187,42 @@ class OrderService {
         return orders;
     }
 
-    async confirmOrder(hashOrderId, shippingDetails, paymentType) {
-        const orderId = parseInt(decrypt(hashOrderId));
-        if (isNaN(orderId)) {
-            throw new Error('Invalid order ID');
-        }
-        const order = await Order.findByPk(orderId);
-        if (!order) {
-            throw new Error('Order not found');
-        }
-        if (order.status !== OrderStatusEnum.PENDING.value) {
-            throw new Error('Order has already been confirmed');
-        }
-
+    async confirmOrder(order, shippingDetails, paymentType) {
         try {
             return await sequelize.transaction(async (transaction) => {
-                await shippingService.createShipment(orderId, shippingDetails, { transaction });
-                order.total_price = Decimal.add(order.subtotal, shippingDetails.shipping_fee);
-                await paymentService.createPayment(order, paymentType, { transaction });
-                await order.update({ status: OrderStatusEnum.CONFIRMED.value, total_price: order.total_price }, { transaction });
+                const newOrder = await Order.create({
+                    customer_id: order.customer_id,
+                    total_price: order.total_price + shippingDetails.shipping_fee,
+                    subtotal: order.subtotal,
+                    amount_of_items: order.amount_of_items,
+                    status: OrderStatusEnum.CONFIRMED.value
+                }, { transaction });
+
+                const cart = await cartService.getCartByCustomerId(order.customer_id);
+
+                await Promise.all(order.orderItems.map(async (orderItem) => {
+                    await OrderItems.create({
+                        order_id: newOrder.id,
+                        product_id: orderItem.product_id,
+                        quantity: orderItem.quantity,
+                        product_price: orderItem.product_price
+                    }, { transaction });
+                    const product = await productService.getProductById(orderItem.product_id);
+                    await productService.updateProductInventory(product, orderItem.quantity, { transaction });
+                    const cartItem = await Cart.findByPk(orderItem.cart_item_id);
+                    if(cartItem.quantity === orderItem.quantity){
+                        await cartItem.destroy({ transaction });
+                        cart.amount_of_items--;
+                    }
+                    else{
+                        await cartItem.update({quantity: cartItem.quantity - orderItem.quantity}, { transaction });
+                    }
+                    cart.total_price = Decimal.sub(cart.total_price, Decimal.mul(orderItem.product_price, orderItem.quantity));
+
+                }));
+                await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
+                await shippingService.createShipment(newOrder.id, shippingDetails, { transaction });
+                await paymentService.createPayment(newOrder, paymentType, { transaction });
 
             });
         }
@@ -211,21 +232,42 @@ class OrderService {
         }
     }
 
-    async payWithVNPay(hashOrderId, shippingDetails, paymentType, formDataJson) {
+    async payWithVNPay(order, shippingDetails, paymentType, formDataJson) {
         try {
             return await sequelize.transaction(async (transaction) => {
-                const orderId = parseInt(decrypt(hashOrderId));
-                const order = await Order.findByPk(orderId);
-                if (!order) {
-                    throw new Error('Order not found');
-                }
-                if (order.status !== OrderStatusEnum.PENDING.value) {
-                    console.log('Order status: ', order.status);
-                    throw new Error('Order has already been confirmed');
-                }
-                await shippingService.createShipment(orderId, shippingDetails, { transaction });
-                order.total_price = Decimal.add(order.subtotal, shippingDetails.shipping_fee);
-                await order.update({ total_price: order.total_price }, { transaction });
+                const newOrder = await Order.create({
+                    customer_id: order.customer_id,
+                    total_price: order.total_price + shippingDetails.shipping_fee,
+                    subtotal: order.subtotal,
+                    amount_of_items: order.amount_of_items,
+                    status: OrderStatusEnum.PAID.value
+                }, { transaction });
+    
+                const cart = await cartService.getCartByCustomerId(order.customer_id);
+    
+                await Promise.all(order.orderItems.map(async (orderItem) => {
+                    await OrderItems.create({
+                        order_id: newOrder.id,
+                        product_id: orderItem.product_id,
+                        quantity: orderItem.quantity,
+                        product_price: orderItem.product_price
+                    }, { transaction });
+                    const product = await productService.getProductById(orderItem.product_id);
+                    await productService.updateProductInventory(product, orderItem.quantity, { transaction });
+                    const cartItem = await Cart.findByPk(orderItem.cart_item_id);
+                    if(cartItem.quantity === orderItem.quantity){
+                        await cartItem.destroy({ transaction });
+                        cart.amount_of_items--;
+                    }
+                    else{
+                        await cartItem.update({quantity: cartItem.quantity - orderItem.quantity}, { transaction });
+                    }
+                    cart.total_price = Decimal.sub(cart.total_price, Decimal.mul(orderItem.product_price, orderItem.quantity));
+                }));
+    
+                await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
+                await shippingService.createShipment(newOrder.id, shippingDetails, { transaction });
+                const hashOrderId = encrypt(newOrder.id.toString());
                 const paymentUrl = await paymentService.createVNPayUrl(hashOrderId, formDataJson,{ transaction });
                 return paymentUrl;
             });
