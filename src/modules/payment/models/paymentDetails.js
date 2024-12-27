@@ -45,7 +45,7 @@ const PaymentDetails = sequelize.define('PaymentDetails', {
     tableName: 'payment_details',
     timestamps: true,
     createdAt: 'created_at',
-    modifiedAt: 'modified_at'
+    updatedAt: 'updated_at'
     
 });
 

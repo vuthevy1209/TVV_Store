@@ -50,7 +50,7 @@ const ShippingDetails = sequelize.define('ShippingDetails', {
     tableName: 'shipping_details',
     timestamps: true,
     createdAt: 'created_at',
-    modifiedAt: 'modified_at'
+    updatedAt: 'updated_at'
 });
 
 ShippingDetails.belongsTo(Order, {foreignKey: 'order_id'}, {onDelete: 'CASCADE', onUpdate: 'CASCADE'});

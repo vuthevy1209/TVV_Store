@@ -23,7 +23,7 @@ const PaymentType = sequelize.define('payment_types',{
     tableName: 'payment_types',
     timestamps: true,
     createdAt: 'created_at',
-    modifiedAt: 'modified_at'
+    updatedAt: 'updated_at'
 }
 );
 

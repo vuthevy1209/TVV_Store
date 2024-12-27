@@ -110,6 +110,7 @@ class OrderController {
             console.log('VNPay return URL verified successfully');
             let hashOrderId = verifiedParams.vnp_TxnRef;
             if (verifiedParams.vnp_ResponseCode === '00') {
+                await orderService.confirmVnPaySuccess(verifiedParams);
                 return res.redirect(`/orders/confirmation?orderId=${hashOrderId}`);
             }
             else{

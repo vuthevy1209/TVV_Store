@@ -23,9 +23,9 @@ const ShippingFee = sequelize.define('ShippingFee', {
     }
 }, {
     tableName: 'shipping_fees',
-    timestamps: false,
+    timestamps: true,
     createdAt: 'created_at',
-    modifiedAt: 'modified_at'
+    updatedAt: 'updated_at'
 });
 
 module.exports = ShippingFee;

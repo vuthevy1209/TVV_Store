@@ -31,7 +31,7 @@ const VNPayDetails = sequelize.define('vnpay-details', {
     tableName: 'vnpay_details',
     timestamps: true,
     createdAt: 'created_at',
-    modifiedAt: 'modified_at'
+    updatedAt: 'updated_at'
 });
 
 VNPayDetails.belongsTo(PaymentDetails, {foreignKey: 'payment_detail_id'}, {onDelete: 'CASCADE', onUpdate: 'CASCADE'});

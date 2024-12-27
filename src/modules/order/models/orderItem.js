@@ -45,7 +45,7 @@ const OrderItem = sequelize.define('OrderItem', {
     tableName: 'order_items',
     timestamps: true,
     createdAt: 'created_at',
-    modifiedAt: 'modified_at'
+    updatedAt: 'updated_at'
 });
 
 OrderItem.belongsTo(Order, {foreignKey:{name: 'order_id', onUpdate: 'CASCADE', onDelete: 'CASCADE'}});

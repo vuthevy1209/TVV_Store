@@ -33,8 +33,9 @@ const CartItem = sequelize.define('CartItem', {
     }
 }, {
     tableName:'cart_items',
-    timestamps:true,
-    createdAt:'created_at'
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 CartItem.belongsTo(Cart, { foreignKey: 'cart_id' },{onUpdate:'CASCADE', onDelete:'CASCADE'});
