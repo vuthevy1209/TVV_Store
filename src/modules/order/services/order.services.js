@@ -20,6 +20,7 @@ const { default: Decimal } = require('decimal.js');
 const { encrypt, decrypt } = require('../../../utils/encryption.utils');
 const PaymentTypeEnum = require('../../payment/enums/payment.enums');
 const { OrderStatusEnum } = require('../enums/order.enums');
+const CartItem = require('../../cart/models/cartItems');
 
 class OrderService {
 
@@ -77,33 +78,29 @@ class OrderService {
                 let amountOfItemsInOrder = 0;
 
                 const handleItems = cartItems.map(async (cartItem) => {
-                    // await productService.updateProductInventory(cartItem.product_id, cartItem.quantity, { transaction });
                     orderItems.push({
-                        product_id: cartItem.product_id,
+                        product:{
+                            id: cartItem.product.id,
+                            name: cartItem.product.name,
+                            image: cartItem.product.image_urls
+                        },
                         quantity: cartItem.quantity,
                         product_price: cartItem.product.price,
-                        cart_item_id: cartItem.id
+                        product_id: cartItem.product.id,
+                        cart_item_id: cartItem.id,
                     });
-                    subtotal += Decimal.mul(cartItem.product.price, cartItem.quantity);
-                    //cartItem.destroy({ transaction });
-                    //cart.amount_of_items--;
+                    subtotal = Decimal.add(subtotal, Decimal.mul(cartItem.product.price, cartItem.quantity));
                     amountOfItemsInOrder += cartItem.quantity;
-                    //cart.total_price = Decimal.sub(cart.total_price, Decimal.mul(cartItem.product.price, cartItem.quantity));
                 });
 
                 await Promise.all(handleItems);
 
-                //await order.update({ amount_of_items: amountOfItemsInOrder, subtotal: subtotal, total_price: subtotal }, { transaction });
                 const order ={
                     customer_id: customer.id,
                     amount_of_items: amountOfItemsInOrder,
                     subtotal: subtotal,
                     total_price: subtotal
                 }
-
-                //await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
-
-                //return encrypt(order.id.toString());
 
                 order.orderItems = orderItems;
                 return order;
@@ -192,7 +189,7 @@ class OrderService {
             return await sequelize.transaction(async (transaction) => {
                 const newOrder = await Order.create({
                     customer_id: order.customer_id,
-                    total_price: order.total_price + shippingDetails.shipping_fee,
+                    total_price: Decimal.add(order.total_price, shippingDetails.shipping_fee),
                     subtotal: order.subtotal,
                     amount_of_items: order.amount_of_items,
                     status: OrderStatusEnum.CONFIRMED.value
@@ -207,9 +204,8 @@ class OrderService {
                         quantity: orderItem.quantity,
                         product_price: orderItem.product_price
                     }, { transaction });
-                    const product = await productService.getProductById(orderItem.product_id);
-                    await productService.updateProductInventory(product, orderItem.quantity, { transaction });
-                    const cartItem = await Cart.findByPk(orderItem.cart_item_id);
+                    await productService.updateProductInventory(orderItem.product_id, orderItem.quantity, { transaction });
+                    const cartItem = await CartItem.findByPk(orderItem.cart_item_id);
                     if(cartItem.quantity === orderItem.quantity){
                         await cartItem.destroy({ transaction });
                         cart.amount_of_items--;
@@ -223,7 +219,7 @@ class OrderService {
                 await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
                 await shippingService.createShipment(newOrder.id, shippingDetails, { transaction });
                 await paymentService.createPayment(newOrder, paymentType, { transaction });
-
+                return encrypt(newOrder.id.toString());
             });
         }
         catch (err) {
@@ -235,48 +231,63 @@ class OrderService {
     async payWithVNPay(order, shippingDetails, paymentType, formDataJson) {
         try {
             return await sequelize.transaction(async (transaction) => {
+                // Create new order
                 const newOrder = await Order.create({
                     customer_id: order.customer_id,
-                    total_price: order.total_price + shippingDetails.shipping_fee,
+                    total_price: Decimal.add(order.total_price, shippingDetails.shipping_fee),
                     subtotal: order.subtotal,
                     amount_of_items: order.amount_of_items,
-                    status: OrderStatusEnum.PAID.value
+                    status: OrderStatusEnum.PENDING.value // Use PENDING until payment is confirmed
                 }, { transaction });
     
+                // Fetch cart for the customer
                 const cart = await cartService.getCartByCustomerId(order.customer_id);
     
+                // Process order items
                 await Promise.all(order.orderItems.map(async (orderItem) => {
+                    // Create order item records
                     await OrderItems.create({
                         order_id: newOrder.id,
                         product_id: orderItem.product_id,
                         quantity: orderItem.quantity,
                         product_price: orderItem.product_price
                     }, { transaction });
-                    const product = await productService.getProductById(orderItem.product_id);
-                    await productService.updateProductInventory(product, orderItem.quantity, { transaction });
-                    const cartItem = await Cart.findByPk(orderItem.cart_item_id);
-                    if(cartItem.quantity === orderItem.quantity){
+    
+                    // Update product inventory
+                    await productService.updateProductInventory(orderItem.product_id, orderItem.quantity, { transaction });
+    
+                    // Handle cart item removal/update
+                    const cartItem = await CartItem.findByPk(orderItem.cart_item_id);
+                    if (cartItem.quantity === orderItem.quantity) {
                         await cartItem.destroy({ transaction });
                         cart.amount_of_items--;
+                    } else {
+                        await cartItem.update({ quantity: cartItem.quantity - orderItem.quantity }, { transaction });
                     }
-                    else{
-                        await cartItem.update({quantity: cartItem.quantity - orderItem.quantity}, { transaction });
-                    }
+    
+                    // Update cart total price
                     cart.total_price = Decimal.sub(cart.total_price, Decimal.mul(orderItem.product_price, orderItem.quantity));
                 }));
     
+                // Update cart with new values
                 await cart.update({ amount_of_items: cart.amount_of_items, total_price: cart.total_price }, { transaction });
+    
+                // Create shipment details
                 await shippingService.createShipment(newOrder.id, shippingDetails, { transaction });
-                const hashOrderId = encrypt(newOrder.id.toString());
-                const paymentUrl = await paymentService.createVNPayUrl(hashOrderId, formDataJson,{ transaction });
+    
+                // Generate payment URL with VNPay
+                const hashedOrderId = encrypt(newOrder.id.toString());
+                const paymentUrl = await paymentService.createVNPayUrl(hashedOrderId, formDataJson, { transaction });
+    
+                // Return payment URL for redirection
                 return paymentUrl;
             });
-        }
-        catch (err) {
-            console.log(err);
-            throw new Error(`Error paying with VNPay: ${err.message}`);
+        } catch (err) {
+            console.error(err);
+            throw new Error(`Error processing VNPay payment: ${err.message}`);
         }
     }
+    
 
     async confirmVnPaySuccess(verifiedParams) {
         try {

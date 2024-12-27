@@ -241,19 +241,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // document.getElementById('checkoutBtn').addEventListener('click', async function () {
     //     try {
     //         showLoading();
-    //         const response = await fetch('/orders/checkout/initiate', {
-    //             method: 'POST',
+    //         const response = await fetch('/orders/checkout', {
+    //             method: 'GET',
     //             headers: {
     //                 'Content-Type': 'application/json'
     //             }
     //         });
-
-    //         if (response.redirected) {
-    //             hideLoading();
-    //             window.location.href = response.url;
-    //             return;
-    //         }
-    
 
     //         const result = await response.json();
 

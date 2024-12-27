@@ -60,11 +60,6 @@ class OrderController {
         try {
             const paymentTypes = await paymentService.findAllTypes();
             const shippingFees = await shippingService.getAllShippingFess();
-            // // check if is navigaged by vnpay because of failed payment --> delete shipping details and update total price
-            // if (order.status === OrderStatusEnum.PENDING){
-            //     await shippingService.deleteShippingDetails(order.id);
-            //     await Order.update({totalPrice: order.subtotal}, {where: {id: order.id}});
-            // };
             const order = await orderService.checkout(req.user.id);
             console.log('Order fetched successfully');
             console.log(order);

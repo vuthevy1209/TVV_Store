@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-
     const orderDataElement = document.getElementById('order-data');
     const order = JSON.parse(orderDataElement.textContent);
+
 
     // Confirm Purchase Button Click
     document.getElementById('confirmPurchaseBtn').onclick = async function (event) {
