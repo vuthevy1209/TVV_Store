@@ -137,6 +137,8 @@ app.use('/oauth2/redirect/google', AuthController.googleCallback);
 //
 // }));
 
+require('./utils/node-cron');
+
 
 app.use('/auth', authRouter);
 app.use('/products', productRouter);

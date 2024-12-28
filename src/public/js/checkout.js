@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('confirmPurchaseBtn').onclick = async function (event) {
         event.preventDefault();
 
-        
+
         const paymentType = document.getElementById('paymentType').value;
         const shippingDetails = getShipmentDetails();
 
@@ -40,11 +40,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const response = await fetch(`/orders/checkout/cash`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({order, shippingDetails, paymentType })
+                body: JSON.stringify({ order, shippingDetails, paymentType })
             });
 
             const data = await response.json();
-            if(response.ok && data.redirectUrl) {
+            if (response.ok && data.redirectUrl) {
                 hideLoading();
                 window.location.href = data.redirectUrl;
             }
@@ -71,14 +71,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
 
+            hideLoading();
             if (response.ok && data.paymentUrl) {
-                hideLoading();
-                window.location.href = data.paymentUrl;
+                //history.replaceState(null, '', '/checkout/processing');
+                history.replaceState(null, '', '/orders/checkout');
+
+
+                // Redirect to VNPay payment URL
+                setTimeout(() => {
+                    window.location.href = data.paymentUrl;
+                }, 100);
             } else {
-                hideLoading();
                 showAlert('error', 'Error', data.message);
             }
-            hideLoading();
+
         } catch (error) {
             console.error('Error redirecting to VNPay:', error);
             showAlert('error', 'Error', error.message);

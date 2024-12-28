@@ -15,6 +15,7 @@ router.get('/checkout',orderController.checkout);
 router.post('/checkout/cash',validator.validateShipment, orderController.checkoutCash);
 
 router.post('/checkout/vnpay',validator.validateShipment, orderController.checkoutVnpay);
+router.get('/checkout/vnpay/continue/:orderId', orderController.continueVnpayPayment);
 router.get('/vnpay_return', orderController.verifyVnpayReturnUrl);
 
 router.get('/confirmation', orderController.orderConfirmation);

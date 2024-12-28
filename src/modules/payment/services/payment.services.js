@@ -39,7 +39,7 @@ class PaymentService {
             payment_type_id: PaymentTypeEnums.VNPAY,
             status: 'paid'
         });
-        VNPayDetails.create({
+        await VNPayDetails.create({
             payment_detail_id: paymentDetails.id,
             vnp_TransactionNo: vnp_Params.vnp_TransactionNo
         });

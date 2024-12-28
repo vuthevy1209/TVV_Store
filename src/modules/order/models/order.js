@@ -2,7 +2,8 @@ const {DataTypes} = require('@sequelize/core');
 const {sequelize} = require('../../../config/database');
 
 const Customer = require('../../customer/models/customer');
-//const PaymentDetail = require('../../payment/models/paymentDetail');
+
+const moment = require('moment');
 
 const Order = sequelize.define('Order', {
 
@@ -33,7 +34,7 @@ const Order = sequelize.define('Order', {
         allowNull: false
     },
     status: {
-        type: DataTypes.TINYINT, // 0: pending, 1: confirmed, 2: paid, 3: completed
+        type: DataTypes.TINYINT, // 0: pending, 1: confirmed, 2: paid, 3: completed, 4: cancelled
         allowNull: false,
         defaultValue: 0 
     },
@@ -41,7 +42,11 @@ const Order = sequelize.define('Order', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
-    }
+    },
+    expired_at: {
+        type: DataTypes.DATE,
+        defaultValue: moment().add(5,'minutes').toDate()
+    },
 
 }, {
     tableName: 'orders',

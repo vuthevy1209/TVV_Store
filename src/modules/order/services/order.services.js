@@ -21,6 +21,8 @@ const { encrypt, decrypt } = require('../../../utils/encryption.utils');
 const PaymentTypeEnum = require('../../payment/enums/payment.enums');
 const { OrderStatusEnum } = require('../enums/order.enums');
 const CartItem = require('../../cart/models/cartItems');
+const vnpayServices = require('../../payment/services/vnpay.services');
+const paymentServices = require('../../payment/services/payment.services');
 
 class OrderService {
 
@@ -192,7 +194,8 @@ class OrderService {
                     total_price: Decimal.add(order.total_price, shippingDetails.shipping_fee),
                     subtotal: order.subtotal,
                     amount_of_items: order.amount_of_items,
-                    status: OrderStatusEnum.CONFIRMED.value
+                    status: OrderStatusEnum.CONFIRMED.value,
+                    expired_at: null
                 }, { transaction });
 
                 const cart = await cartService.getCartByCustomerId(order.customer_id);
@@ -237,7 +240,7 @@ class OrderService {
                     total_price: Decimal.add(order.total_price, shippingDetails.shipping_fee),
                     subtotal: order.subtotal,
                     amount_of_items: order.amount_of_items,
-                    status: OrderStatusEnum.PENDING.value // Use PENDING until payment is confirmed
+                    status: OrderStatusEnum.PENDING.value // Use PENDING until payment is confirmed,
                 }, { transaction });
     
                 // Fetch cart for the customer
@@ -302,7 +305,7 @@ class OrderService {
                     throw new Error('Order has already been confirmed');
                 }
                 await paymentService.createVNPayDetails(orderId, verifiedParams, { transaction });
-                await order.update({ status: OrderStatusEnum.PAID.value }, { transaction });
+                await order.update({ status: OrderStatusEnum.PAID.value, expired_at: null }, { transaction });
                 return orderId;
             });
         }
@@ -312,34 +315,56 @@ class OrderService {
         }
     }
 
-    async vnpayFailed(hashOrderId) {
+    async continueVnPayPayment(hashOrderId) {
         try {
-            return await sequelize.transaction(async (transaction) => {
-                const orderId = parseInt(decrypt(hashOrderId));
-                if(isNaN(orderId)){
-                    throw new Error('Invalid order ID');
-                }
-                const order = await Order.findByPk(orderId);
-                const paymentDetails = await paymentService.getPaymentDetailsByOrderId(orderId);
-                const newOrder = await Order.create({
-                    customer_id: order.customer_id,
-                    total_price: order.total_price,
-                    subtotal: order.subtotal,
-                    amount_of_items: order.amount_of_items
-                }, { transaction });
-                await OrderItems.update({ order_id: newOrder.id }, { where: { order_id: orderId }, transaction });
-                await shippingService.deleteShippingDetails(orderId, { transaction });
-                await order.destroy({ transaction });
-                console.log('VNPay failed payment handled successfully');
-                return encrypt(newOrder.id.toString());
-            });
+            const order = await this.fetchOrderByHashId(hashOrderId);
+            if(!order){
+                throw new Error('Order not found');
+            }
+            if (order.status !== OrderStatusEnum.PENDING.value) {
+                throw new Error('Order has already been confirmed');
+            }
+            const payData = {
+                amount: order.total_price,
+                bankCode: "",
+            }
+            const redirectUrl = paymentServices.createVNPayUrl(hashOrderId, payData);
+            return redirectUrl;
         }
         catch (err) {
             console.log(err);
-            throw new Error(`Error handling VNPay failed payment: ${err.message}`);
+            throw new Error(`Error continuing VNPay payment: ${err.message}`);
         }
     }
 
+    async checkoutFailed(hashedOrderId) {
+        try {
+            const orderId = parseInt(decrypt(hashedOrderId));
+            const order = await Order.findByPk(orderId);
+            if (!order) {
+                throw new Error('Order not found');
+            }
+            if (order.status !== OrderStatusEnum.PENDING.value) {
+                throw new Error('Order has already been processed');
+            }
+            
+            return sequelize.transaction(async (transaction) => {
+                // Update order status to CANCELLED
+                await order.update({ status: OrderStatusEnum.CANCELLED.value, expired_at: null }, { transaction });
+    
+                // Retrieve order items and update inventory
+                const orderItems = await OrderItems.findAll({ where: { order_id: orderId }, transaction });
+    
+                await Promise.all(orderItems.map(async (orderItem) => {
+                    await productService.updateProductInventory(orderItem.product_id, -orderItem.quantity, { transaction });
+                }));
+            });
+        } catch (err) {
+            console.log(err);
+            throw new Error(`Error in checkoutFailed workflow: ${err.message}`);
+        }
+    }
+    
 }
 
 module.exports = new OrderService();
