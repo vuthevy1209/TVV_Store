@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `
             <div class="order my-3 bg-light">
                 <div class="row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-10">
                         <div class="d-flex flex-column justify-content-between order-summary">
                             <div class="d-flex align-items-center">
                                 <div class="text-uppercase flex-grow-1 text-nowrap">Order #${order.id}</div>
@@ -69,43 +69,46 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <div class="status">Order Status : ${order.statusName}</div>
                             </div>
                             ${order.paymentDetails ? `
-                                <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
-                                    <div class="status">Payment Status : ${order.paymentDetails.status}</div>
-                                </div>` : `
-                                <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
-                                    <div class="status">Payment Status : Haven't created payment yet</div>
-                                </div>`}
+                            <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                <div class="status">Payment Status : ${order.paymentDetails.status}</div>
+                            </div>` : ''}
                             <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
                                 <div class="status">Total: ${order.total_price}</div>
                             </div>
                             <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
                                 <div class="status">Amount of items: ${order.amount_of_items}</div>
                             </div>
-                            <div class="fs-8">${order.created_at}</div>
+                            ${order.status === 0 && !order.paymentDetails ? `
+                            <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                <div style="color: red;">Your order has not confirmed yet.</div>
+                            </div>
+                            <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
+                                <div style="color: red;">Please confirm before ${order.expired_at}</div>
+                            </div>` : ''}
+                            <div class="fs-8">Created at: ${order.created_at}</div>
                             <div class="rating d-flex align-items-center pt-1">
                                 <img src="https://www.freepnglogos.com/uploads/like-png/like-png-hand-thumb-sign-vector-graphic-pixabay-39.png" alt="">
                                 <span class="px-2">Rating:</span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                    
+                    <div class="col-lg-2">
                         <div class="d-sm-flex align-items-sm-start justify-content-end">
-                        ${order.paymentDetails ? `
-                            <a href="/orders/confirmation?orderId=${order.hashOrderId}" class="ms-auto">
-                                <div class="btn btn-primary text-uppercase">order info</div>
-                            </a>
-                            ` : `
-                            <a href="/orders/checkout?orderId=${order.hashOrderId}" class="ms-auto"> 
-                                <div class="btn btn-primary text-uppercase">checkout</div>
-                            </a>
-                            `}
+                            ${order.status !== 4 ? `
+                                ${order.status === 0 ? `
+                                <a href="/orders/checkout/vnpay/continue/${order.hashOrderId}" class="ms-auto">
+                                    <div class="btn btn-primary text-uppercase">continue checkout</div>
+                                </a>` : `
+                                <a href="/orders/confirmation?orderId=${order.hashOrderId}" class="ms-auto">
+                                    <div class="btn btn-primary text-uppercase">order info</div>
+                                </a>`}
+                            ` : ''}
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+        `;
     }
-
     function renderPagination(currentPage, totalPages) {
         paginationContainer.innerHTML = ''; // Clear existing pagination
         if (currentPage > 1) {
@@ -129,4 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         }
     }
+
+
+
+
 });

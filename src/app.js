@@ -78,6 +78,9 @@ const hbs = engine({
         eq: function (a, b) {
             return a === b;
         },
+        json: function (context) {
+            return JSON.stringify(context);
+        }
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
@@ -90,12 +93,6 @@ const hbs = engine({
 app.engine('.hbs', hbs);
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
-
-const Handlebars = require('handlebars');
-
-Handlebars.registerHelper('multiply', function (a, b) {
-    return a * b;
-});
 
 
 // Static files
@@ -139,6 +136,8 @@ app.use('/oauth2/redirect/google', AuthController.googleCallback);
 //     keepSessionInfo: true
 //
 // }));
+
+require('./utils/node-cron');
 
 
 app.use('/auth', authRouter);

@@ -39,66 +39,67 @@ class OrderController {
 
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: 'Internal server error while fetching orders' });
+            return res.status(500).json({ message: err.message });
         }
     }
 
-    //[POST] /orders/initiate
-    async initiateOrder(req, res) {
-        try {
-            const orderId = await orderService.checkout(req.user.id);
-            console.log('Initiated order successfully');
-            res.json({ redirectUrl: `/orders/checkout?orderId=${orderId}` });
-        } catch (err) {
-            console.log(err);
-            return res.status(500).json({ message: `Error initiating order: ${err.message}` });
-        }
-    }
-
+    // init order --> display the order for the user to review
     //[GET] /orders/checkout
     async checkout(req, res) {
         try {
-            const hashOrderId = req.query.orderId;
-            const order = await orderService.fetchOrderByHashId(hashOrderId);
             const paymentTypes = await paymentService.findAllTypes();
             const shippingFees = await shippingService.getAllShippingFess();
-            // check if is navigaged by vnpay because of failed payment --> delete shipping details and update total price
-            if (order.status === OrderStatusEnum.PENDING){
-                await shippingService.deleteShippingDetails(order.id);
-                await Order.update({totalPrice: order.subtotal}, {where: {id: order.id}});
-            };
+            if(req.query.orderId){
+                const order = orderService.fetchOrderByHashId(req.query.orderId);
+                console.log('Order fetched successfully');
+                return res.render('order/checkout', { order, paymentTypes, shippingFees });
+            }
+            const order = await orderService.checkout(req.user.id);
             console.log('Order fetched successfully');
             res.render('order/checkout', { order, paymentTypes, shippingFees });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error fetching order: ${err.message}` });
+            req.flash('error', err.message);
+            return res.redirect('/carts');
         }
     }
 
-    //[POST] /orders/checkout/cash/:orderId
+    //[POST] /orders/checkout/cash
     async checkoutCash(req, res) {
         try {
-            const hashOrderId = req.params.orderId;
-            const { shippingDetails, paymentType } = req.body;
-            await orderService.confirmOrder(hashOrderId, shippingDetails, paymentType);
+            const {order, shippingDetails, paymentType } = req.body;
+            const hashOrderId = await orderService.confirmOrder(order, shippingDetails, paymentType);
             console.log('Order confirmed successfully');
             res.status(200).json({ redirectUrl: `/orders/confirmation?orderId=${hashOrderId}` });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error confirming order: ${err.message}` });
+            return res.status(500).json({message: err.message, redirectUrl: '/orders'});
         }
     }
 
     //[POST] /orders/checkout/vnpay
     async checkoutVnpay(req, res) {
         try {
-            const { orderId, shippingDetails, paymentType, formDataJson } = req.body;
-            const paymentUrl = await orderService.payWithVNPay(orderId, shippingDetails, paymentType, formDataJson);
+            const { order, shippingDetails, paymentType, formDataJson } = req.body;
+            const paymentUrl = await orderService.payWithVNPay(order, shippingDetails, paymentType, formDataJson);
             console.log('VNPay URL created successfully');
             return res.status(200).json({ paymentUrl });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error creating VNPay URL: ${err.message}` });
+            return res.status(500).json({ message: err.message, redirectUrl: '/orders' });
+        }
+    }
+
+    //[GET] /orders/vnpay/continue/:orderId
+    async continueVnpayPayment(req, res) {
+        try {
+            const redirectUrl = await orderService.continueVnPayPayment(req.params.orderId);
+            console.log('Order fetched successfully');
+            res.redirect(redirectUrl);
+        } catch (err) {
+            console.log(err);
+            req.flash('error',err.message);
+            return res.redirect('/orders');
         }
     }
 
@@ -113,15 +114,14 @@ class OrderController {
                 await orderService.confirmVnPaySuccess(verifiedParams);
                 return res.redirect(`/orders/confirmation?orderId=${hashOrderId}`);
             }
-            else{
-                hashOrderId = await orderService.vnpayFailed(verifiedParams.vnp_TxnRef);
-            }
             console.log('Payment failed');
+            await orderService.checkoutFailed(vnp_Params['vnp_TxnRef']);
             req.flash('error', 'Payment failed');
-            return res.redirect(`/orders/checkout?orderId=${hashOrderId}`);
+            return res.redirect("/orders");
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error verifying VNPay return URL: ${err.message}` });
+            req.flash('error', err.message);
+            res.redirect('/orders');
         }
     }
 
@@ -135,7 +135,8 @@ class OrderController {
             res.render('order/confirmation', { order, shippingDetails });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error fetching order: ${err.message}` });
+            req.flash('error', err.message);
+            return res.redirect('/orders');
         }
     }
 
