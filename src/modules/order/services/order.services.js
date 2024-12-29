@@ -209,6 +209,11 @@ class OrderService {
                     }, { transaction });
                     await productService.updateProductInventory(orderItem.product_id, orderItem.quantity, { transaction });
                     const cartItem = await CartItem.findByPk(orderItem.cart_item_id);
+
+                    if(!cartItem){
+                        throw new Error('Cart item not found');
+                    }
+
                     if(cartItem.quantity === orderItem.quantity){
                         await cartItem.destroy({ transaction });
                         cart.amount_of_items--;
@@ -261,6 +266,11 @@ class OrderService {
     
                     // Handle cart item removal/update
                     const cartItem = await CartItem.findByPk(orderItem.cart_item_id);
+
+                    if (!cartItem) {
+                        throw new Error('Cart item not found');
+                    }
+
                     if (cartItem.quantity === orderItem.quantity) {
                         await cartItem.destroy({ transaction });
                         cart.amount_of_items--;

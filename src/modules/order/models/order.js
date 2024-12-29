@@ -45,7 +45,7 @@ const Order = sequelize.define('Order', {
     },
     expired_at: {
         type: DataTypes.DATE,
-        defaultValue: moment().add(5,'minutes').toDate()
+        defaultValue: moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss')
     },
 
 }, {

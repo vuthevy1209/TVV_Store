@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
             else {
                 hideLoading();
                 showAlert('error', 'Error', data.message);
+                if(data.redirectUrl){
+                    window.location.href = data.redirectUrl;
+                }
             }
             hideLoading();
         } catch (error) {
@@ -73,16 +76,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             hideLoading();
             if (response.ok && data.paymentUrl) {
-                //history.replaceState(null, '', '/checkout/processing');
-                history.replaceState(null, '', '/orders/checkout');
-
-
-                // Redirect to VNPay payment URL
-                setTimeout(() => {
-                    window.location.href = data.paymentUrl;
-                }, 100);
+                window.location.href = data.paymentUrl;
             } else {
                 showAlert('error', 'Error', data.message);
+                if(data.redirectUrl){
+                    window.location.href = data.redirectUrl;
+                }
             }
 
         } catch (error) {

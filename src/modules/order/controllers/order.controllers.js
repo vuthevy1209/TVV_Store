@@ -39,7 +39,7 @@ class OrderController {
 
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: 'Internal server error while fetching orders' });
+            return res.status(500).json({ message: err.message });
         }
     }
 
@@ -59,7 +59,8 @@ class OrderController {
             res.render('order/checkout', { order, paymentTypes, shippingFees });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error fetching order: ${err.message}` });
+            req.flash('error', err.message);
+            return res.redirect('/carts');
         }
     }
 
@@ -72,7 +73,7 @@ class OrderController {
             res.status(200).json({ redirectUrl: `/orders/confirmation?orderId=${hashOrderId}` });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error confirming order: ${err.message}` });
+            return res.status(500).json({message: err.message, redirectUrl: '/orders'});
         }
     }
 
@@ -85,7 +86,7 @@ class OrderController {
             return res.status(200).json({ paymentUrl });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error creating VNPay URL: ${err.message}` });
+            return res.status(500).json({ message: err.message, redirectUrl: '/orders' });
         }
     }
 
@@ -97,7 +98,8 @@ class OrderController {
             res.redirect(redirectUrl);
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error fetching order: ${err.message}` });
+            req.flash('error',err.message);
+            return res.redirect('/orders');
         }
     }
 
@@ -118,7 +120,8 @@ class OrderController {
             return res.redirect("/orders");
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error verifying VNPay return URL: ${err.message}` });
+            req.flash('error', err.message);
+            res.redirect('/orders');
         }
     }
 
@@ -132,7 +135,8 @@ class OrderController {
             res.render('order/confirmation', { order, shippingDetails });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ message: `Error fetching order: ${err.message}` });
+            req.flash('error', err.message);
+            return res.redirect('/orders');
         }
     }
 
