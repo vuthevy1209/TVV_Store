@@ -4,6 +4,7 @@ const shippingFees = require('../models/shippingFee');
 class ShippingService{
     async createShipment(orderId,shipDetails){
         shipDetails.order_id = orderId; 
+        shipDetails['province'] = shippingFees.findByPk(shipDetails.province).province;
         await shippingDetails.create(shipDetails);
     }
 
