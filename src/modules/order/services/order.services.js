@@ -33,7 +33,10 @@ class OrderService {
         }
         const offset = (page - 1) * limit;
         const { rows: orders, count } = await Order.findAndCountAll({
-            where: { customer_id: customer.id },
+            where: { 
+                customer_id: customer.id,
+                is_deleted: false  
+            },
             limit,
             offset,
             order: [['created_at', 'DESC']]
@@ -119,7 +122,10 @@ class OrderService {
     async fetchOrderById(orderId) {
         // Fetch the complete order information with associations
         const completeOrder = await Order.findOne({
-            where: { id: orderId },
+            where: { 
+                id: orderId,
+                is_deleted: false
+            },
             include: [
                 {
                     model: Customer,
@@ -164,7 +170,11 @@ class OrderService {
 
     async fetchOrdersByCustomerId(customerId) {
         const orders = await Order.findAll({
-            where: { customer_id: customerId },
+            where: { 
+                customer_id: customerId,
+                is_deleted: false
+            
+            },
             include: [
                 {
                     model: Customer,
@@ -189,6 +199,7 @@ class OrderService {
     async confirmOrder(order, shippingDetails, paymentType) {
         try {
             return await sequelize.transaction(async (transaction) => {
+
                 const newOrder = await Order.create({
                     customer_id: order.customer_id,
                     total_price: Decimal.add(order.total_price, shippingDetails.shipping_fee),
