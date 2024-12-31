@@ -4,6 +4,7 @@ const Order = require('../modules/order/models/order');
 const orderEnums = require('../modules/order/enums/order.enums');
 const productService = require('../modules/product/services/product.services');
 const OrderItems = require('../modules/order/models/orderItem');
+const { sequelize } = require('../config/database');
 
 // Cron job to mark expired orders as failed
 cron.schedule('* * * * *', async () => { // Run this every hour
@@ -28,11 +29,12 @@ cron.schedule('* * * * *', async () => { // Run this every hour
                 await Promise.all(orderItems.map(async (orderItem) => {
                     await productService.updateProductInventory(orderItem.product_id, -orderItem.quantity, { transaction });
                 }));
-                console.log(`Order ${order.id} has been marked as failed`);
+                console.log(`Order ${order.id} has been marked as cancelled`);
             }
             catch (err) {
-                console.error(`Error marking order ${order.id} as failed:`, err);
+                console.error(`Error marking order ${order.id} as cancelled:`, err);
             }
         }
     });
+
 });

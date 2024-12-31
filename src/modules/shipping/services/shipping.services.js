@@ -34,6 +34,11 @@ class ShippingService{
             }
         });
     }
+
+    async getShippingFeeById(id){
+        return await shippingFees.findByPk(id);
+    }
+
 }
 
 module.exports = new ShippingService();
