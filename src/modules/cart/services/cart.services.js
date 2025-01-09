@@ -23,7 +23,10 @@ class CartService {
     }
 
     async findAllBySession(session) {
-        const items = session.cart?.items || {};
+        if(!session.cart){
+            session.cart = { amount_of_items: 0, total_price: 0, items: {} };
+        }
+        const items = session.cart.items;
         const { products, total,amountOfItems } = await this.#calculateSessionCartDetails(items);
 
         session.cart.total_price = total;
