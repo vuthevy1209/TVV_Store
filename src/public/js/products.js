@@ -61,19 +61,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const pagination = document.querySelector('.pagination');
                 pagination.innerHTML = '';
+
+                // Function to determine visible pages
+                function getVisiblePages(pages, currentPage, maxVisiblePages) {
+                    const totalPages = pages.length;
+                    const startPage = Math.max(1, Math.floor((currentPage - 1) / maxVisiblePages) * maxVisiblePages + 1);
+                    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                    return pages.filter(page => page.number >= startPage && page.number <= endPage);
+                }
+
+                // Get the current page from the data or set a default
+                const currentPage = data.pagination.currentPage || 1;
+                const maxVisiblePages = 3; // Number of pages to display at a time
+                const visiblePages = getVisiblePages(data.pagination.pages, currentPage, maxVisiblePages);
+
+                // Previous Button
                 if (data.pagination.hasPrev) {
                     pagination.insertAdjacentHTML('beforeend', `<li class="page-item"><a class="page-link" href="#" data-page="${data.pagination.prevPage}">Previous</a></li>`);
                 } else {
                     pagination.insertAdjacentHTML('beforeend', `<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>`);
                 }
-                data.pagination.pages.forEach(page => {
+
+                // Page Numbers
+                visiblePages.forEach(page => {
                     pagination.insertAdjacentHTML('beforeend', `<li class="page-item ${page.active ? 'active' : ''}"><a class="page-link" href="#" data-page="${page.number}">${page.number}</a></li>`);
                 });
+
+                // Next Button
                 if (data.pagination.hasNext) {
                     pagination.insertAdjacentHTML('beforeend', `<li class="page-item"><a class="page-link" href="#" data-page="${data.pagination.nextPage}">Next</a></li>`);
                 } else {
                     pagination.insertAdjacentHTML('beforeend', `<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>`);
                 }
+
             })
             .catch(error => console.error('Error fetching products:', error));
     }

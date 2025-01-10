@@ -176,3 +176,24 @@
     font-weight: bold;
     z-index: 1;
 }
+
+.search-product-btn {
+	max-width: 80px;
+	width: 100%;
+	padding:8px;
+	min-width: 42px;
+}
+
+#productList {
+	max-width: 100%;
+}
+
+@media (max-width: 576px) {
+	#searchFields {
+		font-size: 12px; /* Font size for small screens */
+	}
+}
+
+.pagination {
+	justify-content: center;
+}
