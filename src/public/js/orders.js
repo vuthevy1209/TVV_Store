@@ -16,18 +16,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function fetchOrders(page) {
-        const queryString = new URLSearchParams({ page }).toString();
-        window.history.pushState({}, '', `/orders?${queryString}`);
+        getClientIpAddress().then(ipAddress => {
+            const queryString = new URLSearchParams({ page, ipAddress }).toString();
+            window.history.pushState({}, '', `/orders?${queryString}`);
 
-        showLoading();
-        fetch(`/orders?page=${page}`, {
-            headers: {
-                'Accept': 'application/json',
-            },
-        })
-            .then(handleFetchResponse)
-            .then(updateContent)
-            .catch(handleFetchError);
+            showLoading();
+            fetch(`/orders?page=${page}&ipAddress=${ipAddress}`, {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            })
+                .then(handleFetchResponse)
+                .then(updateContent)
+                .catch(handleFetchError);
+        });
+    }
+
+    function getClientIpAddress() {
+        return fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => data.ip)
+            .catch(() => '127.0.0.1'); // Fallback IP address
     }
 
     function handleFetchResponse(response) {

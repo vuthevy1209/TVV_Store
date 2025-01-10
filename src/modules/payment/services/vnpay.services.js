@@ -5,48 +5,52 @@ const axios = require('axios');
 const { vnp_TmnCode, vnp_HashSecret, vnp_Url, vnp_ReturnUrl } = process.env;
 
 class VNPayService {
-    async createPaymentUrl(orderId, amount, bankCode) {
-        let vnp_Params = {};
-        const BASE_URL = process.env.NODE_ENV === 'production'
-            ? process.env.PROD_BASE_URL // Production URL
-            : process.env.DEV_BASE_URL;
-        let vnpReturnUrl = `${BASE_URL}${vnp_ReturnUrl}`;
-
-        // Get user's IP address by a third-party service
-        const ipAddress = await getUserIpAddress();
-        const userLocation = await getUserLocation(ipAddress);
-
-        vnp_Params['vnp_Version'] = '2.1.0';
-        vnp_Params['vnp_Command'] = 'pay';
-        vnp_Params['vnp_TmnCode'] = vnp_TmnCode;
-        vnp_Params['vnp_Locale'] = userLocation.locale || 'vn'; // Dynamically set locale
-        vnp_Params['vnp_CurrCode'] = userLocation.currency || 'VND'; // Dynamically set currency
-        vnp_Params['vnp_TxnRef'] = orderId;
-        vnp_Params['vnp_OrderInfo'] = `Pay for order ${orderId}`;
-        vnp_Params['vnp_OrderType'] = 'other';
-        vnp_Params['vnp_Amount'] = parseInt(amount * 100, 10);  // Convert amount to VND (in cents)
-        vnp_Params['vnp_ReturnUrl'] = vnpReturnUrl;
-        vnp_Params['vnp_IpAddr'] = ipAddress; // Dynamically set IP address
-        vnp_Params['vnp_CreateDate'] = moment().format('YYYYMMDDHHmmss');
-
-        // Optional: Add BankCode if provided
-        if (bankCode) {
-            vnp_Params['vnp_BankCode'] = bankCode;
+    async createPaymentUrl(orderId, amount, bankCode, ipAddress) {
+        try {
+            if (!orderId || !amount || !ipAddress) {
+                throw new Error('Missing required parameters: orderId, amount, or ipAddress');
+            }
+    
+            const BASE_URL = process.env.NODE_ENV === 'production'
+                ? process.env.PROD_BASE_URL
+                : process.env.DEV_BASE_URL;
+            const vnpReturnUrl = `${BASE_URL}${vnp_ReturnUrl}`;
+    
+            const userLocation = await getUserLocation(ipAddress);
+            const convertedAmount = await convertAmount(amount, userLocation.currency);
+    
+            let vnp_Params = {
+                vnp_Version: '2.1.0',
+                vnp_Command: 'pay',
+                vnp_TmnCode: vnp_TmnCode,
+                vnp_Locale: userLocation.locale || 'vn',
+                vnp_CurrCode: userLocation.currency || 'USD',
+                vnp_TxnRef: orderId,
+                vnp_OrderInfo: `Pay for order ${orderId}`,
+                vnp_OrderType: 'other',
+                vnp_Amount: parseInt(convertedAmount * 100, 10),
+                vnp_ReturnUrl: vnpReturnUrl,
+                vnp_IpAddr: ipAddress,
+                vnp_CreateDate: moment().format('YYYYMMDDHHmmss'),
+            };
+    
+            if (bankCode) {
+                vnp_Params['vnp_BankCode'] = bankCode;
+            }
+    
+            vnp_Params = sortObject(vnp_Params);
+            const signData = querystring.stringify(vnp_Params, { encode: false });
+            const hmac = crypto.createHmac('sha512', vnp_HashSecret);
+            const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+            vnp_Params['vnp_SecureHash'] = signed;
+    
+            return `${vnp_Url}?${querystring.stringify(vnp_Params, { encode: false })}`;
+        } catch (error) {
+            console.error('Error creating payment URL:', error.message || error);
+            throw error; // Rethrow error for caller to handle
         }
-
-        // Sort the parameters alphabetically by their names
-        vnp_Params = sortObject(vnp_Params);
-        let vnpUrl = vnp_Url;
-        let secretKey = vnp_HashSecret;
-
-        let signData = querystring.stringify(vnp_Params, { encode: false });
-        let hmac = crypto.createHmac("sha512", secretKey);
-        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
-        vnp_Params['vnp_SecureHash'] = signed;
-        vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-
-        return vnpUrl;
     }
+    
 
     verifyReturnUrl(vnp_Params) {
         const secureHash = vnp_Params['vnp_SecureHash'];
@@ -90,14 +94,45 @@ function sortObject(obj) {
 async function getUserLocation(ipAddress) {
     try {
         const response = await axios.get(`https://get.geojs.io/v1/ip/geo/${ipAddress}.json`);
+        const countryCode = response.data.country_code || 'US'; // Fallback to US if no country code
+        const currency = await getCurrencyCode(countryCode);
         return {
-            country: response.data.country,
-            currency: response.data.currency || 'VND', // GeoJs does not provide currency, fallback to VND
-            locale: response.data.country_code.toLowerCase() || 'vn', // Use country code as locale
+            country: response.data.country || 'United States',
+            currency: currency,
+            locale: countryCode.toLowerCase(),
         };
     } catch (error) {
-        console.error('Error fetching location data:', error);
-        return { country: 'Unknown', currency: 'VND', locale: 'vn' }; // Fallback location data
+        console.error('Error fetching location data:', error.message || error);
+        return { country: 'Unknown', currency: 'USD', locale: 'us' }; // Fallback location data
+    }
+}
+
+async function getCurrencyCode(countryCode) {
+    try {
+        const response = await axios.get(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+        if (response.data && response.data[0] && response.data[0].currencies) {
+            const currencyKey = Object.keys(response.data[0].currencies)[0];
+            return currencyKey;
+        }
+        throw new Error('Currency data not found');
+    } catch (error) {
+        console.error('Error fetching currency code:', error.message || error);
+        return 'USD'; // Fallback currency code
+    }
+}
+
+async function convertAmount(amount, currency) {
+    try {
+        const response = await axios.get(`https://api.exchangerate-api.com/v4/latest/USD`);
+        const rate = response.data.rates && response.data.rates[currency];
+        if (!rate) {
+            console.warn(`Exchange rate for ${currency} not found, using default rate.`);
+            return amount; // Fallback to original amount
+        }
+        return amount * rate;
+    } catch (error) {
+        console.error('Error fetching exchange rate:', error.message || error);
+        return amount; // Fallback to original amount
     }
 }
 

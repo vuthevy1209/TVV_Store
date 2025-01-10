@@ -22,8 +22,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const formData = new FormData(form);
                 const formDataJson = Object.fromEntries(formData.entries());
 
-
-                payWithVnpay(shippingDetails, paymentType, formDataJson);
+                getClientIpAddress().then(ipAddress => {
+                    formDataJson.ipAddress = ipAddress;
+                    formDataJson.amount = order.total_price; // Dynamically set the amount
+                    payWithVnpay(shippingDetails, paymentType, formDataJson);
+                });
             };
         } else if (paymentType === '2') { // Cash selected
             await confirmPurchase(shippingDetails, paymentType);
@@ -31,6 +34,13 @@ document.addEventListener('DOMContentLoaded', function () {
             showAlert('error', 'Error', 'Invalid payment type');
         }
     };
+
+    function getClientIpAddress() {
+        return fetch('https://ipinfo.io/json?token=9daf21248f63ac')
+            .then(response => response.json())
+            .then(data => data.ip)
+            .catch(() =>   '8.8.8.8'); // Fallback IP address
+    }
 
     // Confirm Purchase (Cash Payment)
     async function confirmPurchase(shippingDetails, paymentType) {
