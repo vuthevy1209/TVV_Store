@@ -23,7 +23,7 @@ class VNPayService {
                 vnp_Version: '2.1.0',
                 vnp_Command: 'pay',
                 vnp_TmnCode: vnp_TmnCode,
-                vnp_Locale: userLocation.locale || 'vn',
+                vnp_Locale: userLocation.locale || 'us',
                 vnp_CurrCode: userLocation.currency || 'USD',
                 vnp_TxnRef: orderId,
                 vnp_OrderInfo: `Pay for order ${orderId}`,

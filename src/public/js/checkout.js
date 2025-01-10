@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function () {
     const orderDataElement = document.getElementById('order-data');
     const order = JSON.parse(orderDataElement.textContent);
@@ -35,12 +36,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    function getClientIpAddress() {
-        return fetch('https://ipinfo.io/json?token=9daf21248f63ac')
-            .then(response => response.json())
-            .then(data => data.ip)
-            .catch(() =>   '8.8.8.8'); // Fallback IP address
-    }
+    // filepath: /d:/UNIVERSITY/SEMESTER 5th/WEB PROGRAMMING/FINAL PROJECT/TVV_Store/src/public/js/checkout.js
+function getClientIpAddress() {
+    return fetch('/config')
+        .then(response => response.json())
+        .then(config => {
+            const ipInfoToken = config.ipInfoToken;
+            return fetch(`https://ipinfo.io/json?token=${ipInfoToken}`)
+                .then(response => response.json())
+                .then(data => data.ip)
+                .catch(() => '8.8.8.8'); // Fallback IP address
+        })
+        .catch(() => '8.8.8.8'); // Fallback IP address
+}
 
     // Confirm Purchase (Cash Payment)
     async function confirmPurchase(shippingDetails, paymentType) {

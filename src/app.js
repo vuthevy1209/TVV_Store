@@ -146,7 +146,9 @@ app.use('/user', userRouter);
 
 app.use('/carts', cartRouter);
 app.use('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), orderRouter);
-//app.use('/payments', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), paymentRouter);
+app.get('/config', (req, res) => {
+    res.json({ ipInfoToken: process.env.IPINFO_TOKEN });
+});
 app.use('/', homeRouter);
 
 
