@@ -22,7 +22,10 @@
                             <h2 class="product-title text-center">{{productObject.name}}</h2>
                         </div>
                         <div class="col-6">
-                            <h3 class="product-price text-center">Price: ${{productObject.price}}</h3>
+<!--                            <h3 class="product-price text-center">Price: ${{productObject.price}}</h3>-->
+                            <h3 class="product-price text-center">
+                                Price: {{formatCurrency productObject.price 'en-US' 'USD'}}
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -42,7 +45,7 @@
                 <p><span>Inventory Quantity: </span> {{productObject.inventory_quantity}} products</p>
                 <p><span>Category: </span>{{productObject.productCategory.name}}</p>
                 <!--                <p><span>Ngày thêm sản phẩm: </span> 15/10/2024</p>-->
-                <p class="rating"><span>Rating: </span> ★★★★☆ (4/5)</p>
+<!--                <p class="rating"><span>Rating: </span> ★★★★☆ (4/5)</p>-->
             </div>
             <hr>
         </div>

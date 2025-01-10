@@ -30,9 +30,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 const productList = document.getElementById('productList');
                 productList.innerHTML = '';
                 data.productList.forEach(product => {
+
+                    const formattedPrice = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(product.price);
+
                     const productHtml = `
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="/products/${product.id}" style="text-decoration: none;">
+                    
+                            <a href="#" style="text-decoration: none;">
                                 <div class="card">
                                     <div class="brand">${product.productBrand.name}</div>
                                     <div class="product-image">
@@ -41,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <div class="card-body">
                                         ${product.discount > 0 ? `<span class="discount">${product.discount}% off</span>` : ''}
                                         <h5 class="card-title text-center">${product.name}</h5>
-                                        <h6 class="card-price text-center">$${product.price}</h6>
+                                        <h6 class="card-price text-center">${formattedPrice}</h6>
                                     </div>
                                 </div>
                             </a>
