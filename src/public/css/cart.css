@@ -243,4 +243,14 @@ a {
       opacity: 0;
   }
 }
+
+img {
+    border-radius: 5%;
+    object-fit: cover;
+}
+
+.media-body {
+    margin-left: 20px;
+    font-size: 20px;
+}
   

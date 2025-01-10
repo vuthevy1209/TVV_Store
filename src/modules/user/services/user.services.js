@@ -123,17 +123,30 @@ class UserServices {
         });
     }
 
-    async updateUserProfileWithAvatar(userId, firstName, lastName, avatarUrl) {
-        await User.update(
-            {
-                first_name: firstName,
-                last_name: lastName,
-                avatar_url: avatarUrl,
-            },
-            {
-                where: { id: userId },
-            }
-        );
+
+    async updateUserProfileWithAvatar(req, userId, firstName, lastName, avatarUrl) {
+        try {
+            return await sequelize.transaction(async (transaction) => {
+                // Update the avatarUrl in the session
+                req.session.passport.user.avatarUrl = avatarUrl;
+                req.session.save();
+
+                await User.update(
+                    {
+                        first_name: firstName,
+                        last_name: lastName,
+                        avatar_url: avatarUrl,
+                    },
+                    {
+                        where: { id: userId },
+                        transaction
+                    }
+                );
+            });
+        } catch (error) {
+            console.error('Error updating profile with avatar:', error);
+            throw new Error('Error updating profile with avatar');
+        }
     }
 
     async updateUserProfile(userId, firstName, lastName) {

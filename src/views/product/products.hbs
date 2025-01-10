@@ -3,11 +3,9 @@
 <form id="searchForm" class="" method="GET" action="/products/search">
     <div class="container mt-3 mb-3">
         <div class="row">
-            <div class="col-2">
-                <h3>Search</h3>
-
+            <div class="col-3 col-md-2" id="searchFields">
+                <h3 class="d-none d-md-inline">Search</h3>
                 <hr class="my-3">
-
                 <!--                Sort by price-->
                 <div class="filter-group">
                     <label for="sort" style="font-weight: 600; color: red;">Sort By Price</label>
@@ -87,18 +85,24 @@
                 </div>
 
             </div>
-            <div class="col-10">
+            <div class="col-9 col-md-10">
                 <div class="row">
                     <div class="col-12 mb-3">
                         <div class="row">
-                            <div class="col-10">
+                            <div class="col-9 col-md-10">
                                 <input type="text" name="nameOrDescription" placeholder="Search by name or description"
                                        class="search-input" style="text-transform: none;"
                                        value="{{query.nameOrDescription}}">
                             </div>
+<!--                            <div class="col-2">-->
+<!--                                <button class="btn btn-primary search-product-btn" type="submit">Search</button>-->
+<!--                            </div>-->
                             <div class="col-2">
-                                <button class="btn btn-primary" type="submit">Search</button>
+                                <button class="btn btn-primary search-product-btn" type="submit">
+                                    <i class="fas fa-search d-md-none"></i> <span class="d-none d-md-inline">Search</span>
+                                </button>
                             </div>
+
                         </div>
                     </div>
 
@@ -128,22 +132,47 @@
 
                 <hr class="my-3">
 
-                <!--                Pagination-->
+
                 <nav aria-label="Page navigation">
                     <ul class="pagination">
-                        <li class="page-item {{#if pagination.hasPrev}}disabled{{/if}}">
-                            <a class="page-link" href="#" data-page="{{pagination.prevPage}}">Previous</a>
+                        <!-- Previous Button -->
+                        <li class="page-item {{#unless pagination.hasPrev}}disabled{{/unless}}">
+                            <a class="page-link" href="#" data-page="{{pagination.prevPage}}" {{#unless pagination.hasPrev}}tabindex="-1"{{/unless}}>Previous</a>
                         </li>
+
+                        <!-- Page Numbers -->
                         {{#each pagination.pages}}
-                            <li class="page-item {{#if this.active}}active{{/if}}">
-                                <a class="page-link" href="#" data-page="{{this.number}}">{{this.number}}</a>
-                            </li>
+                            {{#if this.inRange}}
+                                <li class="page-item {{#if this.active}}active{{/if}}">
+                                    <a class="page-link" href="#" data-page="{{this.number}}">{{this.number}}</a>
+                                </li>
+                            {{/if}}
                         {{/each}}
-                        <li class="page-item {{#if pagination.hasNext}}disabled{{/if}}">
-                            <a class="page-link" href="#" data-page="{{pagination.nextPage}}">Next</a>
+
+                        <!-- Next Button -->
+                        <li class="page-item {{#unless pagination.hasNext}}disabled{{/unless}}">
+                            <a class="page-link" href="#" data-page="{{pagination.nextPage}}" {{#unless pagination.hasNext}}tabindex="-1"{{/unless}}>Next</a>
                         </li>
                     </ul>
                 </nav>
+
+
+                <!--                Pagination-->
+<!--                <nav aria-label="Page navigation">-->
+<!--                    <ul class="pagination">-->
+<!--                        <li class="page-item {{#if pagination.hasPrev}}disabled{{/if}}">-->
+<!--                            <a class="page-link" href="#" data-page="{{pagination.prevPage}}">Previous</a>-->
+<!--                        </li>-->
+<!--                        {{#each pagination.pages}}-->
+<!--                            <li class="page-item {{#if this.active}}active{{/if}}">-->
+<!--                                <a class="page-link" href="#" data-page="{{this.number}}">{{this.number}}</a>-->
+<!--                            </li>-->
+<!--                        {{/each}}-->
+<!--                        <li class="page-item {{#if pagination.hasNext}}disabled{{/if}}">-->
+<!--                            <a class="page-link" href="#" data-page="{{pagination.nextPage}}">Next</a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </nav>-->
             </div>
         </div>
     </div>

@@ -6,15 +6,7 @@
 /*    box-sizing: border-box;*/
 /*    font-family: Arial, sans-serif;*/
 /*}*/
-#change-password-modal,
-#profile-modal {
-    display: none;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    /*font-family: Arial, sans-serif;*/
-    /*background-color: #f4f4f4;*/
-}
+
 .change-password,
 .update-profile {
     width: 100%;
@@ -36,9 +28,10 @@
     background-color: #d63b42;
 }
 
+
 /* Modal Styles */
 .modal {
-    display: none;
+    display: none; /* Keep the modal hidden by default */
     position: fixed;
     top: 0;
     left: 0;
@@ -48,7 +41,22 @@
     justify-content: center;
     align-items: center;
     z-index: 9000;
+    min-height: 100vh;
+
+    /* Add transition for smooth visibility and movement */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50px); /* Move the modal up initially */
+    transition: opacity 2s ease, visibility 2s ease, transform 1s ease;
 }
+
+.modal.show {
+    display: flex; /* Make it flex to center the content */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Move the modal to its original position */
+}
+
 
 .modal-content {
     background: #fff;
@@ -191,3 +199,42 @@ input#current-password {
     transform: translateY(-50%);
     cursor: pointer;
 }
+
+/* Add this CSS to your stylesheet */
+.dropdown-menu {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+}
+
+/* Add this CSS to your stylesheet */
+.dropdown-menu .dropdown-item:hover {
+    background-color: #f7444e;
+    color: #fff;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.dropdown-container {
+    padding: 0;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+}
+
+.dropdown-icon {
+    margin-right:10px;
+}
+
+#dropdownAvatar {
+    margin-top: -10px;
+    margin-right: 5px;
+    border-radius: 50%;
+    object-fit: cover;
+    width: 35px;
+    height: 35px;
+}
+

@@ -5,7 +5,7 @@ class HomeControllers {
     // [GET] /home
     async index(req, res) {
         try {
-            const products = await productService.getAll();
+            const products = await productService.getSomeProducts(8);
             // Convert each product to a plain object
             const productList = products.map(product => product.get({ plain: true }));
 

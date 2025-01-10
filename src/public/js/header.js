@@ -37,7 +37,6 @@ fetchCartQuantity();
 
 // Update Profile js
 // Modal Elements
-const modal = document.getElementById("profile-modal");
 const openBtn = document.getElementById("open-profile-modal");
 const closeBtn = document.getElementById("close-modal");
 
@@ -49,10 +48,11 @@ const firstNameInput = document.getElementById('first-name');
 const lastNameInput = document.getElementById('last-name');
 
 async function fetchUserData() {
+    showLoading();
     try {
         const response = await fetch('/user/profile');
         const userData = await response.json();
-
+        hideLoading();
         if (response.ok) {
             avatarImg.src = userData.avatarUrl || 'https://via.placeholder.com/150';
             usernameText.textContent = `${userData.firstName} ${userData.lastName}`;
@@ -70,17 +70,17 @@ async function fetchUserData() {
 // Open Modal
 openBtn.addEventListener("click", async () => {
     await fetchUserData();
-    profileModal.style.display = "flex";
+    profileModal.classList.add("show");
 });
 
 // Close Modal
 closeBtn.addEventListener("click", () => {
-    modal.style.display = "none";
+    profileModal.classList.remove("show");
 });
 
 window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-        modal.style.display = "none";
+    if (e.target === profileModal) {
+        profileModal.classList.remove("show");
     }
 });
 
@@ -120,6 +120,7 @@ document.querySelector('.update-profile form').addEventListener('submit', async 
         if (response.ok) {
             document.getElementById('firstName').textContent = formData.get('firstName'); // Update the first name
             document.querySelector('.username').textContent = `${formData.get('firstName')} ${formData.get('lastName')}`; // Update the username
+            document.getElementById('dropdownAvatar').src = result.avatarUrl || '/img/avatar_place_holder.png'; // Update the avatar
             showAlert("success", "Success", result.message);
         } else {
             showAlert("error", "Error", result.message);
@@ -135,15 +136,22 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 });
 
+const changePasswordModal = document.getElementById('change-password-modal');
 
 // change password js
 function openChangePasswordModal() {
-    document.getElementById('change-password-modal').style.display = 'flex';
+    changePasswordModal.classList.add("show");
 }
 
 function closeChangePasswordModal() {
-    document.getElementById('change-password-modal').style.display = 'none';
+    changePasswordModal.classList.remove("show");
 }
+
+window.addEventListener("click", (e) => {
+    if (e.target === changePasswordModal) {
+        changePasswordModal.classList.remove("show");
+    }
+});
 
 const changePasswordForm = document.querySelector('#change-password-modal form');
 

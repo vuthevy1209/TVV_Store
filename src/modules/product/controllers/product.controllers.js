@@ -5,7 +5,7 @@ class ProductController {
     // [GET] /products
     async index(req, res, next) {
         try {
-            const {page = 1, limit = 3 } = req.query;
+            const {page = 1, limit = 8 } = req.query;
             const { productList, productBrandList, productCategoryList, pagination } = await productService.search({
                page: page, limit: limit
             });
@@ -30,7 +30,7 @@ class ProductController {
     // [GET] /products/search
     async search(req, res, next) {
         try {
-            const { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax, page = 1, limit = 3, sort } = req.query;
+            const { nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax, page = 1, limit = 8, sort } = req.query;
             const { productList, productBrandList, productCategoryList, pagination } = await productService.search({
                 nameOrDescription, brand, category, priceMin, priceMax, inventoryQuantityMin, inventoryQuantityMax, page, limit, sort
             });

@@ -12,7 +12,7 @@ passport.serializeUser(function(user, cb) { // store user in session
     process.nextTick(function() {
         console.log(user.firstName)
         console.log(user.lastName)
-        cb(null, { id: user.id, username: user.username, firstName: user.first_name, lastName: user.last_name }); // store id and username in session
+        cb(null, { id: user.id, username: user.username, firstName: user.first_name, lastName: user.last_name, avatarUrl: user.avatar_url }); // store id and username in session
     });
 });
 
