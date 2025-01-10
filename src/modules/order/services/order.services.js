@@ -250,10 +250,11 @@ class OrderService {
     async payWithVNPay(order, shippingDetails, paymentType, formDataJson) {
         try {
             return await sequelize.transaction(async (transaction) => {
+                formDataJson.amount = Decimal.add(order.total_price, shippingDetails.shipping_fee).toNumber();
                 // Create new order
                 const newOrder = await Order.create({
                     customer_id: order.customer_id,
-                    total_price: Decimal.add(order.total_price, shippingDetails.shipping_fee),
+                    total_price: formDataJson.amount,
                     subtotal: order.subtotal,
                     amount_of_items: order.amount_of_items,
                     status: OrderStatusEnum.PENDING.value // Use PENDING until payment is confirmed,
