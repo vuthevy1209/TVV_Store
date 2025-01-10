@@ -68,7 +68,7 @@ class ProductController {
                 return res.status(200).json({reviews, pagination});
             }
 
-            res.render('product/product-details', {  productObject, relatedProductList, reviews, pagination });
+            return res.render('product/product-details', {  productObject, relatedProductList, reviews, pagination });
         } catch (error) {
             console.error('Error finding product:', error);
             next(error);

@@ -42,7 +42,11 @@ const Product = sequelize.define('Product', {
     },
     price: {
         type: DataTypes.DECIMAL,
-        allowNull: false
+        allowNull: false,
+        get() {
+            const rawValue = this.getDataValue('price');
+            return parseFloat(rawValue);
+        }
     },
     image_urls: {
         type: DataTypes.ARRAY(DataTypes.STRING)

@@ -81,7 +81,26 @@ const hbs = engine({
         },
         json: function (context) {
             return JSON.stringify(context);
+        },
+        // Add the formatCurrency helper
+        formatCurrency: function (value, locale = 'en-US', currency = 'USD') {
+            if (typeof value !== 'number') {
+                return value; // Return unformatted value if it's not a number
+            }
+            // Use Math.round to remove the fractional part
+            const integerValue = Math.round(value);
+            // Format with Intl.NumberFormat
+            let formattedCurrency = new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0, // No decimal places
+                maximumFractionDigits: 0, // No decimal places
+            }).format(integerValue);
+
+            return formattedCurrency;
         }
+
+
     },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
