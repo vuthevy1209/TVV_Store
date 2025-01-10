@@ -55,26 +55,47 @@
                                           d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                                 </svg>
                             </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in dropdown-container"
                                  aria-labelledby="userDropdown">
                                 <a id="open-profile-modal" class="dropdown-item" href="#">
-                                    Profile
+                                    <i class="dropdown-icon fa fa-user"></i> Profile
                                 </a>
                                 <a id="open-profile-modal" class="dropdown-item" href="/orders">
-                                    My orders
+                                    <i class="dropdown-icon fa fa-list"></i> My orders
                                 </a>
                                 <a class="dropdown-item" onclick="openChangePasswordModal()" href="#">
-                                    Change password
+                                    <i class="dropdown-icon fa fa-key"></i> Change password
                                 </a>
-                                <a class="dropdown-item" href="#">
-                                    Activity Log
-                                </a>
+<!--                                <a class="dropdown-item" href="#">-->
+<!--                                    <i class="dropdown-icon fa fa-history"></i> Activity Log-->
+<!--                                </a>-->
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="/auth/logout">
-                                    Logout
+                                    <i class="dropdown-icon fa fa-sign-out"></i> Logout
                                 </a>
                             </div>
+
+                            <!-- Dropdown - User Information -->
+<!--                            <div  class="dropdown-menu dropdown-menu-right shadow animated--grow-in dropdown-container"-->
+<!--                                 aria-labelledby="userDropdown">-->
+<!--                                <a id="open-profile-modal" class="dropdown-item" href="#">-->
+<!--                                    Profile-->
+<!--                                </a>-->
+<!--                                <a id="open-profile-modal" class="dropdown-item" href="/orders">-->
+<!--                                    My orders-->
+<!--                                </a>-->
+<!--                                <a class="dropdown-item" onclick="openChangePasswordModal()" href="#">-->
+<!--                                    Change password-->
+<!--                                </a>-->
+<!--                                <a class="dropdown-item" href="#">-->
+<!--                                    Activity Log-->
+<!--                                </a>-->
+<!--                                <div class="dropdown-divider"></div>-->
+<!--                                <a class="dropdown-item" href="/auth/logout">-->
+<!--                                    Logout-->
+<!--                                </a>-->
+<!--                            </div>-->
                         </li>
                     {{else}}
                         <li class="nav-item">

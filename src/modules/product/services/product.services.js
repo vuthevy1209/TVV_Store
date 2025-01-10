@@ -18,6 +18,22 @@ class ProductService {
         });
     }
 
+    async getSomeProducts(limit = 8) {
+        try {
+            const products = await Product.findAll({
+                limit,
+                include: [
+                    { model: ProductCategory, attributes: ['name'] },
+                    { model: ProductBrand, attributes: ['name'] }
+                ]
+            });
+            return products;
+        } catch (error) {
+            console.error('Error getting products:', error);
+            throw error;
+        }
+    }
+
     // Find product by ID
     async findById(id) {
         return await Product.findOne({
