@@ -16,27 +16,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function fetchOrders(page) {
-        getClientIpAddress().then(ipAddress => {
-            const queryString = new URLSearchParams({ page, ipAddress }).toString();
-            window.history.pushState({}, '', `/orders?${queryString}`);
+        const queryString = new URLSearchParams({ page }).toString();
+        window.history.pushState({}, '', `/orders?${queryString}`);
 
-            showLoading();
-            fetch(`/orders?page=${page}&ipAddress=${ipAddress}`, {
-                headers: {
-                    'Accept': 'application/json',
-                },
-            })
-                .then(handleFetchResponse)
-                .then(updateContent)
-                .catch(handleFetchError);
-        });
-    }
-
-    function getClientIpAddress() {
-        return fetch('https://api.ipify.org?format=json')
-            .then(response => response.json())
-            .then(data => data.ip)
-            .catch(() => '127.0.0.1'); // Fallback IP address
+        showLoading();
+        fetch(`/orders?page=${page}`, {
+            headers: {
+                'Accept': 'application/json',
+            }
+        })
+            .then(handleFetchResponse)
+            .then(updateContent)
+            .catch(handleFetchError);
     }
 
     function handleFetchResponse(response) {
@@ -48,13 +39,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateContent(data) {
         renderOrders(data.orders);
-        renderPagination(data.currentPage, data.totalPages);
+        renderPagination(data.pagination);
         hideLoading();
     }
 
     function handleFetchError(error) {
         hideLoading();
-        showAlert('error','Error', error.message);
+        showAlert('error', 'Error', error.message);
     }
 
     function renderOrders(orders) {
@@ -118,31 +109,28 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
     }
-    function renderPagination(currentPage, totalPages) {
+
+    function renderPagination(pagination) {
         paginationContainer.innerHTML = ''; // Clear existing pagination
-        if (currentPage > 1) {
+        if (pagination.hasPrev) {
             paginationContainer.insertAdjacentHTML(
                 'beforeend',
-                `<li class="page-item"><a class="page-link" href="#" data-page="${currentPage - 1}">&laquo;</a></li>`
+                `<li class="page-item"><a class="page-link" href="#" data-page="${pagination.prevPage}">&laquo;</a></li>`
             );
         }
-        for (let i = 1; i <= totalPages; i++) {
+        pagination.pages.forEach(page => {
             paginationContainer.insertAdjacentHTML(
                 'beforeend',
-                `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                `<li class="page-item ${page.active ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${page.number}">${page.number}</a>
                 </li>`
             );
-        }
-        if (currentPage < totalPages) {
+        });
+        if (pagination.hasNext) {
             paginationContainer.insertAdjacentHTML(
                 'beforeend',
-                `<li class="page-item"><a class="page-link" href="#" data-page="${currentPage + 1}">&raquo;</a></li>`
+                `<li class="page-item"><a class="page-link" href="#" data-page="${pagination.nextPage}">&raquo;</a></li>`
             );
         }
     }
-
-
-
-
 });

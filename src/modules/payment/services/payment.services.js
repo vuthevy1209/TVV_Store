@@ -21,7 +21,7 @@ class PaymentService {
 
     async createVNPayUrl(hashOrderId,formDataJson){
         
-        return await vnpayServices.createPaymentUrl(hashOrderId,formDataJson.amount,formDataJson.bankCode,formDataJson.ipAddress);
+        return await vnpayServices.createPaymentUrl(hashOrderId,formDataJson.amount,formDataJson.bankCode, formDataJson.ipAddress);
     }
 
     async findAllTypes() {

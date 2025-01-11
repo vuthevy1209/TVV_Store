@@ -12,6 +12,7 @@ const Product = require('../../product/models/product');
 class CartService {
     async findAllByUserId(userId) {
         const customer = await customerServices.getByUserId(userId);
+        if (customer.is_deleted) throw new Error('Customer is deleted');
         const cart = await this.getCartByCustomerId(customer.id);
         const items = await this.getCartItemsByCartId(cart.id);
 
@@ -45,10 +46,9 @@ class CartService {
         }
     }
 
-
-
     async updateMultipleItems(userId, products) {
         const customer = await customerServices.getByUserId(userId);
+        if (customer.is_deleted) throw new Error('Customer is deleted');
         const cart = await this.getCartByCustomerId(customer.id);
 
         const { cartTotalPrice, cartAmountOfItems, newItemsTotalPrice } = await this.#updateCartItems(cart, products);
@@ -71,6 +71,7 @@ class CartService {
 
     async findAmountOfItemsByCustomerId(userId) {
         const customer = await customerServices.getByUserId(userId);
+        if (customer.is_deleted) throw new Error('Customer is deleted');
         const cart = await this.getCartByCustomerId(customer.id);
         return cart?.amount_of_items || 0;
     }
@@ -85,8 +86,8 @@ class CartService {
     }
 
     async getCartByCustomerId(customerId) {
-        const cart = Cart.findOne({ 
-            where: { customer_id: customerId },
+        const cart = await Cart.findOne({ 
+            where: { customer_id: customerId, is_open: true },
         });
             
         if (!cart) throw new Error('Cart not found');
@@ -97,7 +98,7 @@ class CartService {
         const items = await CartItem.findAll({
             where: { cart_id: cartId },
             include:[
-                {model: Product, as: 'product'}
+                {model: Product, as: 'product', where: { business_status: false } }
             ]
         });
         return items;
@@ -151,15 +152,11 @@ class CartService {
         for (const productId in products) {
             const quantity = products[productId];
 
-            if(quantity === 0 ){
-                throw new Error('Invalid quantity');
-            }
-
             const item = await CartItem.findOne({ where: { cart_id: cart.id, product_id: productId } });
             const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
-
+            if (quantity > 0 && product.business_status !== false) throw new Error('Product is not available');
             if (quantity > product.inventory_quantity) throw new Error('Quantity exceeds inventory');
 
             const productPrice = DecimalUtils.toDecimal(product.price);
@@ -195,14 +192,11 @@ class CartService {
 
         for (const productId in products) {
             const quantity = products[productId];
-
-            if(quantity === 0 ){
-                throw new Error('Invalid quantity');
-            }
-
+            
             const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
+            if (quantity>0 && product.business_status !== false) throw new Error('Product is not available');
             if (quantity > product.inventory_quantity) throw new Error('Quantity exceeds inventory');
 
             const productPrice = DecimalUtils.toDecimal(product.price);
