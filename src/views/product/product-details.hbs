@@ -229,6 +229,12 @@
             const productId = addToCartBtn.getAttribute('data-id');
             const quantity = parseInt(quantityInput.value);
 
+            if(quantity===0){
+                hideLoading();
+                showAlert('error','Error', 'Quantity must be greater than 0');
+                return;
+            }
+
             const products = {};
             products[productId] = quantity;
 
