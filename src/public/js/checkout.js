@@ -13,11 +13,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const shippingDetails = getShipmentDetails();
 
         if (paymentType === '1') { // VNPay selected
-            vnpayModal.style.display = 'flex';
+            document.getElementById('vnpayModal').classList.add('show');
 
             document.getElementById('vnpayRedirectBtn').onclick = async function (event) {
                 event.preventDefault();
-                vnpayModal.style.display = 'none';
+                document.getElementById('vnpayModal').classList.remove('show');
 
                 const form = document.getElementById('vnpayForm');
                 const formData = new FormData(form);

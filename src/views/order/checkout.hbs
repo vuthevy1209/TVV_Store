@@ -149,7 +149,7 @@
                     <select name="language" style="width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box;">
                         {{!-- <option value="vn" selected>Tiếng Việt</option>
                         <option value="en">English</option> --}}
-                        <option value="vn" selected>My country (default)</option>
+                        <option value="vn" selected>Your area (support English and Vietnamese)</option>
                     </select>
                 </div>
                 <button type="submit" id="vnpayRedirectBtn" style="background-color: #4CAF50; color: white; padding: 15px 20px; margin: 10px 0; border: none; cursor: pointer; width: 100%; border-radius: 5px;">Confirm Payment</button>
@@ -189,7 +189,7 @@
 
     // Close VNPay Modal
     function closePaymentModal() {
-        vnpayModal.style.display = 'none';
+        document.getElementById('vnpayModal').classList.remove('show');
     }
 </script>
 <script type="application/json" id="order-data">
