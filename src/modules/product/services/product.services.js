@@ -248,9 +248,6 @@ class ProductService {
 
     async updateProductInventory(id, quantity) {
         const product = await Product.findByPk(id);
-        if(quantity===0){
-            throw new Error('Can not update inventory with 0 quantity');
-        }
         if (product.inventory_quantity < quantity) {
             throw new Error('Product' + product.name + ' is out of stock' + ' (available: ' + product.inventory_quantity + ')');
         }
