@@ -1,6 +1,4 @@
 <link rel="stylesheet" href="/css/orders.css">
-
-
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
 
 <div class="container mt-4">
@@ -13,19 +11,15 @@
                 </div>
                 <div class="d-flex my-4 flex-wrap">
                     <div class="box me-4 my-1 bg-light">
-                        <img src="https://www.freepnglogos.com/uploads/box-png/cardboard-box-brown-vector-graphic-pixabay-2.png"
-                            alt="">
+                        <img src="https://www.freepnglogos.com/uploads/box-png/cardboard-box-brown-vector-graphic-pixabay-2.png" alt="">
                         <div class="d-flex align-items-center mt-2">
                             <div class="tag">Orders placed</div>
-
                         </div>
                     </div>
                     <div class="box me-4 my-1 bg-light ml-4">
-                        <img src="https://www.freepnglogos.com/uploads/love-png/love-png-heart-symbol-wikipedia-11.png"
-                            alt="">
+                        <img src="https://www.freepnglogos.com/uploads/love-png/love-png-heart-symbol-wikipedia-11.png" alt="">
                         <div class="d-flex align-items-center mt-2">
                             <div class="tag">Wishlist</div>
-
                         </div>
                     </div>
                 </div>
@@ -37,21 +31,16 @@
                             <div class="col-lg-10">
                                 <div class="d-flex flex-column justify-content-between order-summary">
                                     <div class="d-flex align-items-center">
-                                        <div class="text-uppercase flex-grow-1 text-nowrap">Order #{{this.id}}
-                                        </div>
-
+                                        <div class="text-uppercase flex-grow-1 text-nowrap">Order #{{this.id}}</div>
                                     </div>
                                     <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
                                         <div class="status">Order Status : {{this.statusName}}</div>
-
                                     </div>
                                     {{#if this.paymentDetails}}
                                     <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
-                                        <div class="status">Payment Status : {{this.paymentDetails.status}}
-                                        </div>
+                                        <div class="status">Payment Status : {{this.paymentDetails.status}}</div>
                                     </div>
                                     {{/if}}
-
                                     <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
                                         <div class="status">Total: {{this.total_price}}</div>
                                     </div>
@@ -61,26 +50,22 @@
                                     {{#if (eq this.status 0)}}
                                         {{#unless this.paymentDetails}}
                                         <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
-                                            <div style="color: red;">Your order has not confirmed yet. 
-                                            </div>
+                                            <div style="color: red;">Your order has not confirmed yet.</div>
                                         </div>
                                         <div class="d-sm-flex align-items-sm-start justify-content-sm-between">
-                                            <div style="color: red;">Please confirm before{{this.expired_at}}
-                                            </div>
+                                            <div style="color: red;">Please confirm before {{this.expired_at}}</div>
                                         </div>
                                         {{/unless}}
                                     {{/if}}
                                     <div class="fs-8">Created at: {{this.created_at}}</div>
                                     <div class="rating d-flex align-items-center pt-1">
-                                        <img src="https://www.freepnglogos.com/uploads/like-png/like-png-hand-thumb-sign-vector-graphic-pixabay-39.png"
-                                            alt="">
+                                        <img src="https://www.freepnglogos.com/uploads/like-png/like-png-hand-thumb-sign-vector-graphic-pixabay-39.png" alt="">
                                         <span class="px-2">Rating:</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="d-sm-flex align-items-sm-start justify-content-end">
-
                                     {{#unless (eq this.status 4)}}
                                         {{#if (eq this.status 0)}}
                                         <a href="/orders/checkout/vnpay/continue/{{this.hashOrderId}}" class="ms-auto">
