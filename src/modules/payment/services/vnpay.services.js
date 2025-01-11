@@ -16,8 +16,15 @@ class VNPayService {
                 : process.env.DEV_BASE_URL;
             const vnpReturnUrl = `${BASE_URL}${vnp_ReturnUrl}`;
     
-            const userLocation = await getUserLocation(ipAddress);
-            const convertedAmount = await convertAmount(amount, userLocation.currency);
+            let userLocation = await getUserLocation(ipAddress);
+            let convertedAmount;
+            try {
+                convertedAmount = await convertAmount(amount, userLocation.currency);
+            } catch (error) {
+                console.error('Error converting amount, falling back to USD:', error.message || error);
+                userLocation = { country: 'United States', currency: 'USD', locale: 'us' };
+                convertedAmount = amount;
+            }
     
             let vnp_Params = {
                 vnp_Version: '2.1.0',
@@ -51,7 +58,6 @@ class VNPayService {
         }
     }
     
-
     verifyReturnUrl(vnp_Params) {
         const secureHash = vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHash'];
@@ -103,7 +109,7 @@ async function getUserLocation(ipAddress) {
         };
     } catch (error) {
         console.error('Error fetching location data:', error.message || error);
-        return { country: 'Unknown', currency: 'USD', locale: 'us' }; // Fallback location data
+        return { country: 'United States', currency: 'USD', locale: 'us' }; // Fallback location data
     }
 }
 

@@ -150,6 +150,11 @@ class CartService {
 
         for (const productId in products) {
             const quantity = products[productId];
+
+            if(quantity === 0 ){
+                throw new Error('Invalid quantity');
+            }
+
             const item = await CartItem.findOne({ where: { cart_id: cart.id, product_id: productId } });
             const product = await productService.findById(productId);
 
@@ -190,6 +195,11 @@ class CartService {
 
         for (const productId in products) {
             const quantity = products[productId];
+
+            if(quantity === 0 ){
+                throw new Error('Invalid quantity');
+            }
+
             const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
