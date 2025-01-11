@@ -97,7 +97,7 @@ class CartService {
         const items = await CartItem.findAll({
             where: { cart_id: cartId },
             include:[
-                {model: Product, as: 'product'}
+                {model: Product, as: 'product', where: { business_status: false }}
             ]
         });
         return items;

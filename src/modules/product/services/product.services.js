@@ -37,7 +37,10 @@ class ProductService {
     // Find product by ID
     async findById(id) {
         return await Product.findOne({
-            where: {id},
+            where: [
+                {id: id},
+                {business_status: false}
+            ],
             include: [
                 {model: ProductCategory, attributes: ['name']},
                 {model: ProductBrand, attributes: ['name']}
