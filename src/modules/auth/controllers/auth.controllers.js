@@ -40,6 +40,9 @@ class AuthController {
                 return res.status(400).json({message: 'Please verify your email before logging in.'});
             }
 
+            if(user.status === false) {
+                return res.status(400).json({message: 'Your account has been suspended by the administrator. For further details, please contact us at lctvuthqb@gmail.com.'});
+            }
 
             req.logIn(user, async (err) => {
                 if (err) {
@@ -101,8 +104,6 @@ class AuthController {
             });
         })(req, res, next);
     }
-
-
 
 
     // [POST] /register
