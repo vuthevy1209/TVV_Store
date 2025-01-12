@@ -54,7 +54,7 @@ async function fetchUserData() {
         const userData = await response.json();
         hideLoading();
         if (response.ok) {
-            avatarImg.src = userData.avatarUrl || 'https://via.placeholder.com/150';
+            avatarImg.src = userData.avatarUrl || '/img/avatar_place_holder.png';
             usernameText.textContent = `${userData.firstName} ${userData.lastName}`;
             emailText.textContent = `Email: ${userData.email}`;
             firstNameInput.value = userData.firstName;
