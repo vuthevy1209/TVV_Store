@@ -11,6 +11,7 @@ class ProductService {
     // Get all products
     async getAll() {
         return await Product.findAll({
+            where: { business_status: true },
             include: [
                 {model: ProductCategory, attributes: ['name']},
                 {model: ProductBrand, attributes: ['name']}
@@ -21,6 +22,7 @@ class ProductService {
     async getSomeProducts(limit = 8) {
         try {
             const products = await Product.findAll({
+                where: { business_status: true },
                 limit,
                 include: [
                     { model: ProductCategory, attributes: ['name'] },
@@ -39,7 +41,7 @@ class ProductService {
         return await Product.findOne({
             where: [
                 {id: id},
-                {business_status: false}
+                {business_status: true}
             ],
             include: [
                 {model: ProductCategory, attributes: ['name']},
@@ -53,7 +55,8 @@ class ProductService {
         return await Product.findAll({
             where: {
                 id: {[Op.ne]: productId},  // Exclude the current product
-                brand_id: brand
+                brand_id: brand,
+                business_status: true
             },
             limit: 4,
             include: [
@@ -75,7 +78,7 @@ class ProductService {
                      limit = 8,
                      sort
                  }) {
-        const query = {};
+        const query = { business_status: true };
 
         // Convert string type of numeric fields to numeric values
         if (priceMin) priceMin = parseFloat(priceMin);
