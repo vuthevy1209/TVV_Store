@@ -43,10 +43,11 @@ const User = sequelize.define('User', {
             key: 'id',
         },
     },
+    // true: unban ; false: ban
     status: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: true,
     },
     is_deleted: {
         type: DataTypes.BOOLEAN,
