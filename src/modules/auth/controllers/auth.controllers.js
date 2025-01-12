@@ -180,7 +180,7 @@ class AuthController {
     async confirmResetPassword(req, res) {
         try {
             const {token} = req.query;
-            await authService.verifyRxesetPassword(token);
+            await authService.verifyResetPassword(token);
             req.flash('success', 'A reset password email has been sent to your email. Please check your email to reset your password.');
             res.redirect('/auth/login-register');
         } catch (error) {
