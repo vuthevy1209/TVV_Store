@@ -185,7 +185,7 @@ class OrderService {
     async getOrderItems(orderId) {
         return OrderItem.findAll({
             where: { order_id: orderId },
-            include: [{ model: Product, as: 'product', where: { business_status: false } }],
+            include: [{ model: Product, as: 'product', where: { business_status: true } }],
         });
     }
 
@@ -208,7 +208,7 @@ class OrderService {
         let amountOfItemsInOrder = 0;
 
         await Promise.all(cartItems.map(async (cartItem) => {
-            if (cartItem.product.business_status !== false) throw new Error('Product is not available');
+            if (cartItem.product.business_status !== true) throw new Error('Product is not available');
             orderItems.push({
                 product: {
                     id: cartItem.product.id,

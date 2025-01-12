@@ -98,7 +98,7 @@ class CartService {
         const items = await CartItem.findAll({
             where: { cart_id: cartId },
             include:[
-                {model: Product, as: 'product', where: { business_status: false } }
+                {model: Product, as: 'product', where: { business_status: true } }
             ]
         });
         return items;
@@ -156,7 +156,7 @@ class CartService {
             const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
-            if (quantity > 0 && product.business_status !== false) throw new Error('Product is not available');
+            if (quantity > 0 && product.business_status !== true) throw new Error('Product is not available');
             if (quantity > product.inventory_quantity) throw new Error('Quantity exceeds inventory');
 
             const productPrice = DecimalUtils.toDecimal(product.price);
@@ -196,7 +196,7 @@ class CartService {
             const product = await productService.findById(productId);
 
             if (!product) throw new Error('Product not found');
-            if (quantity>0 && product.business_status !== false) throw new Error('Product is not available');
+            if (quantity>0 && product.business_status !== true) throw new Error('Product is not available');
             if (quantity > product.inventory_quantity) throw new Error('Quantity exceeds inventory');
 
             const productPrice = DecimalUtils.toDecimal(product.price);
