@@ -59,6 +59,7 @@
 
 
 .modal-content {
+    display: table;
     background: #fff;
     border-radius: 10px;
     width: 90%;

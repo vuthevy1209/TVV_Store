@@ -57,13 +57,6 @@ const BASE_URL = process.env.NODE_ENV === 'production'
     : process.env.DEV_BASE_URL;
 
 
-const clientID = process.env.GOOGLE_CLIENT_ID;
-const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-if (!clientID || !clientSecret) {
-    throw new Error('Google client ID and secret must be provided');
-}
-
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,

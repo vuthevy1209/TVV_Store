@@ -1,34 +1,41 @@
 // place it add the top to ensure that all env is loaded before any code that needs .env executed
 require('dotenv').config(); // load the env variables
-
-
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const AuthController = require('./modules/auth/controllers/auth.controllers');
-
-var app = express();
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
-app.use(cookieParser());
-
-// Connect to database
 const {connect} = require("./config/database");
-connect();
-
-// passport
 const passport = require('./config/auth/passport');
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const {sequelize} = require('./config/database'); // Adjust the path to your Sequelize instance
 const MongoStore = require('connect-mongo');
 const mongoDb = require('./config/database/mongo');
+const FederatedCredential = require('./modules/auth/models/federatedCredential');
+const User = require('./modules/user/models/user');
+const productService = require('./modules/product/services/product.services');
+const hbsHelpers = require('handlebars-helpers');
+const {engine} = require('express-handlebars');
+const flash = require('connect-flash');
+require('./utils/node-cron');
+
+
+const app = express();
+
+// Basic middlewares
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
+
+
+// Databases connection
+connect();
 mongoDb.connect();
 
+// Session
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -43,28 +50,15 @@ app.use(session({
     }),
 }));
 
-// const cartSessionMiddleware = require('./modules/cart/middlewares/cartSession.middlewares');
-// app.use(cartSessionMiddleware);
-
+// Passport
 app.use(passport.initialize());
-// app.use(passport.authenticate('session'));
 app.use(passport.session());
 
-const FederatedCredential = require('./modules/auth/models/federatedCredential');
-const User = require('./modules/user/models/user');
 
-
-
-
-
-// flash
-const flash = require('connect-flash');
+// Flash message
 app.use(flash());
 
-// view
-const hbsHelpers = require('handlebars-helpers');
-const {engine} = require('express-handlebars');
-
+// HandleBars setup
 const hbs = engine({
     extname: '.hbs',
     // set these things explixity to avoid confusion
@@ -107,13 +101,9 @@ const hbs = engine({
         allowProtoMethodsByDefault: true,
     }
 });
-
-
-// Template engine
 app.engine('.hbs', hbs);
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
-
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -129,7 +119,6 @@ app.use((req, res, next) => {
 });
 
 // Index products when the application starts
-const productService = require('./modules/product/services/product.services');
 productService.indexProducts().then(() => {
     console.log('Products indexed successfully');
 }).catch(err => {
@@ -137,39 +126,9 @@ productService.indexProducts().then(() => {
 });
 
 
-// routes
-const authRouter = require('./modules/auth/routes/auth.routes');
-const productRouter = require('./modules/product/routes/product.routes');
-const homeRouter = require('./modules/home/routes/home.routes');
-const cartRouter = require('./modules/cart/routes/cart.routes');
-const orderRouter = require('./modules/order/routes/order.routes');
-const connectEnsureLogin = require('connect-ensure-login');
-const userRouter = require('./modules/user/routes/user.routes');
-const paymentRouter = require('./modules/payment/routes/payment.routes');
-
-app.use('/auth/login/google' , passport.authenticate('google'));
-app.use('/oauth2/redirect/google', AuthController.googleCallback);
-
-// app.use('/oauth2/redirect/google', passport.authenticate('google', {
-//     successRedirect: '/home',
-//     failureRedirect: '/auth/login-register',
-//     keepSessionInfo: true
-//
-// }));
-
-require('./utils/node-cron');
-
-
-app.use('/auth', authRouter);
-app.use('/products', productRouter);
-app.use('/user', userRouter);
-
-app.use('/carts', cartRouter);
-app.use('/orders', connectEnsureLogin.ensureLoggedIn({ setReturnTo: true, redirectTo: '/auth/login-register' }), orderRouter);
-app.get('/config', (req, res) => {
-    res.json({ ipInfoToken: process.env.IPINFO_TOKEN });
-});
-app.use('/', homeRouter);
+// Import and use routes
+const routes = require('./routes/routes');
+app.use(routes);
 
 
 // Catch-all for 404 errors
