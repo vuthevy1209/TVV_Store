@@ -128,9 +128,9 @@ class ProductService {
         });
 
         const productList = products.map(product => product.get({plain: true}));
-        const brands = await ProductBrand.findAll();
+        const brands = await this.getAllBrands();
         const productBrandList = brands.map(brand => brand.get({plain: true}));
-        const categories = await ProductCategory.findAll();
+        const categories = await this.getAllCategories();
         const productCategoryList = categories.map(category => category.get({plain: true}));
 
         const totalPages = Math.ceil(totalProducts / limit);
@@ -183,12 +183,12 @@ class ProductService {
 
     // Get all brands
     async getAllBrands() {
-        return await ProductBrand.findAll();
+        return await ProductBrand.findAll({ where: { business_status: true } });
     }
 
     // Get all categories
     async getAllCategories() {
-        return await ProductCategory.findAll();
+        return await ProductCategory.findAll({ where: { business_status: true } });
     }
 
 
