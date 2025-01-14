@@ -41,14 +41,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     const productHtml = `
                         <div class="col-lg-3 col-md-6 mb-4">
                     
-                            <a href="#" style="text-decoration: none;">
+                            <a href="/products/${product.id}" style="text-decoration: none;">
                                 <div class="card">
                                     <div class="brand">${product.productBrand.name}</div>
                                     <div class="product-image">
                                         <img src="${product.image_urls[0]}" alt="Product" />
                                     </div>
                                     <div class="card-body">
-                                        ${product.discount > 0 ? `<span class="discount">${product.discount}% off</span>` : ''}
+<!--                                        ${product.discount > 0 ? `<span class="discount">${product.discount}% off</span>` : ''}-->
                                         <h5 class="card-title text-center">${product.name}</h5>
                                         <h6 class="card-price text-center">${formattedPrice}</h6>
                                     </div>
